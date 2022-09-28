@@ -1,0 +1,104 @@
+plugins {
+    id 'java'
+}
+
+group = 'bridge'
+version = '1.1-SNAPSHOT'
+
+test {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'papermc-repo'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+    //PlaceholderAPI
+    maven {
+        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+    }
+    //TAB
+    maven { url 'https://repo.kryptonmc.org/releases' }
+    //spigot NMS
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        content {
+            includeGroup 'org.bukkit'
+            includeGroup 'org.spigotmc'
+        }
+    }
+    //maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    //maven { url = 'https://oss.sonatype.org/content/repositories/central' }
+    mavenLocal()
+}
+
+dependencies {
+    //Paper
+    compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
+
+    //spigot NMS
+    compileOnly 'org.spigotmc:spigot:1.19-R0.1-SNAPSHOT'
+
+    //Bungee
+    compileOnly 'net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT'
+
+    //Mysql
+    compileOnly 'com.zaxxer:HikariCP:5.0.1'
+
+    //SQLite
+    implementation('org.xerial:sqlite-jdbc:3.39.3.0')
+
+    //Kyori Adventure Library
+    implementation("net.kyori:adventure-api:4.11.0")
+
+    //Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    //Test JUnit
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+
+    //PlaceholderAPI
+    compileOnly 'me.clip:placeholderapi:2.11.2'
+
+    //TAB
+    compileOnly 'me.neznamy:tab-api:3.1.4'
+}
+
+def targetJavaVersion = 17
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release = targetJavaVersion
+    }
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+    filesMatching('bungee.yml') {
+        expand props
+    }
+}

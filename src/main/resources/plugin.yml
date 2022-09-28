@@ -1,0 +1,20 @@
+name: Bridge
+version: '${version}'
+main: Bridge
+api-version: 1.19
+prefix: BR
+authors: [ Astroreen ]
+description: Make your live much more interesting
+softdepend:
+  - PlaceholderAPI
+  - TAB
+  - EssentialsX
+commands:
+  bridge:
+    description: General bridge command
+    usage: /<command>
+    permission: bridge.admin
+    aliases: [br]
+permissions:
+  bridge.admin:
+    default: op

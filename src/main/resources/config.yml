@@ -1,0 +1,19 @@
+hook:
+  placeholderapi: true
+  tab: true
+
+settings:
+  language: ru
+
+#MySQL. Если данные для подключения вписаны неправильно,
+#то данные будут записываться в локальную базу данных.
+mysql:
+  enabled: false
+  prefix: 'br_'
+  host: ''
+  port: ''
+  database: ''
+  user: ''
+  password: ''
+
+debug: false
