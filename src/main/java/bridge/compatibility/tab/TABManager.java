@@ -33,14 +33,13 @@ public class TABManager implements Listener, TabEvent {
     private final Saver saver = instance.getSaver();
     private final Connector con;
     private final Currency currency;
-    private ConfigurationFile colorConfig;
     public TABManager () {
         con = new Connector();
         currency = new Stars(con);
     }
 
     protected void register () {
-        if(!NicknameColorManager.setup(con, currency)) return;
+        if(!NicknameColorManager.setup(con)) return;
         Bukkit.getPluginManager().registerEvents(this, instance);
         TabAPI.getInstance().getEventBus().register(this);
     }

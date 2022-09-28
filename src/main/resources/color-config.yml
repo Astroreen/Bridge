@@ -3,6 +3,8 @@ settings:
     - testgroup
     - Astroreen
   WhitelistMode: false
+  #Сколько может прожить информация об игроке в памяти.
+  UpdateTime: 10 #в минутах
 
 default: "#CCFFCC"
 groups:

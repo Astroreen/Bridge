@@ -6,7 +6,6 @@ import bridge.database.Connector;
 import bridge.database.QueryType;
 import bridge.database.Saver;
 import bridge.database.UpdateType;
-import bridge.modules.Currency;
 import bridge.utils.ColorCodes;
 import lombok.CustomLog;
 import me.neznamy.tab.api.TabAPI;
@@ -17,6 +16,9 @@ import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,30 +32,38 @@ import java.util.*;
 public class NicknameColorManager {
 
     private static Connector con;
-    private static Currency currency;
     private static ConfigurationFile colorConfig;
-    private static HashMap<String, List<Colors>> ramColors;
-    private static HashMap<UUID, String> playerHex;
+    private static long UpdateTime;
     private static final Bridge instance = Bridge.getInstance();
     private static final Saver saver = instance.getSaver();
+    private static final HashMap<String, List<Colors>> ramColors = new HashMap<>();
+    private static final HashMap<UUID, String> playerHex = new HashMap<>();
+    private static BukkitTask task;
+    private static final BukkitRunnable runnable = new BukkitRunnable() {
+        @Override
+        public void run() {
+            playerHex.clear();
+        }
+    };
 
     /**
      * Creating a color-config to use for color groups.
      *
-     * @param currency {@link Currency} to use
      * @param con      {@link Connector} instance
      * @return true if successful
      */
-    protected static boolean setup(final Connector con, final Currency currency) {
+    protected static boolean setup(final Connector con) {
         NicknameColorManager.con = con;
-        NicknameColorManager.currency = currency;
-        NicknameColorManager.ramColors = new HashMap<>();
         try {
             colorConfig = ConfigurationFile.create(new File(instance.getDataFolder(), "color-config.yml"), instance, "color-config.yml");
         } catch (final InvalidConfigurationException | FileNotFoundException e) {
             LOG.warn(e.getMessage(), e);
             return false;
         }
+
+
+        UpdateTime = colorConfig.getLong("settings.UpdateTime")*1200;
+        task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
         return true;
     }
 
@@ -97,6 +107,7 @@ public class NicknameColorManager {
             if (setting == null) return null;
             return setting.split(" ", 2)[0];
         }
+        if(ramColors.containsKey(group)) return null;
         for (Colors colors : ramColors.get(group)) {
             if (colors.name().equalsIgnoreCase(color)) return colors.hex();
         }
@@ -116,6 +127,7 @@ public class NicknameColorManager {
             if (setting == null) return -1;
             return Integer.parseInt(setting.split(" ", 2)[1], 10);
         }
+        if(ramColors.containsKey(group)) return -1;
         for (Colors colors : ramColors.get(group)) {
             if (colors.name().equalsIgnoreCase(color)) return colors.cost();
         }
@@ -174,20 +186,30 @@ public class NicknameColorManager {
 
     protected static void reload() {
         ramColors.clear();
-        if (instance.isConfigSet()) {
-            for (String group : getGroups()) {
-                List<String> groupColors = getGroupColors(group);
-                List<Colors> list = new ArrayList<>();
-                for (int i = 0; i <= groupColors.size(); i++) {
-                    list.add(new Colors(
-                            groupColors.get(i),
-                            getGroupColor(group, groupColors.get(i)),
-                            getColorCost(group, groupColors.get(i))
-                    ));
+        playerHex.clear();
+        task.cancel();
+        UpdateTime = colorConfig.getLong("settings.UpdateTime")*1200;
+        task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (instance.isConfigSet()) {
+                    for (String group : getGroups()) {
+                        List<String> groupColors = getGroupColors(group);
+                        List<Colors> list = new ArrayList<>();
+                        for (int i = 0; i <= groupColors.size(); i++) {
+                            list.add(new Colors(
+                                    groupColors.get(i),
+                                    getGroupColor(group, groupColors.get(i)),
+                                    getColorCost(group, groupColors.get(i))
+                            ));
+                        }
+                        ramColors.put(group, list);
+                    }
                 }
-                ramColors.put(group, list);
             }
-        }
+        }.runTaskAsynchronously(instance);
+
     }
 
     /**
@@ -221,6 +243,11 @@ public class NicknameColorManager {
 
         if(returnHex) return hex;
         else return getColorNameByHex(hex);
+    }
+
+    @Contract(pure = true)
+    public static @NotNull Set<Map.Entry<UUID, String>> getLatelyUsedPlayers () {
+        return playerHex.entrySet();
     }
 
     private record Colors(String name, String hex, int cost) {
