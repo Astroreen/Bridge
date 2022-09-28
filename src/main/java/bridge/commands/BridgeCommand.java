@@ -3,7 +3,6 @@ package bridge.commands;
 import bridge.Bridge;
 import bridge.MessageType;
 import bridge.compatibility.tab.NicknameColorManager;
-import bridge.compatibility.tab.TABManager;
 import bridge.config.Config;
 import bridge.modules.logger.DebugHandlerConfig;
 import lombok.CustomLog;
@@ -94,7 +93,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
         if (args[1].equalsIgnoreCase("stars")) {
             if (args.length == 2) {
                 if(sender instanceof Player player) {
-                    String hex = NicknameColorManager.getPlayerColor(player.getUniqueId());
+                    String hex = NicknameColorManager.getPlayerColor(player.getUniqueId(), true);
                     Config.sendMessage(
                             player,
                             MessageType.YOUR_CURRENT_NICKNAME_COLOR,
