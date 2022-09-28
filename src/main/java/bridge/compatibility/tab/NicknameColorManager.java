@@ -7,6 +7,7 @@ import bridge.database.QueryType;
 import bridge.database.Saver;
 import bridge.database.UpdateType;
 import bridge.modules.Currency;
+import bridge.utils.ColorCodes;
 import lombok.CustomLog;
 import me.neznamy.tab.api.TabAPI;
 import me.neznamy.tab.api.TabPlayer;
@@ -23,16 +24,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @CustomLog
 public class NicknameColorManager {
 
-    private static ConfigurationFile colorConfig;
-    private static Currency currency;
     private static Connector con;
+    private static Currency currency;
+    private static ConfigurationFile colorConfig;
+    private static HashMap<String, List<Colors>> ramColors;
     private static final Bridge instance = Bridge.getInstance();
     private static final Saver saver = instance.getSaver();
 
@@ -46,11 +46,18 @@ public class NicknameColorManager {
     protected static boolean setup(final Connector con, final Currency currency) {
         NicknameColorManager.con = con;
         NicknameColorManager.currency = currency;
+        NicknameColorManager.ramColors = new HashMap<>();
         try {
             colorConfig = ConfigurationFile.create(new File(instance.getDataFolder(), "color-config.yml"), instance, "color-config.yml");
         } catch (final InvalidConfigurationException | FileNotFoundException e) {
             LOG.warn(e.getMessage(), e);
             return false;
+        }
+
+        if(instance.isConfigSet()){
+            for(String group : getGroups()){
+                //getGroupColors(group)
+            }
         }
         return true;
     }
@@ -183,6 +190,14 @@ public class NicknameColorManager {
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
             return null;
+        }
+    }
+
+    private record Colors(String name, String hex, int cost){
+        private Colors(String name, String hex, int cost){
+            this.name = name;
+            this.hex = ColorCodes.isHexValid(hex) ? hex : null;
+            this.cost = cost < 0 ? cost*(-1) : cost;
         }
     }
 }

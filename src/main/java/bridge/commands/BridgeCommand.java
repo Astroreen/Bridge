@@ -3,6 +3,7 @@ package bridge.commands;
 import bridge.Bridge;
 import bridge.MessageType;
 import bridge.compatibility.tab.NicknameColorManager;
+import bridge.compatibility.tab.TABManager;
 import bridge.config.Config;
 import bridge.modules.logger.DebugHandlerConfig;
 import lombok.CustomLog;
@@ -37,7 +38,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
             LOG.debug("Executing /bridge command for user " + sender.getName()
                     + " with arguments: " + Arrays.toString(args));
             // if the command is empty, display help message
-            if (args.length <= 0) {
+            if (args.length == 0) {
                 //TODO displayHelp(sender, alias);
                 return true;
             }
@@ -110,6 +111,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                 final int value = Integer.parseInt(args[3], 10);
 
                 if (args[2].equalsIgnoreCase("set")) {
+
                     //TODO set color via database
                 }
 
