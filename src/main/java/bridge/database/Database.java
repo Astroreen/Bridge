@@ -44,8 +44,8 @@ public abstract class Database {
     /**
      * Modify existing table and add new column to it.
      *
-     * @param tableName      name of table without prefix from config
-     * @param columnName     name of new column
+     * @param tableName      color of table without prefix from config
+     * @param columnName     color of new column
      * @param columnDataType data type of new column (e.g. VARCHAR(30), INT, TEXT)
      */
     public abstract void createColumn(final String tableName, final String columnName, final String columnDataType);

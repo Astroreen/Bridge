@@ -51,8 +51,8 @@ public abstract class Currency {
     }
 
     /**
-     * Get currency name.
-     * @return the name of currency
+     * Get currency color.
+     * @return the color of currency
      */
     public String getCurrencyName() {
         return currencyName;

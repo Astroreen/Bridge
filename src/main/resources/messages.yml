@@ -3,6 +3,7 @@ ru:
   version: "Версия плагина - {0}"
   reloaded: "&aПерезагружено!"
   no_permission: "&cУ вас не хватает прав."
+  need_to_be_player: "Вам нужно быть игроком чтобы использовать эту команду"
   language:
     current_language: "&aСейчас стоит язык \"{0}\""
     already_language: "&aЯзык уже \"{0}\""
@@ -29,6 +30,7 @@ en:
   version: "Plugin version: {0}"
   reloaded: "&aReloaded!"
   no_permission: "&cYou don't have permission."
+  need_to_be_player: "You have to be a player to execute this command"
   language:
     current_language: "&aCurrent language is \"{0}\""
     already_language: "&aLanguage already \"{0}\""

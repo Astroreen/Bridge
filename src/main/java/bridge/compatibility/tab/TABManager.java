@@ -1,7 +1,6 @@
 package bridge.compatibility.tab;
 
 import bridge.Bridge;
-import bridge.config.ConfigurationFile;
 import bridge.database.Connector;
 import bridge.database.QueryType;
 import bridge.database.Saver;
@@ -32,10 +31,10 @@ public class TABManager implements Listener, TabEvent {
     private final Bridge instance = Bridge.getInstance();
     private final Saver saver = instance.getSaver();
     private final Connector con;
-    private final Currency currency;
+    private final Currency stars;
     public TABManager () {
         con = new Connector();
-        currency = new Stars(con);
+        stars = new Stars(con);
     }
 
     protected void register () {
@@ -78,6 +77,10 @@ public class TABManager implements Listener, TabEvent {
     protected void reload () {
         //TODO grab players on their server, load their colors and apply
         //example SELECT color
+    }
+
+    public Currency getStars() {
+        return stars;
     }
 
     public static void hidePlayersNickname () {

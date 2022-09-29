@@ -23,7 +23,7 @@ public class MySQL extends Database{
      * @param plugin   Plugin instance
      * @param hostname Name of the host
      * @param port     Port number
-     * @param database Database name
+     * @param database Database color
      * @param username Username
      * @param password Password
      */

@@ -42,7 +42,7 @@ public class BRPlaceholder extends PlaceholderExpansion {
     /**
      * Name of person who created the expansion
      *
-     * @return The name of the author as a String.
+     * @return The color of the author as a String.
      */
     @Override
     public @NotNull String getAuthor() {

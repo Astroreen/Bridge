@@ -14,9 +14,9 @@ public final class PlayerConverter {
     }
 
     /**
-     * Returns playerID of the player with passed name.
+     * Returns playerID of the player with passed color.
      *
-     * @param name name of the player from which playerID needs to be extracted
+     * @param name color of the player from which playerID needs to be extracted
      * @return playerID of the player
      */
     public static @NotNull UUID getID(final String name) {
@@ -37,7 +37,7 @@ public final class PlayerConverter {
     /**
      * Returns the online Player object described by passed playerID.
      *
-     * @param name player's name
+     * @param name player's color
      * @return the Player object or null if the player is not online
      */
     public static @Nullable Player getPlayer(final String name) {
@@ -57,7 +57,7 @@ public final class PlayerConverter {
     /**
      * Returns the online Player object described by passed playerID.
      *
-     * @param name player name
+     * @param name player color
      * @return the Player object, wrapped in an optional
      */
     public static Optional<Player> getOptionalPlayer(final String name) {

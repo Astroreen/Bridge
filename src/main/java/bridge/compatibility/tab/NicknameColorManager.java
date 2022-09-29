@@ -36,8 +36,8 @@ public class NicknameColorManager {
     private static long UpdateTime;
     private static final Bridge instance = Bridge.getInstance();
     private static final Saver saver = instance.getSaver();
-    private static final HashMap<String, List<Colors>> ramColors = new HashMap<>();
-    private static final HashMap<UUID, String> playerHex = new HashMap<>();
+    private static final HashMap<String, List<PlayerColor>> ramColors = new HashMap<>();
+    private static final HashMap<UUID, PlayerColor> playerHex = new HashMap<>();
     private static BukkitTask task;
     private static final BukkitRunnable runnable = new BukkitRunnable() {
         @Override
@@ -49,7 +49,7 @@ public class NicknameColorManager {
     /**
      * Creating a color-config to use for color groups.
      *
-     * @param con      {@link Connector} instance
+     * @param con {@link Connector} instance
      * @return true if successful
      */
     protected static boolean setup(final Connector con) {
@@ -62,7 +62,7 @@ public class NicknameColorManager {
         }
 
 
-        UpdateTime = colorConfig.getLong("settings.UpdateTime")*1200;
+        UpdateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
         task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
         return true;
     }
@@ -74,8 +74,7 @@ public class NicknameColorManager {
      */
     protected static @NotNull List<String> getGroups() {
         if (ramColors.isEmpty()) return colorConfig.getStringList("groups");
-
-        return ramColors.keySet().stream().toList();
+        else return ramColors.keySet().stream().toList();
     }
 
     /**
@@ -88,28 +87,43 @@ public class NicknameColorManager {
         if (ramColors.isEmpty()) return colorConfig.getStringList(String.format("groups.%s", group));
         if (!ramColors.containsKey(group)) return List.of();
         List<String> list = new ArrayList<>();
-        for (Colors color : ramColors.get(group)) {
-            list.add(color.name);
+        for (PlayerColor color : ramColors.get(group)) {
+            list.add(color.color);
         }
         return list;
     }
 
     /**
-     * Get hex color from given group and color name.
+     * Get hex from given group and color.
      *
      * @param group group that you can get from {@code getGroup} method
      * @param color color for nickname. May be null. You can get this value from {@code getGroupColors} method
-     * @return hex color or null
+     * @return color or null
      */
-    protected static @Nullable String getGroupColor(final String group, final String color) {
+    protected static @Nullable String getColorHex(final String group, final String color) {
         if (ramColors.isEmpty()) {
             String setting = colorConfig.getString(String.format("groups.%s.%s", group, color));
             if (setting == null) return null;
             return setting.split(" ", 2)[0];
         }
-        if(ramColors.containsKey(group)) return null;
-        for (Colors colors : ramColors.get(group)) {
-            if (colors.name().equalsIgnoreCase(color)) return colors.hex();
+        if (!ramColors.containsKey(group)) return null;
+        for (PlayerColor playerColor : ramColors.get(group)) {
+            if (playerColor.color().equalsIgnoreCase(color)) return playerColor.hex();
+        }
+        return null;
+    }
+
+    /**
+     * Get hex from given color.
+     *
+     * @param color color for nickname. May be null. You can get this value from {@code getGroupColors} method
+     * @return color or null
+     */
+    protected static @Nullable String getColorHex(final String color) {
+        for (String group : getGroups()) {
+            for (String colors : getGroupColors(group)) {
+                if (colors.equalsIgnoreCase(color)) return getColorHex(group, colors);
+            }
         }
         return null;
     }
@@ -127,9 +141,39 @@ public class NicknameColorManager {
             if (setting == null) return -1;
             return Integer.parseInt(setting.split(" ", 2)[1], 10);
         }
-        if(ramColors.containsKey(group)) return -1;
-        for (Colors colors : ramColors.get(group)) {
-            if (colors.name().equalsIgnoreCase(color)) return colors.cost();
+        if (ramColors.containsKey(group)) return -1;
+        for (PlayerColor playerColor : ramColors.get(group)) {
+            if (playerColor.color().equalsIgnoreCase(color)) return playerColor.cost();
+        }
+        return -1;
+    }
+
+    /**
+     * Get first to match color cost from color color
+     *
+     * @param color color color
+     * @return cost of the color from color-config.yml
+     */
+    private static int getColorCost(final String color) {
+        for (String group : getGroups()) {
+            for (PlayerColor playerColor : ramColors.get(group)) {
+                if (playerColor.color().equalsIgnoreCase(color)) {
+                    return playerColor.cost();
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Get first to match color cost from color hex
+     *
+     * @param color color hex
+     * @return cost of the color from color-config.yml
+     */
+    private static int getHexColorCost(final String color) {
+        if (ColorCodes.isHexValid(color)) {
+            return getColorCost(getColorNameByHex(color));
         }
         return -1;
     }
@@ -139,7 +183,7 @@ public class NicknameColorManager {
      *
      * @return list of colors names
      */
-    protected static @NotNull List<String> getAllColorsName() {
+    public static @NotNull List<String> getAllColorsName() {
         List<String> list = new ArrayList<>();
         for (String group : getGroups()) {
             list.addAll(getGroupColors(group));
@@ -148,30 +192,48 @@ public class NicknameColorManager {
     }
 
     /**
-     * Applies color to the {@link Player} nickname.
+     * Applies hex to the {@link Player} nickname.
+     * <p>
+     * Requires TAB and UnlimitedNameTagMode to be enabled.
+     *
+     * @param p    the {@link Player }
+     * @param hex  the hex color to apply
+     * @param save save hex to database or not
+     */
+    public static void applyNicknameColor(@NotNull final Player p, final String hex, final boolean save) {
+        UUID uuid = p.getUniqueId();
+        TabPlayer player = TabAPI.getInstance().getPlayer(uuid);
+        UnlimitedNametagManager nameTagManager =
+                TabAPI.getInstance().getTeamManager() instanceof UnlimitedNametagManager
+                        ? (UnlimitedNametagManager) TabAPI.getInstance().getTeamManager() : null;
+        if (nameTagManager == null || !ColorCodes.isHexValid(hex)) return;
+        //Applying to nickname
+        nameTagManager.setName(player, ChatColor.of(hex) + p.getName() + ChatColor.RESET);
+        //Applying to TAB
+        TabAPI.getInstance().getTablistFormatManager().setName(player, ChatColor.of(hex) + p.getName() + ChatColor.RESET);
+        //Applying to chat
+        p.displayName(Component.text(p.getName()).color(TextColor.fromHexString(hex)));
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                playerHex.put(uuid, new PlayerColor(getColorNameByHex(hex), hex, getHexColorCost(hex), getPlayerStars(uuid)));
+            }
+        }.runTaskAsynchronously(instance);
+        //save to database async
+        if (save) saver.add(new Saver.Record(UpdateType.UPDATE_COLOR, hex, uuid.toString()));
+    }
+
+    /**
+     * Applies hex color to the {@link Player} nickname.
      * <p>
      * Requires TAB and UnlimitedNameTagMode to be enabled.
      *
      * @param p     the {@link Player }
-     * @param color the hex color to apply
+     * @param color the color to apply
      * @param save  save color to database or not
      */
-    protected static void applyNicknameColor(@NotNull final Player p, final String color, final boolean save) {
-        TabPlayer player = TabAPI.getInstance().getPlayer(p.getUniqueId());
-        UnlimitedNametagManager nameTagManager =
-                TabAPI.getInstance().getTeamManager() instanceof UnlimitedNametagManager
-                        ? (UnlimitedNametagManager) TabAPI.getInstance().getTeamManager() : null;
-        if (nameTagManager == null || !ColorCodes.isHexValid(color)) return;
-        //Applying to nickname
-        nameTagManager.setName(player, ChatColor.of(color) + p.getName() + ChatColor.RESET);
-        //Applying to TAB
-        TabAPI.getInstance().getTablistFormatManager().setName(player, ChatColor.of(color) + p.getName() + ChatColor.RESET);
-        //Applying to chat
-        p.displayName(Component.text(p.getName()).color(TextColor.fromHexString(color)));
-        playerHex.put(p.getUniqueId(), color);
-
-        //save to database async
-        if (save) saver.add(new Saver.Record(UpdateType.UPDATE_COLOR, color, p.getUniqueId().toString()));
+    public static void applyHexNicknameColor(@NotNull final Player p, final String color, final boolean save) {
+        applyNicknameColor(p, getColorHex(color), save);
     }
 
 
@@ -184,44 +246,26 @@ public class NicknameColorManager {
         return colorConfig.getString("default", "#CFCFCF");
     }
 
-    protected static void reload() {
-        ramColors.clear();
-        playerHex.clear();
-        task.cancel();
-        UpdateTime = colorConfig.getLong("settings.UpdateTime")*1200;
-        task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (instance.isConfigSet()) {
-                    for (String group : getGroups()) {
-                        List<String> groupColors = getGroupColors(group);
-                        List<Colors> list = new ArrayList<>();
-                        for (int i = 0; i <= groupColors.size(); i++) {
-                            list.add(new Colors(
-                                    groupColors.get(i),
-                                    getGroupColor(group, groupColors.get(i)),
-                                    getColorCost(group, groupColors.get(i))
-                            ));
-                        }
-                        ramColors.put(group, list);
-                    }
-                }
-            }
-        }.runTaskAsynchronously(instance);
-
+    private static int getPlayerStars(@NotNull final UUID uuid) {
+        if (playerHex.containsKey(uuid)) return playerHex.get(uuid).stars();
+        ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
+        try {
+            return rs.getInt("stars");
+        } catch (SQLException e) {
+            return -1;
+        }
     }
 
     /**
-     * Find color name by hex.
+     * Find color color by hex.
      *
      * @param hex hex color to find in {@code color-config.yml}.
-     * @return color name if exist or null if not
+     * @return color color if exist or null if not
      */
-    public static @Nullable String getColorNameByHex(String hex) {
+    public static @Nullable String getColorNameByHex(final String hex) {
         for (String group : getGroups()) {
             for (String color : getGroupColors(group)) {
-                String found = getGroupColor(group, color);
+                String found = getColorHex(group, color);
                 if (found != null && found.equalsIgnoreCase(hex)) return found;
             }
         }
@@ -230,7 +274,7 @@ public class NicknameColorManager {
 
     public static @Nullable String getPlayerColor(@NotNull final UUID uuid, final boolean returnHex) {
         final String hex;
-        if (playerHex.containsKey(uuid)) hex = playerHex.get(uuid);
+        if (playerHex.containsKey(uuid)) hex = playerHex.get(uuid).hex();
         else {
             ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
             try {
@@ -241,20 +285,65 @@ public class NicknameColorManager {
             }
         }
 
-        if(returnHex) return hex;
+        if (returnHex) return hex;
         else return getColorNameByHex(hex);
     }
 
+    protected static void reload() {
+        ramColors.clear();
+        playerHex.clear();
+        task.cancel();
+        UpdateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
+        task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (instance.isConfigSet()) {
+                    for (String group : getGroups()) {
+                        List<String> groupColors = getGroupColors(group);
+                        List<PlayerColor> list = new ArrayList<>();
+                        for (int i = 0; i <= groupColors.size(); i++) {
+                            list.add(new PlayerColor(
+                                    groupColors.get(i),
+                                    getColorHex(group, groupColors.get(i)),
+                                    getColorCost(group, groupColors.get(i)),
+                                    0
+                            ));
+                        }
+                        ramColors.put(group, list);
+                    }
+                }
+            }
+        }.runTaskAsynchronously(instance);
+    }
+
+    public static PlayerColor getPlayerInfo(final UUID uuid) {
+        if (playerHex.containsKey(uuid)) return playerHex.get(uuid);
+        else {
+            String hex = getPlayerColor(uuid, true);
+            PlayerColor answer = new PlayerColor(
+                    getColorNameByHex(hex),
+                    hex,
+                    getHexColorCost(hex),
+                    getPlayerStars(uuid)
+            );
+            playerHex.put(uuid, answer);
+            return answer;
+        }
+    }
+
+
     @Contract(pure = true)
-    public static @NotNull Set<Map.Entry<UUID, String>> getLatelyUsedPlayers () {
+    public static @NotNull Set<Map.Entry<UUID, PlayerColor>> getLatelyUsedPlayers() {
         return playerHex.entrySet();
     }
 
-    private record Colors(String name, String hex, int cost) {
-        private Colors(String name, String hex, int cost) {
-            this.name = name;
+    public record PlayerColor(String color, String hex, int cost, int stars) {
+        public PlayerColor(final String color, final String hex, final int cost, final int stars) {
+            this.color = color;
             this.hex = ColorCodes.isHexValid(hex) ? hex : null;
             this.cost = cost < 0 ? cost * (-1) : cost;
+            this.stars = Math.max(stars, 0);
         }
     }
 }

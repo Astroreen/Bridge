@@ -16,5 +16,88 @@ commands:
     permission: bridge.admin
     aliases: [br]
 permissions:
+  bridge.*:
+    description: Gives access to anything
+    children:
+      bridge.admin: true
   bridge.admin:
+    description: Permission for admins to use
     default: op
+    children:
+      bridge.reload: true
+      bridge.debug: true
+      bridge.nickname.*: true
+
+  bridge.reload:
+    description: Reload the plugin
+    default: op
+  bridge.debug:
+    description: Access to use debug command
+    default: op
+  bridge.nickname.*:
+    description: Gives access to all nickname commands
+    children:
+      bridge.nickname.color.*: true
+      bridge.nickname.stars.*: true
+
+  bridge.nickname.color.*:
+    description: Manipulate yours and others players nickname colors
+    children:
+      bridge.nickname.color: true
+      bridge.nickname.color.other: true
+      bridge.nickname.color.set: true
+      bridge.nickname.color.set.other: true
+      bridge.nickname.color.replace: true
+  bridge.nickname.color:
+    description: See your nickname color
+    default: op
+  bridge.nickname.color.other:
+    description: See nickname color of other player
+    default: op
+    children:
+      bridge.nickname.color: true
+  bridge.nickname.color.set:
+    description: Set your own nickname color
+    default: true
+  bridge.nickname.color.set.other:
+    description: Set other player nickname color
+    default: op
+    children:
+      bridge.nickname.color.set: true
+  bridge.nickname.color.replace:
+    description: Replaces default color in database to a new one
+    default: false
+
+  bridge.nickname.stars.*:
+    description: Manipulate yours and others players stars
+    children:
+      bridge.nickname.stars: true
+      bridge.nickname.stars.other: true
+      bridge.nickname.stars.set: true
+      bridge.nickname.stars.set.other: true
+      bridge.nickname.stars.add: true
+      bridge.nickname.stars.add.other: true
+  bridge.nickname.stars:
+    description: See how much stars you have
+    default: true
+  bridge.nickname.stars.other:
+    description: See how much stars does another player have
+    default: op
+    children:
+      bridge.nickname.stars: true
+  bridge.nickname.stars.set:
+    description: Replace your stars amount
+    default: op
+  bridge.nickname.stars.set.other:
+    description: Replace other player stars amount
+    default: op
+    children:
+      bridge.nickname.stars.set: true
+  bridge.nickname.stars.add:
+    description: Add amount of stars to yourself
+    default: op
+  bridge.nickname.stars.add.other:
+    description: Add amount of stars to other player
+    default: op
+    children:
+      bridge.nickname.stars.add: true

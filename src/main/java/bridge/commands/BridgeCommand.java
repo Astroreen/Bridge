@@ -3,8 +3,10 @@ package bridge.commands;
 import bridge.Bridge;
 import bridge.MessageType;
 import bridge.compatibility.tab.NicknameColorManager;
+import bridge.compatibility.tab.TABManager;
 import bridge.config.Config;
 import bridge.modules.logger.DebugHandlerConfig;
+import bridge.utils.PlayerConverter;
 import lombok.CustomLog;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -76,63 +78,82 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
 
     private void handleNickName(final CommandSender sender, final String @NotNull ... args) {
         if (args[1].equalsIgnoreCase("color")) {
+            //bridge nickname color
             if (args.length == 2) {
-                //TODO display what color does player have right now
-                //example: white (#FFFFFF)
+                if (sender instanceof Player player) {
+                    NicknameColorManager.PlayerColor info = NicknameColorManager.getPlayerInfo(player.getUniqueId());
+                    sendMessage(
+                            player,
+                            MessageType.YOUR_CURRENT_NICKNAME_COLOR,
+                            info.color(),
+                            info.hex());
+                    return;
+                }
+            }
+            //bridge nickname color (cost/have)/<PLAYERS>
+            if (args.length == 3) {
+
             }
 
-            if (args[2].equalsIgnoreCase("set") && args.length == 4) {
+            //bridge nickname color set/(cost/have) <COLOR>/<PLAYERS>
+            if (args.length == 4) {
 
             }
-
-            if (args[2].equalsIgnoreCase("replace") && args.length == 5) {
+            //bridge nickname color replace <fromCOLOR> <toCOLOR>
+            if (args.length == 5) {
 
             }
         }
 
         if (args[1].equalsIgnoreCase("stars")) {
+            //bridge nickname stars
             if (args.length == 2) {
-                if(sender instanceof Player player) {
-                    String hex = NicknameColorManager.getPlayerColor(player.getUniqueId(), true);
-                    Config.sendMessage(
-                            player,
-                            MessageType.YOUR_CURRENT_NICKNAME_COLOR,
-                            NicknameColorManager.getColorNameByHex(hex),
-                            hex);
-                return;
-                }
+
             }
+            //bridge nickname stars <PLAYERS>
             if (args.length == 3) {
 
             }
-            if (args.length == 4) {
+            //bridge nickname stars (set/add)/have <amount>/<PLAYERS>
 
-                final int value = Integer.parseInt(args[3], 10);
+            //bridge nickname stars set <amount> <PLAYERS>
+            if (args[2].equalsIgnoreCase("set")) {
+                if (sender.hasPermission("bridge.nickname.stars.set")) {
+                    UUID uuid = null;
+                    if (args.length == 4) {
+                        if (sender instanceof Player player) uuid = player.getUniqueId();
+                        else sendMessage(sender, MessageType.NEED_TO_BE_PLAYER);
+                    }
+                    if (args.length == 5) {
+                        Player player = PlayerConverter.getPlayer(args[4]);
+                        if (player == null) {
+                            sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[4]);
+                            return;
+                        }
+                        uuid = player.getUniqueId();
+                    }
+                    if (uuid != null) new TABManager().getStars().setCurrency(uuid, Integer.parseInt(args[3]));
+                } else sendMessage(sender, MessageType.NO_PERMISSION);
+            }
 
-                if (args[2].equalsIgnoreCase("set")) {
-
-                    //TODO set color via database
-                }
-
-                if (args[2].equalsIgnoreCase("add")) {
-                    //TODO get player stars, add stars, save async
-                }
+            if (args[2].equalsIgnoreCase("add")) {
+                //TODO get player stars, add stars, save async
             }
         }
         sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args);
     }
 
-    private @NotNull Optional<List<String>> completeNickName(final String @NotNull... args) {
+    private @NotNull Optional<List<String>> completeNickName(final String @NotNull ... args) {
         // bridge nickname color/stars
-        if(args.length == 2) return Optional.of(Arrays.asList("color", "stars"));
+        if (args.length == 2) return Optional.of(Arrays.asList("color", "stars"));
         // bridge nickname color set/replace
-        if(args[1].equalsIgnoreCase("color")) {
-            if(args.length == 3) return Optional.of(Arrays.asList("set", "replace"));
-            //TODO return list from colors-config.yml
-            if(args.length == 4) return Optional.empty();
+        if (args[1].equalsIgnoreCase("color")) {
+            if (args.length == 3) return Optional.of(Arrays.asList("set", "replace"));
+            if (args.length == 4) return Optional.of(NicknameColorManager.getAllColorsName());
         }
-        // bridge nickname stars set/add
-        if(args[1].equalsIgnoreCase("stars") && args.length == 3) return Optional.of(Arrays.asList("set", "add"));
+        // bridge nickname stars set/add/have
+        if (args[1].equalsIgnoreCase("stars") && args.length == 3)
+            return Optional.of(Arrays.asList("set", "add", "have"));
 
         return Optional.empty();
     }

@@ -6,6 +6,7 @@ package bridge;
 public enum MessageType {
     PREFIX("prefix"),
     NO_PERMISSION("no_permission"),
+    NEED_TO_BE_PLAYER("need_to_be_player"),
     RELOADED("reloaded"),
     /**
      * Variables: Current language
@@ -37,11 +38,11 @@ public enum MessageType {
     SET_DEBUG_SUCCESSFULLY("debug.set_debug_successfully"),
     SET_DEBUG_ERROR("debug.set_debug_error"),
     /**
-     * Variables: Current nickname color name, Current nickname hex color
+     * Variables: Current nickname color color, Current nickname hex color
      */
     YOUR_CURRENT_NICKNAME_COLOR("hooks.tab.colors.your_color"),
     /**
-     * Variables: Checked player, Current nickname color name, Current nickname hex color
+     * Variables: Checked player, Current nickname color color, Current nickname hex color
      */
     CURRENT_NICKNAME_COLOR("hooks.tab.colors.current_player_color"),
     /**

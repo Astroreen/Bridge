@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 /**
- * Custom {@link LogRecord} for Bridge that adds a {@link Plugin} name.
+ * Custom {@link LogRecord} for Bridge that adds a {@link Plugin} color.
  */
 public class BRLogRecord extends LogRecord {
 

@@ -57,7 +57,7 @@ public class HookException extends Exception {
     }
 
     /**
-     * @return Get the name of the {@link Plugin}
+     * @return Get the color of the {@link Plugin}
      */
     public String getPluginName() {
         return plugin.getName();

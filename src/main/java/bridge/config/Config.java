@@ -83,7 +83,7 @@ public class Config {
     /**
      * Retrieves the message from the configuration in specified language
      *
-     * @param message name of the message to retrieve
+     * @param message color of the message to retrieve
      * @return message in that language, or message in English, or null if it
      * does not exist
      */
@@ -94,7 +94,7 @@ public class Config {
     /**
      * Retrieves the message from the configuration in specified language
      *
-     * @param message name of the message to retrieve
+     * @param message color of the message to retrieve
      * @return message in that language, or message in English, or null if it
      * does not exist
      */
@@ -105,7 +105,7 @@ public class Config {
     /**
      * Retrieves the message from the configuration in specified language
      *
-     * @param message name of the message to retrieve
+     * @param message color of the message to retrieve
      * @param lang    language in which the message should be retrieved
      * @return message in that language, or message in English, or null if it
      * does not exist
@@ -119,7 +119,7 @@ public class Config {
      * replaces the variables
      *
      * @param lang      language in which the message should be retrieved
-     * @param message   name of the message to retrieve
+     * @param message   color of the message to retrieve
      * @param variables array of variables to replace
      * @return message in that language, or message in English, or null if it
      * does not exist
@@ -182,7 +182,7 @@ public class Config {
      * @param uuid      {@link UUID} of the player
      * @param msg       ID of the message
      * @param variables array of variables which will be inserted into the message
-     * @param sound     name of the sound to play to the player
+     * @param sound     color of the sound to play to the player
      */
     public static void sendMessage(final @NotNull UUID uuid, final @NotNull MessageType msg, final ConfigSound sound, final String... variables) {
         sendMessage(PlayerConverter.getPlayer(uuid), msg, sound, variables);
@@ -221,7 +221,7 @@ public class Config {
      * @param player    player
      * @param msg       ID of the message
      * @param variables array of variables which will be inserted into the message
-     * @param sound     name of the sound to play to the player
+     * @param sound     color of the sound to play to the player
      */
     public static void sendMessage(final Player player, final @NotNull MessageType msg, final ConfigSound sound, final String... variables) {
         if (player == null) return;
@@ -276,8 +276,8 @@ public class Config {
      * Plays a sound specified in the plugin's config to the player
      *
      * @param player    the uuid of the player
-     * @param soundType the name of the sound to play to the player
-     * @throws IllegalArgumentException if sound name was not found
+     * @param soundType the color of the sound to play to the player
+     * @throws IllegalArgumentException if sound color was not found
      */
     public static void playSound(final Player player, final @NotNull ConfigSound soundType)
             throws IllegalArgumentException {
