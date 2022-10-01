@@ -43,22 +43,35 @@ permissions:
   bridge.nickname.color.*:
     description: Manipulate yours and others players nickname colors
     children:
-      bridge.nickname.color: true
-      bridge.nickname.color.other: true
+      bridge.nickname.color.have: true
+      bridge.nickname.color.have.other: true
+      bridge.nickname.color.cost: true
+      bridge.nickname.color.cost.other: true
       bridge.nickname.color.set: true
       bridge.nickname.color.set.other: true
       bridge.nickname.color.replace: true
-  bridge.nickname.color:
+  bridge.nickname.color.have:
     description: See your nickname color
     default: op
-  bridge.nickname.color.other:
+  bridge.nickname.color.have.other:
     description: See nickname color of other player
     default: op
     children:
-      bridge.nickname.color: true
+      bridge.nickname.color.have: true
+  bridge.nickname.color.cost:
+    description: See your nickname color cost
+    default: op
+    bridge.nickname.color.cost.other:
+      description: See nickname color cost of other player
+      default: op
+      children:
+        bridge.nickname.color.cost: true
   bridge.nickname.color.set:
     description: Set your own nickname color
     default: true
+  bridge.nickname.color.set.hex:
+    description: Be able to use hex colors
+    default: op
   bridge.nickname.color.set.other:
     description: Set other player nickname color
     default: op
@@ -71,16 +84,16 @@ permissions:
   bridge.nickname.stars.*:
     description: Manipulate yours and others players stars
     children:
-      bridge.nickname.stars: true
-      bridge.nickname.stars.other: true
+      bridge.nickname.stars.have: true
+      bridge.nickname.stars.have.other: true
       bridge.nickname.stars.set: true
       bridge.nickname.stars.set.other: true
       bridge.nickname.stars.add: true
       bridge.nickname.stars.add.other: true
-  bridge.nickname.stars:
+  bridge.nickname.stars.have:
     description: See how much stars you have
     default: true
-  bridge.nickname.stars.other:
+  bridge.nickname.stars.have.other:
     description: See how much stars does another player have
     default: op
     children:

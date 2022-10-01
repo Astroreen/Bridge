@@ -19,10 +19,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.UUID;
 
 @CustomLog
@@ -32,6 +35,8 @@ public class TABManager implements Listener, TabEvent {
     private final Saver saver = instance.getSaver();
     private final Connector con;
     private final Currency stars;
+
+    private boolean isStarsEnabled;
     public TABManager () {
         con = new Connector();
         stars = new Stars(con);
@@ -57,7 +62,10 @@ public class TABManager implements Listener, TabEvent {
 
     @Subscribe
     public void onPlayerLoad (@NotNull final PlayerLoadEvent event) {
-        if (!event.isJoin()) reload();
+        if (!event.isJoin()) {
+            reload();
+            return;
+        }
         final TabPlayer player = event.getPlayer();
         final UUID uuid = player.getUniqueId();
         final Player p = PlayerConverter.getPlayer(uuid);
@@ -74,13 +82,34 @@ public class TABManager implements Listener, TabEvent {
         }
     }
 
-    protected void reload () {
-        //TODO grab players on their server, load their colors and apply
-        //example SELECT color
+    private void reload () {
+        isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
+        NicknameColorManager.reload();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_COLORS);
+                try {
+                    HashMap<UUID, String> data = new HashMap<>();
+                    while(rs.next()) {
+                        data.put(
+                                UUID.fromString(rs.getString("playerID")),
+                                rs.getString("color")
+                        );
+                    }
+                    Bukkit.getOnlinePlayers().forEach((p) ->
+                            NicknameColorManager.applyNicknameColor(
+                                    p, data.get(p.getUniqueId()), false));
+                } catch (SQLException e) {
+                    LOG.error("There was an exception with SQL", e);
+                }
+            }
+        }.runTaskAsynchronously(instance);
     }
 
-    public Currency getStars() {
-        return stars;
+    public @Nullable Currency getStars() {
+        if (isStarsEnabled) return stars;
+        else return null;
     }
 
     public static void hidePlayersNickname () {

@@ -36,7 +36,7 @@ public class BRPlaceholder extends PlaceholderExpansion {
      */
     @Override
     public @NotNull String getIdentifier() {
-        return "dbs";
+        return "br";
     }
 
     /**

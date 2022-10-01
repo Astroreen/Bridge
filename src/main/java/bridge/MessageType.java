@@ -38,25 +38,58 @@ public enum MessageType {
     SET_DEBUG_SUCCESSFULLY("debug.set_debug_successfully"),
     SET_DEBUG_ERROR("debug.set_debug_error"),
     /**
-     * Variables: Current nickname color color, Current nickname hex color
+     * Variables: Current nickname color name, Current nickname hex color
      */
-    YOUR_CURRENT_NICKNAME_COLOR("hooks.tab.colors.your_color"),
-    /**
-     * Variables: Checked player, Current nickname color color, Current nickname hex color
-     */
-    CURRENT_NICKNAME_COLOR("hooks.tab.colors.current_player_color"),
+    YOUR_NICKNAME_COLOR("hooks.tab.colors.your_color"),
     /**
      * Variables: New nickname color
      */
     YOUR_NICKNAME_COLOR_CHANGED("hooks.tab.colors.your_color_changed"),
     /**
-     * Variables: Player, New nickname color
+     * Variables: Current nickname color cost
      */
-    SET_NICKNAME_COLOR_SUCCESSFULLY("hooks.tab.colors.set_color_successfully"),
+    YOUR_NICKNAME_COLOR_COST("hooks.tab.colors.your_color_cost"),
+    /**
+     * Variables: Checked player, Current nickname color name, Current nickname hex color
+     */
+    OTHER_PLAYER_NICKNAME_COLOR("hooks.tab.colors.other_player_color"),
+    /**
+     * Variables: Player, His new nickname color
+     */
+    OTHER_PLAYER_NICKNAME_COLOR_CHANGED("hooks.tab.colors.other_player_color_changed"),
+    /**
+     * Variables: Player, His nickname color cost
+     */
+    OTHER_PLAYER_NICKNAME_COLOR_COST("hooks.tab.colors.your_color_cost"),
+    /**
+     * Variables: Player's amount of stars
+     */
+    YOUR_NICKNAME_STARS("hooks.tab.colors.your_money"),
+    /**
+     * Variables: New player's amount of stars
+     */
+    YOUR_NICKNAME_STARS_CHANGED("hooks.tab.colors.your_money_changed"),
+    /**
+     * Variables: Player's amount of stars
+     */
+    OTHER_PLAYER_NICKNAME_STARS("hooks.tab.colors.other_player_money"),
+    /**
+     * Variables: New player's amount of stars
+     */
+    OTHER_PLAYER_NICKNAME_STARS_CHANGED("hooks.tab.colors.other_player_money_changed"),
+    /**
+     * Variables: From what Color, To what Color
+     */
+    REPLACE_COLORS_SUCCESSFULLY("hooks.tab.colors.replace_color_successfully"),
+    /**
+     * Variables: From what Color, To what Color
+     */
+    REPLACE_COLORS_ERROR("hooks.tab.colors.replace_color_error"),
     /**
      * Variables: How much money till can buy
      */
     NOT_ENOUGH_STARS("hooks.tab.colors.not_enough_money"),
+    STARS_ARE_DISABLED("hooks.tab.colors.money_disabled"),
     VERSION("version"),
     /**
      * Variables: Arguments

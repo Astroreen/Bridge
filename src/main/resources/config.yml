@@ -4,6 +4,10 @@ hook:
 
 settings:
   language: ru
+  modules:
+    tab:
+      ColorNickname: true
+      UseMoney: true
 
 #MySQL. Если данные для подключения вписаны неправильно,
 #то данные будут записываться в локальную базу данных.

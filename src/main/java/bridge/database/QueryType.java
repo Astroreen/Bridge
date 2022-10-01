@@ -11,9 +11,18 @@ public enum QueryType {
      */
     SELECT_COLOR(prefix -> "SELECT color FROM " + prefix + "nickname WHERE playerID = ?;"),
     /**
+     * Select uuids where nickname color is (YOUR COLOR). Hex color
+     */
+    SELECT_UUID_BY_COLOR(prefix -> "SELECT playerID FROM " + prefix + "nickname WHERE color = ?;"),
+    /**
      * Select player stars. PlayerID
      */
     SELECT_STARS(prefix -> "SELECT stars FROM " + prefix + "nickname WHERE playerID = ?;"),
+
+    /**
+     * Select all from nickname table.
+     */
+    LOAD_ALL_NICKNAME_COLORS(prefix -> "SELECT playerID,color FROM " + prefix + "nickname"),
     ;
 
     /**
