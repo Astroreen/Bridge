@@ -80,31 +80,38 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     }
 
     private void handleNickName(final CommandSender sender, final String @NotNull ... args) {
+        if (args.length < 2) return;
         if (args[1].equalsIgnoreCase("color")) {
             //bridge nickname color (cost/have)/set <color>
             if (args.length == 3) {
                 if (args[2].equalsIgnoreCase("cost")) {
                     if (noPermission(sender, "bridge.nickname.color.cost")) return;
                     if (sender instanceof Player player) {
+                        String color = NicknameColorManager.getPlayerColor(player.getUniqueId(), false);
+                        if (color == null) {
+                            sendMessage(player, MessageType.YOUR_NICKNAME_IS_UNIQUE);
+                            return;
+                        }
                         sendMessage(
                                 player,
                                 MessageType.YOUR_NICKNAME_COLOR_COST,
                                 String.valueOf(
-                                        NicknameColorManager.getColorCost(
-                                                NicknameColorManager.getPlayerColor(player.getUniqueId(), false)
-                                        )
+                                        NicknameColorManager.getColorCost(color)
                                 )
                         );
                     } else sendMessage(sender, MessageType.NEED_TO_BE_PLAYER);
                 } else if (args[2].equalsIgnoreCase("have")) {
                     if (noPermission(sender, "bridge.nickname.color.have")) return;
                     if (sender instanceof Player player) {
-                        NicknameColorManager.PlayerColor info = NicknameColorManager.getPlayerInfo(player.getUniqueId());
+                        String color = NicknameColorManager.getPlayerColor(player.getUniqueId(), false);
+                        if(color == null) {
+                            sendMessage(player, MessageType.YOUR_NICKNAME_IS_UNIQUE);
+                            return;
+                        }
                         sendMessage(
                                 player,
                                 MessageType.YOUR_NICKNAME_COLOR,
-                                info.color(),
-                                info.hex());
+                                color);
                     } else sendMessage(sender, MessageType.NEED_TO_BE_PLAYER);
                 }
             }
@@ -117,15 +124,20 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     }
                     if (noPermission(player, "bridge.nickname.color.set")) return;
 
-                    String color;
+                    String hex;
                     List<String> colorList = NicknameColorManager.getAllColorsName();
 
                     if (ColorCodes.isHexValid(args[3])) {
                         if (noPermission(sender, "bridge.nickname.color.set.hex")) return;
-                        color = args[3];
-                    }
-                    else if (colorList.contains(args[3])) color = NicknameColorManager.getColorHex(args[3]);
-                    else {
+                        hex = args[3];
+                    } else if (colorList.contains(args[3])) {
+                        //TODO Check for nickname.<group>.*
+                        if (noPermission(player, String.format(
+                                "bridge.nickname.%s.%s",
+                                NicknameColorManager.getColorGroup(args[3]),
+                                args[3]))) return;
+                        hex = NicknameColorManager.getColorHex(args[3]);
+                    } else {
                         sendMessage(player, MessageType.UNKNOWN_ARGUMENT, args[3]);
                         return;
                     }
@@ -141,50 +153,45 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                             return;
                         }
                     }
-                    if (colorList.contains(args[3])
-                            && player.hasPermission(String.format(
-                            "bridge.nickname.%s.%s",
-                            NicknameColorManager.getColorGroup(args[3]),
-                            args[3]))) {
-                        NicknameColorManager.applyNicknameColor(player, color, true);
-                        sendMessage(player, MessageType.YOUR_NICKNAME_COLOR_CHANGED, args[3]);
-                    } else sendMessage(player, MessageType.NO_PERMISSION);
-
-
+                    NicknameColorManager.applyNicknameColor(player, hex, true);
+                    sendMessage(player, MessageType.YOUR_NICKNAME_COLOR_CHANGED, args[3]);
+                    //done!
                 } else if (args[2].equalsIgnoreCase("cost")) {
                     if (noPermission(sender, "bridge.nickname.color.cost.other")) return;
                     Player player = PlayerConverter.getPlayer(args[3]);
-                    if (player == null) sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
-                    else {
-                        if (ColorCodes.isHexValid(args[3])) {
-                            sendMessage(
-                                    sender,
-                                    MessageType.OTHER_PLAYER_NICKNAME_COLOR_COST,
-                                    player.getName(),
-                                    String.valueOf(NicknameColorManager.getHexColorCost(args[3])));
-                        } else {
-                            if (NicknameColorManager.getAllColorsName().contains(args[3])) {
-                                sendMessage(
-                                        sender,
-                                        MessageType.OTHER_PLAYER_NICKNAME_COLOR_COST,
-                                        player.getName(),
-                                        String.valueOf(NicknameColorManager.getColorCost(args[3]))
-                                );
-                            } else sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
-                        }
+                    if (player == null) {
+                        sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
+                        return;
                     }
+
+                    String color = NicknameColorManager.getPlayerColor(player.getUniqueId(), false);
+                    if(color == null) {
+                        sendMessage(sender, MessageType.OTHER_PLAYER_NICKNAME_IS_UNIQUE, player.getName());
+                        return;
+                    }
+
+                    sendMessage(
+                            sender,
+                            MessageType.OTHER_PLAYER_NICKNAME_COLOR_COST,
+                            player.getName(),
+                            String.valueOf(NicknameColorManager.getColorCost(color)));
+                    //done!
                 } else if (args[2].equalsIgnoreCase("have")) {
                     if (noPermission(sender, "bridge.nickname.color.have.other")) return;
                     Player player = PlayerConverter.getPlayer(args[3]);
                     if (player == null) sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
                     else {
                         String hex = NicknameColorManager.getPlayerColor(player.getUniqueId(), true);
+                        String color = null;
+                        if (hex != null) {
+                            color = NicknameColorManager.getColorNameByHex(hex);
+                            if (color == null) color = hex;
+                        }
                         sendMessage(
                                 sender,
                                 MessageType.OTHER_PLAYER_NICKNAME_COLOR,
                                 player.getName(),
-                                NicknameColorManager.getColorNameByHex(hex),
-                                hex
+                                color
                         );
                     }
                 }
@@ -196,16 +203,13 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (NicknameColorManager.globallyReplaceColors(args[3], args[4]))
                         sendMessage(sender, MessageType.REPLACE_COLORS_SUCCESSFULLY, args[3], args[4]);
                     else sendMessage(sender, MessageType.REPLACE_COLORS_ERROR, args[3], args[4]);
-                }
-
-                else if (args[2].equalsIgnoreCase("set")) {
+                } else if (args[2].equalsIgnoreCase("set")) {
                     if (noPermission(sender, "bridge.nickname.color.set.other")) return;
                     String color;
-                    if(ColorCodes.isHexValid(args[3])) {
-                        if(noPermission(sender, "bridge.nickname.color.set.hex")) return;
+                    if (ColorCodes.isHexValid(args[3])) {
+                        if (noPermission(sender, "bridge.nickname.color.set.hex")) return;
                         color = args[3];
-                    }
-                    else if (NicknameColorManager.getAllColorsName().contains(args[3]))
+                    } else if (NicknameColorManager.getAllColorsName().contains(args[3]))
                         color = NicknameColorManager.getColorHex(args[3]);
                     else {
                         sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
@@ -318,27 +322,24 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
         if (args[1].equalsIgnoreCase("color")) {
             if (args.length == 3) return Optional.of(Arrays.asList("have", "cost", "set", "replace"));
             else if (args.length == 4) {
-                if(args[2].equalsIgnoreCase("have")
+                if (args[2].equalsIgnoreCase("have")
                         || args[2].equalsIgnoreCase("cost")) {
                     List<String> names = new ArrayList<>();
                     Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
                     return Optional.of(names);
-                }
-                else if(args[2].equalsIgnoreCase("set")) return Optional.of(NicknameColorManager.getAllColorsName());
+                } else if (args[2].equalsIgnoreCase("set")) return Optional.of(NicknameColorManager.getAllColorsName());
                 else if (args[2].equalsIgnoreCase("replace")) return Optional.of(List.of("#HEX"));
-            }
-            else if(args.length == 5) {
-                if(args[2].equalsIgnoreCase("set")) {
+            } else if (args.length == 5) {
+                if (args[2].equalsIgnoreCase("set")) {
                     List<String> names = new ArrayList<>();
                     Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
                     return Optional.of(names);
-                }
-                else if (args[2].equalsIgnoreCase("replace")) return Optional.of(List.of("#HEX"));
+                } else if (args[2].equalsIgnoreCase("replace")) return Optional.of(List.of("#HEX"));
             }
         }
         // bridge nickname stars (set/add)/have <AMOUNT>/<PLAYERS
-        else if (args[1].equalsIgnoreCase("stars")){
-            if(args.length == 3) return Optional.of(Arrays.asList("set", "add", "have"));
+        else if (args[1].equalsIgnoreCase("stars")) {
+            if (args.length == 3) return Optional.of(Arrays.asList("set", "add", "have"));
             else if (args.length == 4 && args[2].equalsIgnoreCase("have")) {
                 List<String> names = new ArrayList<>();
                 Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));

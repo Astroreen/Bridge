@@ -13,7 +13,8 @@ public class ColorCodes {
 
     private ColorCodes () {}
 
-    public static boolean isHexValid (@NotNull String color) {
+    public static boolean isHexValid (String color) {
+        if(color == null) return false;
         return color.matches("^#([A-Fa-f\\d]{6})$");
     }
 

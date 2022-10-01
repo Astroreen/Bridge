@@ -35,8 +35,10 @@ public class TABManager implements Listener, TabEvent {
     private final Saver saver = instance.getSaver();
     private final Connector con;
     private final Currency stars;
-
     private boolean isStarsEnabled;
+
+    //TODO make whitelist mode
+    //TODO make disable ColorNick module
     public TABManager () {
         con = new Connector();
         stars = new Stars(con);
@@ -44,6 +46,7 @@ public class TABManager implements Listener, TabEvent {
 
     protected void register () {
         if(!NicknameColorManager.setup(con)) return;
+        isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         Bukkit.getPluginManager().registerEvents(this, instance);
         TabAPI.getInstance().getEventBus().register(this);
     }
@@ -74,15 +77,20 @@ public class TABManager implements Listener, TabEvent {
         assert p != null;
         if(!p.hasPlayedBefore()) return;
 
-        ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
         try {
-            NicknameColorManager.applyNicknameColor(p, rs.getString("color"), false);
+            ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
+            if(rs.next()){
+                final String hex = rs.getString("color");
+                if (hex == null) NicknameColorManager.applyNicknameColor(p, NicknameColorManager.getDefaultColor(), false);
+                NicknameColorManager.applyNicknameColor(p, hex, false);
+            }
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
+            NicknameColorManager.applyNicknameColor(p, NicknameColorManager.getDefaultColor(), false);
         }
     }
 
-    private void reload () {
+    protected void reload () {
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         NicknameColorManager.reload();
         new BukkitRunnable() {

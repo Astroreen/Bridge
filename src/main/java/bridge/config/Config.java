@@ -236,8 +236,8 @@ public class Config {
      *
      * @return The parsed message as Kyori {@link TextComponent}
      */
-    public static @NotNull String parseMessage(final @NotNull String msg) {
-        return ColorCodes.translate(prefix + msg);
+    public static @NotNull TextComponent parseMessage(final @NotNull String msg) {
+        return ColorCodes.translateToTextComponent(prefix + msg);
     }
 
     /**

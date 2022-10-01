@@ -119,12 +119,14 @@ public class NicknameColorManager {
     /**
      * Get first to match color cost from color hex
      *
-     * @param color color hex
+     * @param hex hex color
      * @return cost of the color from color-config.yml
      */
-    public static int getHexColorCost(final String color) {
-        if (ColorCodes.isHexValid(color)) {
-            return getColorCost(getColorNameByHex(color));
+    public static int getHexColorCost(final String hex) {
+        if (ColorCodes.isHexValid(hex)) {
+            String color = getColorNameByHex(hex);
+            if(color == null) return -1;
+            return getColorCost(color);
         }
         return -1;
     }
@@ -199,16 +201,30 @@ public class NicknameColorManager {
      * @return color hex or name
      */
     public static @Nullable String getPlayerColor(@NotNull final UUID uuid, final boolean returnHex) {
-        final String hex;
+        String hex = null;
         if (playerHex.containsKey(uuid)) hex = playerHex.get(uuid).hex();
         else {
             ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
             try {
-                return rs.getString("color");
+                if(rs.next()) hex = rs.getString("color");
             } catch (SQLException e) {
                 LOG.error("There was an exception with SQL", e);
                 return null;
             }
+            if(hex == null) return null;
+            final String finalHex = hex;
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    playerHex.put(uuid,
+                            new PlayerColor(
+                                    getColorNameByHex(finalHex),
+                                    finalHex,
+                                    getHexColorCost(finalHex),
+                                    getPlayerStars(uuid))
+                    );
+                }
+            }.runTaskAsynchronously(instance);
         }
 
         if (returnHex) return hex;
@@ -334,7 +350,7 @@ public class NicknameColorManager {
         playerHex.clear();
         task.cancel();
         UpdateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
-        task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
+        if(task.isCancelled()) task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
         new BukkitRunnable() {
             @Override
             public void run() {

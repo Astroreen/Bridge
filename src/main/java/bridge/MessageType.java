@@ -38,7 +38,7 @@ public enum MessageType {
     SET_DEBUG_SUCCESSFULLY("debug.set_debug_successfully"),
     SET_DEBUG_ERROR("debug.set_debug_error"),
     /**
-     * Variables: Current nickname color name, Current nickname hex color
+     * Variables: Current nickname color name or hex
      */
     YOUR_NICKNAME_COLOR("hooks.tab.colors.your_color"),
     /**
@@ -50,7 +50,11 @@ public enum MessageType {
      */
     YOUR_NICKNAME_COLOR_COST("hooks.tab.colors.your_color_cost"),
     /**
-     * Variables: Checked player, Current nickname color name, Current nickname hex color
+     * Variables: None
+     */
+    YOUR_NICKNAME_IS_UNIQUE("hooks.tab.colors.your_color_is_unique"),
+    /**
+     * Variables: Checked player, Current nickname color name or hex
      */
     OTHER_PLAYER_NICKNAME_COLOR("hooks.tab.colors.other_player_color"),
     /**
@@ -61,6 +65,10 @@ public enum MessageType {
      * Variables: Player, His nickname color cost
      */
     OTHER_PLAYER_NICKNAME_COLOR_COST("hooks.tab.colors.your_color_cost"),
+    /**
+     * Variables: Player whose color checking
+     */
+    OTHER_PLAYER_NICKNAME_IS_UNIQUE("hooks.tab.colors.other_player_color_is_unique"),
     /**
      * Variables: Player's amount of stars
      */

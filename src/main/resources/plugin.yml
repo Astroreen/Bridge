@@ -1,6 +1,6 @@
 name: Bridge
 version: '${version}'
-main: Bridge
+main: bridge.Bridge
 api-version: 1.19
 prefix: BR
 authors: [ Astroreen ]
@@ -48,6 +48,7 @@ permissions:
       bridge.nickname.color.cost: true
       bridge.nickname.color.cost.other: true
       bridge.nickname.color.set: true
+      bridge.nickname.color.set.hex: true
       bridge.nickname.color.set.other: true
       bridge.nickname.color.replace: true
   bridge.nickname.color.have:

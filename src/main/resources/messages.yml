@@ -16,12 +16,14 @@ ru:
     set_debug_error: "&cНе удалось сохранить новый параметр debug в файл конфигурации!"
   hooks:
     tab.colors:
-      your_color: "Ваш цвет ника: {0} ({1})"
-      your_color_changed: "Ваш цвет ника изменился на {0} ({1})"
+      your_color: "Ваш цвет ника: {0}"
+      your_color_changed: "Ваш цвет ника изменился на {0}"
       your_color_cost: "Стоимость вашего цвета - {0} звезд(а)."
-      other_player_color: "Цвет ника {0} - {1} ({2})"
+      your_color_is_unique: "Цвет вашего ника уникален."
+      other_player_color: "Цвет ника {0} - {1}"
       other_player_color_changed: "Вы успешно поменяли цвет ника игрока {0} на {1}."
       other_player_color_cost: "Стоимость цвета игрока {0} - {1} звезд(а)."
+      other_player_color_is_unique: "Цвет ника игрока {0} уникален."
       your_money: "У вас {0} звезд."
       your_money_changed: "Теперь у вас {0} звезд"
       other_player_money: "У игрока {0} - {1} звезд."
@@ -53,11 +55,13 @@ en:
   hooks:
     tab.colors:
       your_color: "Your color is: {0} ({1})"
-      your_color_changed: "Your nickname color has changed to {0} ({1})"
+      your_color_changed: "Your nickname color has changed to {0}"
       your_color_cost: "Your nickname color costs {0} stars."
-      other_player_color: "{0}'s nickname color is {1} ({2})"
+      your_color_is_unique: "Your color don't have value, because it's unique."
+      other_player_color: "{0}'s nickname color is {1}"
       other_player_color_changed: "You successfully changed {0}'s nickname color to {1}."
       other_player_color_cost: "{0}'s nickname color costs {1} stars"
+      other_player_color_is_unique: "{0}'s nickname color don't have value, because it's unique."
       your_money: "You have {0} star(s)."
       your_money_changed: "Now you have {0} star(s)"
       other_player_money: "Player {0} have {1} star(s)."

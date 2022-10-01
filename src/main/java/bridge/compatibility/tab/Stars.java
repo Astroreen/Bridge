@@ -17,13 +17,13 @@ import java.util.UUID;
 public class Stars extends Currency {
 
     private final Connector con;
-    private static Bridge instance;
-    private final Saver saver = instance.getSaver();
+    private final Saver saver;
 
     public Stars (Connector con) {
         super("stars");
         this.con = con;
-        instance = Bridge.getInstance();
+        Bridge instance = Bridge.getInstance();
+        saver = instance.getSaver();
     }
 
     @Override
