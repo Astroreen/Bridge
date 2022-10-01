@@ -8,6 +8,16 @@ public enum MessageType {
     NO_PERMISSION("no_permission"),
     NEED_TO_BE_PLAYER("need_to_be_player"),
     RELOADED("reloaded"),
+    VERSION("version"),
+    /**
+     * Variables: Disabled plugin
+     */
+    PLUGIN_DISABLED("plugin_is_disabled"),
+    /**
+     * Variables: Module name, "ENABLED" or "DISABLED" variable
+     */
+    MODULE_STATE("module_is"),
+    /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
     /**
      * Variables: Current language
      */
@@ -24,6 +34,7 @@ public enum MessageType {
      * Variables: New language
      */
     SET_LANGUAGE_SUCCESSFULLY("language.set_language_successfully"),
+    /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
     /**
      * Variables: Current debug mode
      */
@@ -37,6 +48,7 @@ public enum MessageType {
      */
     SET_DEBUG_SUCCESSFULLY("debug.set_debug_successfully"),
     SET_DEBUG_ERROR("debug.set_debug_error"),
+    /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
     /**
      * Variables: Current nickname color name or hex
      */
@@ -78,11 +90,11 @@ public enum MessageType {
      */
     YOUR_NICKNAME_STARS_CHANGED("hooks.tab.colors.your_money_changed"),
     /**
-     * Variables: Player's amount of stars
+     * Variables: Player name, Player's amount of stars
      */
     OTHER_PLAYER_NICKNAME_STARS("hooks.tab.colors.other_player_money"),
     /**
-     * Variables: New player's amount of stars
+     * Variables: Amount what you set, "Self" variable or Player's name
      */
     OTHER_PLAYER_NICKNAME_STARS_CHANGED("hooks.tab.colors.other_player_money_changed"),
     /**
@@ -97,12 +109,12 @@ public enum MessageType {
      * Variables: How much money till can buy
      */
     NOT_ENOUGH_STARS("hooks.tab.colors.not_enough_money"),
-    STARS_ARE_DISABLED("hooks.tab.colors.money_disabled"),
-    VERSION("version"),
+    /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
     /**
      * Variables: Arguments
      */
-    UNKNOWN_ARGUMENT("variables.unknown_argument"),
+    UNKNOWN_ARGUMENT("unknown_argument"),
+    SELF("variables.self"),
     ENABLED("variables.enabled"),
     DISABLED("variables.disabled");
 

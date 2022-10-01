@@ -31,22 +31,26 @@ import java.util.UUID;
 @CustomLog
 public class TABManager implements Listener, TabEvent {
 
-    private final Bridge instance = Bridge.getInstance();
-    private final Saver saver = instance.getSaver();
+    private final Bridge instance;
+    private final Saver saver;
     private final Connector con;
     private final Currency stars;
     private boolean isStarsEnabled;
+    private static boolean isModuleEnabled;
 
     //TODO make whitelist mode
     //TODO make disable ColorNick module
     public TABManager () {
         con = new Connector();
+        instance = Bridge.getInstance();
+        isModuleEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
+        isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         stars = new Stars(con);
+        saver = instance.getSaver();
     }
 
     protected void register () {
         if(!NicknameColorManager.setup(con)) return;
-        isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         Bukkit.getPluginManager().registerEvents(this, instance);
         TabAPI.getInstance().getEventBus().register(this);
     }
@@ -115,6 +119,9 @@ public class TABManager implements Listener, TabEvent {
         }.runTaskAsynchronously(instance);
     }
 
+    public static boolean isModuleEnabled() {
+        return isModuleEnabled;
+    }
     public @Nullable Currency getStars() {
         if (isStarsEnabled) return stars;
         else return null;

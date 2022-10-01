@@ -28,14 +28,16 @@ public class Stars extends Currency {
 
     @Override
     public int getCurrencyAmount(@NotNull final UUID uuid) {
+        if(NicknameColorManager.getLatelyUsedPlayers().contains(uuid)) {
+            return NicknameColorManager.getPlayerInfo(uuid).stars();
+        }
         ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
-        int had = -1;
         try {
-            return rs.getInt("stars");
+            if(rs.next()) return rs.getInt("stars");
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
         }
-        return had;
+        return -1;
     }
 
     @Override

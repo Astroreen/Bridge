@@ -19,6 +19,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -27,10 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @CustomLog
 public class NicknameColorManager {
@@ -125,7 +123,7 @@ public class NicknameColorManager {
     public static int getHexColorCost(final String hex) {
         if (ColorCodes.isHexValid(hex)) {
             String color = getColorNameByHex(hex);
-            if(color == null) return -1;
+            if (color == null) return -1;
             return getColorCost(color);
         }
         return -1;
@@ -206,12 +204,12 @@ public class NicknameColorManager {
         else {
             ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
             try {
-                if(rs.next()) hex = rs.getString("color");
+                if (rs.next()) hex = rs.getString("color");
             } catch (SQLException e) {
                 LOG.error("There was an exception with SQL", e);
                 return null;
             }
-            if(hex == null) return null;
+            if (hex == null) return null;
             final String finalHex = hex;
             new BukkitRunnable() {
                 @Override
@@ -238,21 +236,20 @@ public class NicknameColorManager {
      * @param toColor   to what hex color replace
      */
     public static boolean globallyReplaceColors(String fromColor, String toColor) {
-        if (ColorCodes.isHexValid(fromColor) && ColorCodes.isHexValid(toColor)) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    try {
-                        List<Player> list = getPlayersWhoHasHexColor(fromColor);
-                        for (Player p : list) applyNicknameColor(p, toColor, true);
-                    } catch (SQLException e) {
-                        LOG.error("There was an exception with SQL", e);
-                    }
+        if (!ColorCodes.isHexValid(fromColor) || !ColorCodes.isHexValid(toColor)) return false;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    List<Player> list = getPlayersWhoHasHexColor(fromColor);
+                    for (Player p : list) applyNicknameColor(p, toColor, true);
+                } catch (SQLException e) {
+                    LOG.error("There was an exception with SQL", e);
                 }
-            }.runTaskAsynchronously(instance);
-            saver.add(new Saver.Record(UpdateType.CHANGE_ALL_COLORS, fromColor, toColor));
-            return true;
-        } else return false;
+            }
+        }.runTaskAsynchronously(instance);
+        saver.add(new Saver.Record(UpdateType.CHANGE_ALL_COLORS, fromColor, toColor));
+        return true;
     }
 
     public static PlayerColor getPlayerInfo(final UUID uuid) {
@@ -348,16 +345,16 @@ public class NicknameColorManager {
     protected static void reload() {
         ramColors.clear();
         playerHex.clear();
-        task.cancel();
+        Bukkit.getScheduler().cancelTask(task.getTaskId());
         UpdateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
-        if(task.isCancelled()) task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
+        if (task.isCancelled()) task = runnable.runTaskTimerAsynchronously(instance, UpdateTime, UpdateTime);
         new BukkitRunnable() {
             @Override
             public void run() {
                 if (instance.isConfigSet()) {
                     List<String> disabledGroups = colorConfig.getStringList("settings.disabledGroups");
                     for (String group : getGroups()) {
-                        if(disabledGroups.contains(group)) continue;
+                        if (disabledGroups.contains(group)) continue;
                         List<String> groupColors = getGroupColors(group);
                         List<PlayerColor> list = new ArrayList<>();
                         for (int i = 0; i <= groupColors.size(); i++) {
@@ -395,6 +392,11 @@ public class NicknameColorManager {
         for (Player p : Bukkit.getOnlinePlayers())
             if (uuids.contains(p.getUniqueId().toString())) has.add(p);
         return has;
+    }
+
+    @Contract(pure = true)
+    protected static @NotNull Set<Map.Entry<UUID, PlayerColor>> getLatelyUsedPlayers() {
+        return playerHex.entrySet();
     }
 
     public record PlayerColor(String color, String hex, int cost, int stars) {
