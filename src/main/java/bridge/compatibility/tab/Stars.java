@@ -29,7 +29,8 @@ public class Stars extends Currency {
     @Override
     public int getCurrencyAmount(@NotNull final UUID uuid) {
         if(NicknameColorManager.getLatelyUsedPlayers().contains(uuid)) {
-            return NicknameColorManager.getPlayerInfo(uuid).stars();
+            NicknameColorManager.PlayerColor info = NicknameColorManager.getPlayerInfo(uuid);
+            if(info != null) return info.stars();
         }
         ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
         try {

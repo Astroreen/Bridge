@@ -20,7 +20,11 @@ public enum QueryType {
     SELECT_STARS(prefix -> "SELECT stars FROM " + prefix + "nickname WHERE playerID = ?;"),
 
     /**
-     * Select all from nickname table.
+     * Select all uuids from nickname table.
+     */
+    LOAD_ALL_NICKNAME_UUIDS(prefix -> "SELECT playerID FROM " + prefix + "nickname"),
+    /**
+     * Select playerID and color from nickname table.
      */
     LOAD_ALL_NICKNAME_COLORS(prefix -> "SELECT playerID,color FROM " + prefix + "nickname"),
     ;

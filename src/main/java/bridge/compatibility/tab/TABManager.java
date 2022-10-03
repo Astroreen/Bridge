@@ -15,21 +15,19 @@ import me.neznamy.tab.api.event.TabEvent;
 import me.neznamy.tab.api.event.player.PlayerLoadEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 @CustomLog
-public class TABManager implements Listener, TabEvent {
+public class TABManager implements TabEvent {
 
     private final Bridge instance;
     private final Saver saver;
@@ -37,34 +35,39 @@ public class TABManager implements Listener, TabEvent {
     private final Currency stars;
     private boolean isStarsEnabled;
     private static boolean isModuleEnabled;
+    private final List<UUID> exist;
 
     //TODO make whitelist mode
-    //TODO make disable ColorNick module
     public TABManager () {
-        con = new Connector();
         instance = Bridge.getInstance();
+        con = new Connector();
+        exist = new ArrayList<>();
+        stars = new Stars(con);
         isModuleEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
-        stars = new Stars(con);
         saver = instance.getSaver();
     }
 
     protected void register () {
-        if(!NicknameColorManager.setup(con)) return;
-        Bukkit.getPluginManager().registerEvents(this, instance);
+        if(!NicknameColorManager.setup(instance)) return;
         TabAPI.getInstance().getEventBus().register(this);
+        exist.clear();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_UUIDS);
+                try {
+                    while(rs.next())
+                        exist.add(UUID.fromString(rs.getString("playerID")));
+                } catch (SQLException e) {
+                    LOG.error("There was an exception with SQL", e);
+                }
+            }
+        }.runTaskAsynchronously(instance);
     }
 
     protected void unregister () {
         TabAPI.getInstance().getEventBus().unregister(this);
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin (@NotNull final PlayerJoinEvent event) {
-        if(!event.getPlayer().hasPlayedBefore()){
-            //save async to database
-            saver.add(new Saver.Record(UpdateType.ADD_NICKNAME, event.getPlayer().getUniqueId().toString(), NicknameColorManager.getDefaultColor()));
-        }
     }
 
     @Subscribe
@@ -79,7 +82,13 @@ public class TABManager implements Listener, TabEvent {
 
         //cuz event was fired, and we can get from it TabPlayer instance
         assert p != null;
-        if(!p.hasPlayedBefore()) return;
+        if(!exist.contains(uuid)){
+            exist.add(uuid);
+            String color = NicknameColorManager.getDefaultColor();
+            NicknameColorManager.applyNicknameColor(p, color, false);
+            saver.add(new Saver.Record(UpdateType.ADD_NICKNAME, uuid.toString(), color));
+            return;
+        }
 
         try {
             ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
@@ -96,7 +105,8 @@ public class TABManager implements Listener, TabEvent {
 
     protected void reload () {
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
-        NicknameColorManager.reload();
+        NicknameColorManager.setup(instance);
+        exist.clear();
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -104,8 +114,10 @@ public class TABManager implements Listener, TabEvent {
                 try {
                     HashMap<UUID, String> data = new HashMap<>();
                     while(rs.next()) {
+                        UUID uuid = UUID.fromString(rs.getString("playerID"));
+                        exist.add(uuid);
                         data.put(
-                                UUID.fromString(rs.getString("playerID")),
+                                uuid,
                                 rs.getString("color")
                         );
                     }
@@ -125,10 +137,6 @@ public class TABManager implements Listener, TabEvent {
     public @Nullable Currency getStars() {
         if (isStarsEnabled) return stars;
         else return null;
-    }
-
-    public static void hidePlayersNickname () {
-        //TODO hide players nickname and run this method for
     }
 
 }

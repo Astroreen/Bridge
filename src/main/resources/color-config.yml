@@ -9,7 +9,7 @@ settings:
 default: "#CCFFCC"
 groups:
   testgroup:
-    white: "#ffffff 10"
-    gray: "#cfcfcf 100"
+    white: "#ffffff:10"
+    gray: "#cfcfcf:100"
   Astroreen:
-    black: "#000000 1000"
+    black: "#000000:1000"

@@ -110,7 +110,8 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (sender instanceof Player player) {
                         String color = NicknameColorManager.getPlayerColor(player.getUniqueId(), false);
                         if (color == null) {
-                            sendMessage(player, MessageType.YOUR_NICKNAME_IS_UNIQUE);
+                            sendMessage(player, MessageType.YOUR_NICKNAME_COLOR,
+                                    NicknameColorManager.getPlayerColor(player.getUniqueId(), true));
                             return;
                         }
                         sendMessage(
@@ -286,7 +287,6 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                         int have = currency.getCurrencyAmount(player.getUniqueId());
                         currency.setCurrency(player.getUniqueId(), have + toAdd);
                         sendMessage(player, MessageType.YOUR_NICKNAME_STARS_CHANGED, String.valueOf(have + toAdd));
-                        sendMessage(sender, MessageType.OTHER_PLAYER_NICKNAME_STARS_CHANGED, String.valueOf(have + toAdd));
                     } else sendMessage(sender, MessageType.NEED_TO_BE_PLAYER);
                 } else if (args.length == 5) {
                     if (noPermission(sender, "bridge.nickname.stars.add.other")) return;
