@@ -24,10 +24,9 @@ public abstract class Database {
         this.prefix = plugin.getPluginConfig().getString("mysql.prefix", "");
     }
 
+    //TODO make connection always refreshed
     public Connection getConnection() {
-        if (con == null) {
-            con = openConnection();
-        }
+        if (con == null) con = openConnection();
         return con;
     }
 
