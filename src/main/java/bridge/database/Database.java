@@ -27,8 +27,8 @@ public abstract class Database {
     //TODO make connection always refreshed
     public Connection getConnection() {
         try {
-            //4 seconds to validate connection
-            if (con == null || con.isClosed() || !con.isValid(4)) con = openConnection();
+            //3 seconds to validate connection
+            if (con == null || con.isClosed() || !con.isValid(3)) con = openConnection();
         } catch (SQLException e){
             LOG.error("There was an exception with SQL", e);
         }
