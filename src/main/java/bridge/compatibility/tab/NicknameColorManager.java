@@ -334,6 +334,7 @@ public class NicknameColorManager {
             } else return List.of();
         }
         List<String> list = new ArrayList<>();
+        if(!ramColors.containsKey(group)) return List.of();
         for (PlayerColor color : ramColors.get(group)) {
             if (color != null) list.add(color.color());
         }
@@ -356,6 +357,7 @@ public class NicknameColorManager {
             if (setting == null) return null;
             return setting.split(":", 2)[0];
         }
+        if(!ramColors.containsKey(group)) return null;
         for (PlayerColor playerColor : ramColors.get(group)) {
             if (playerColor.color().equalsIgnoreCase(color)) return playerColor.hex();
         }
