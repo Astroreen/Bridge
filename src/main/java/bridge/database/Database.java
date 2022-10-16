@@ -24,7 +24,6 @@ public abstract class Database {
         this.prefix = plugin.getPluginConfig().getString("mysql.prefix", "");
     }
 
-    //TODO make connection always refreshed
     public Connection getConnection() {
         try {
             //3 seconds to validate connection

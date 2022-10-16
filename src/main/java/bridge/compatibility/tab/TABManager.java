@@ -33,23 +33,23 @@ public class TABManager implements TabEvent {
     private final Saver saver;
     private final Connector con;
     private final Currency stars;
-    private boolean isStarsEnabled;
-    private static boolean isModuleEnabled;
     private final List<UUID> exist;
+    private static boolean isModuleEnabled;
+    private boolean isStarsEnabled;
+    private NicknameColorManager manager = null;
 
-    //TODO make whitelist mode
     public TABManager () {
         instance = Bridge.getInstance();
-        con = new Connector();
-        exist = new ArrayList<>();
-        stars = new Stars(con);
+        saver = instance.getSaver();
         isModuleEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
-        saver = instance.getSaver();
+        if (isModuleEnabled) manager = new NicknameColorManager(instance);
+        con = new Connector();
+        exist = new ArrayList<>();
+        stars = new Stars(manager, con);
     }
 
     protected void register () {
-        if(!NicknameColorManager.setup(instance)) return;
         TabAPI.getInstance().getEventBus().register(this);
         exist.clear();
         new BukkitRunnable() {
@@ -84,8 +84,8 @@ public class TABManager implements TabEvent {
         assert p != null;
         if(!exist.contains(uuid)){
             exist.add(uuid);
-            String color = NicknameColorManager.getDefaultColor();
-            NicknameColorManager.applyNicknameColor(p, color, false);
+            String color = manager.getDefaultColor();
+            manager.applyNicknameColor(p, color, false);
             saver.add(new Saver.Record(UpdateType.ADD_NICKNAME, uuid.toString(), color));
             return;
         }
@@ -94,18 +94,18 @@ public class TABManager implements TabEvent {
             ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
             if(rs.next()){
                 final String hex = rs.getString("color");
-                if (hex == null) NicknameColorManager.applyNicknameColor(p, NicknameColorManager.getDefaultColor(), false);
-                NicknameColorManager.applyNicknameColor(p, hex, false);
+                if (hex == null) manager.applyNicknameColor(p, manager.getDefaultColor(), false);
+                manager.applyNicknameColor(p, hex, false);
             }
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
-            NicknameColorManager.applyNicknameColor(p, NicknameColorManager.getDefaultColor(), false);
+            manager.applyNicknameColor(p, manager.getDefaultColor(), false);
         }
     }
 
     protected void reload () {
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
-        NicknameColorManager.setup(instance);
+        manager.reload();
         exist.clear();
         new BukkitRunnable() {
             @Override
@@ -122,8 +122,7 @@ public class TABManager implements TabEvent {
                         );
                     }
                     Bukkit.getOnlinePlayers().forEach((p) ->
-                            NicknameColorManager.applyNicknameColor(
-                                    p, data.get(p.getUniqueId()), false));
+                            manager.applyNicknameColor(p, data.get(p.getUniqueId()), false));
                 } catch (SQLException e) {
                     LOG.error("There was an exception with SQL", e);
                 }
@@ -131,12 +130,16 @@ public class TABManager implements TabEvent {
         }.runTaskAsynchronously(instance);
     }
 
-    public static boolean isModuleEnabled() {
-        return isModuleEnabled;
-    }
     public @Nullable Currency getStars() {
         if (isStarsEnabled) return stars;
         else return null;
+    }
+
+    public @Nullable NicknameColorManager getManager () {
+        return manager;
+    }
+    public static boolean isModuleEnabled() {
+        return isModuleEnabled;
     }
 
 }

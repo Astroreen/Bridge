@@ -17,19 +17,21 @@ import java.util.UUID;
 public class Stars extends Currency {
 
     private final Connector con;
+    private final NicknameColorManager manager;
     private final Saver saver;
 
-    public Stars (Connector con) {
+    public Stars (NicknameColorManager manager, Connector con) {
         super("stars");
         this.con = con;
+        this.manager = manager;
         Bridge instance = Bridge.getInstance();
         saver = instance.getSaver();
     }
 
     @Override
     public int getCurrencyAmount(@NotNull final UUID uuid) {
-        if(NicknameColorManager.getLatelyUsedPlayers().contains(uuid)) {
-            NicknameColorManager.PlayerColor info = NicknameColorManager.getPlayerInfo(uuid);
+        if(manager.getLatelyUsedPlayers().contains(uuid)) {
+            NicknameColorManager.PlayerColor info = manager.getPlayerInfo(uuid);
             if(info != null) return info.stars();
         }
         ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
