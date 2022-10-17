@@ -1,6 +1,7 @@
 package bridge.compatibility.tab;
 
 import bridge.Bridge;
+import bridge.compatibility.Compatibility;
 import bridge.config.ConfigurationFile;
 import bridge.database.Connector;
 import bridge.database.QueryType;
@@ -37,6 +38,7 @@ public class NicknameColorManager {
     private Connector con;
     private ConfigurationFile colorConfig;
     private String defaultColor;
+    private String defaultNickColor;
     private int taskID = -1;
     private List<String> disabledGroups;
     private boolean whitelist;
@@ -45,13 +47,9 @@ public class NicknameColorManager {
     private final HashMap<String, List<PlayerColor>> ramColors;
     private final HashMap<UUID, PlayerColor> playerHex;
     private final Runnable runnable;
+    private NicknamePlaceholders placeholders = null;
 
-    //TODO fix bug with checking color name from hex, using 1 option of database suggestion below
-    //TODO check if hex has name by making table in database for it
-    //like:
-    //color     stars   name->name/custom
-    //#cfcfcf   0       gray->none/true
-    protected NicknameColorManager (Bridge plugin) {
+    protected NicknameColorManager(Bridge plugin) {
         instance = plugin;
         saver = instance.getSaver();
         con = new Connector();
@@ -64,102 +62,14 @@ public class NicknameColorManager {
             LOG.warn(e.getMessage(), e);
         }
         whitelist = colorConfig.getBoolean("settings.WhitelistMode", false);
+        final long updateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
+        //registering placeholders if plugin is enabled
+        if(Compatibility.getHooked().contains("PlaceholderAPI")) {
+            placeholders = new NicknamePlaceholders();
+            placeholders.setup(this, updateTime);
+            placeholders.register();
+        }
         reload();
-    }
-
-    /**
-     * Get group of the color.
-     *
-     * @param color the color to fond the group from
-     * @return the group if found one
-     */
-    public @Nullable String getColorGroup(final String color) {
-        for (String group : getGroups()) {
-            for (String colors : getGroupColors(color)) {
-                if (colors.equalsIgnoreCase(color)) return group;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get hex from given color.
-     *
-     * @param color color for nickname. May be null. You can get this value from {@code getGroupColors} method
-     * @return color or null
-     */
-    public @Nullable String getColorHex(final String color) {
-        for (String group : getGroups()) {
-            for (String colors : getGroupColors(group)) {
-                if (colors.equalsIgnoreCase(color)) return getColorHex(group, colors);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get first to match color cost from color name
-     *
-     * @param color the color
-     * @return cost of the color from color-config.yml
-     */
-    public int getColorCost(final String color) {
-        for (String group : getGroups()) {
-            for (String colors : getGroupColors(group)) {
-                if (colors.equalsIgnoreCase(color)) return getColorCost(group, color);
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Get cost to be able to apply color to nickname.
-     *
-     * @param group group that you can get from {@code getGroup} method
-     * @param color color for nickname that you can get from {@code getGroupColors} method
-     * @return cost amount; -1 if something went wrong or group doesn't exist
-     */
-    public int getColorCost(final String group, final String color) {
-        if(whitelist && !disabledGroups.contains(group)) return -1;
-        else if(!whitelist && disabledGroups.contains(group)) return -1;
-        if (ramColors.isEmpty()) {
-            String setting = colorConfig.getString(String.format("groups.%s.%s", group, color));
-            if (setting == null) return -1;
-            return Integer.parseInt(setting.split(":")[1], 10);
-        }
-        if (!ramColors.containsKey(group)) return -1;
-        for (PlayerColor playerColor : ramColors.get(group)) {
-            if (playerColor.color().equalsIgnoreCase(color)) return playerColor.cost();
-        }
-        return -1;
-    }
-
-    /**
-     * Get first to match color cost from color hex
-     *
-     * @param hex hex color
-     * @return cost of the color from color-config.yml
-     */
-    public int getHexColorCost(final String hex) {
-        if (ColorCodes.isHexValid(hex)) {
-            String color = getColorNameByHex(hex);
-            if (color == null) return -1;
-            return getColorCost(color);
-        }
-        return -1;
-    }
-
-    /**
-     * Get all colors names from all groups
-     *
-     * @return list of colors names
-     */
-    public @NotNull List<String> getAllColorsName() {
-        List<String> list = new ArrayList<>();
-        for (String group : getGroups()) {
-            list.addAll(getGroupColors(group));
-        }
-        return list;
     }
 
     /**
@@ -188,75 +98,18 @@ public class NicknameColorManager {
             @Override
             public void run() {
                 final String color = getColorNameByHex(hex);
+                final String nickcolor = getNicknameColor(color);
                 final int cost = getHexColorCost(hex);
                 final int stars = getPlayerStars(uuid);
                 if (color == null
+                        || nickcolor == null
                         || cost == -1
                         || stars == -1) return;
-                playerHex.put(uuid, new PlayerColor(color, hex, cost, stars));
+                playerHex.put(uuid, new PlayerColor(color, hex, nickcolor, cost, stars));
             }
         }.runTaskAsynchronously(instance);
         //save to database async
         if (save) saver.add(new Saver.Record(UpdateType.UPDATE_COLOR, hex, uuid.toString()));
-    }
-
-
-    /**
-     * Find color name by hex.
-     *
-     * @param hex hex color to find in {@code color-config.yml}.
-     * @return color name if exist or null if not
-     */
-    public @Nullable String getColorNameByHex(final String hex) {
-        for (String group : getGroups()) {
-            for (String color : getGroupColors(group)) {
-                String found = getColorHex(group, color);
-                if (found != null && found.equalsIgnoreCase(hex)) return found;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Gets player color.
-     *
-     * @param uuid      Player's {@link UUID}
-     * @param returnHex return hex or color name
-     * @return color hex or name
-     */
-    public @Nullable String getPlayerColor(@NotNull final UUID uuid, final boolean returnHex) {
-        String hex = null;
-        if (playerHex.containsKey(uuid)) hex = playerHex.get(uuid).hex();
-        else {
-            ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
-            try {
-                if (rs.next()) hex = rs.getString("color");
-            } catch (SQLException e) {
-                LOG.error("There was an exception with SQL", e);
-                return null;
-            }
-            if (hex == null) return null;
-            if (!returnHex) {
-                final String finalHex = hex;
-                final String color = getColorNameByHex(hex);
-                if (color != null) {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            final int cost = getHexColorCost(finalHex);
-                            final int stars = getPlayerStars(uuid);
-                            if (cost == -1 || stars == -1) return;
-                            playerHex.put(uuid,
-                                    new PlayerColor(color, finalHex, cost, stars)
-                            );
-                        }
-                    }.runTaskAsynchronously(instance);
-                }
-                return color;
-
-            }
-        }
-        return hex;
     }
 
     /**
@@ -282,20 +135,6 @@ public class NicknameColorManager {
         return true;
     }
 
-    public @Nullable PlayerColor getPlayerInfo(final UUID uuid) {
-        if (playerHex.containsKey(uuid)) return playerHex.get(uuid);
-        else {
-            final String hex = getPlayerColor(uuid, true);
-            final String color = getColorNameByHex(hex);
-            final int cost = getHexColorCost(hex);
-            final int stars = getPlayerStars(uuid);
-            if (hex == null || color == null || cost == -1 || stars == -1) return null;
-            PlayerColor answer = new PlayerColor(color, hex, cost, stars);
-            playerHex.put(uuid, answer);
-            return answer;
-        }
-    }
-
     /**
      * Get all group that was defined in {@code color-config.yml}.
      *
@@ -307,8 +146,8 @@ public class NicknameColorManager {
             if (groups != null) {
                 List<String> arr = new ArrayList<>();
                 for (String group : groups.getKeys(false)) {
-                    if(whitelist && !disabledGroups.contains(group)) continue;
-                    else if(!whitelist && disabledGroups.contains(group)) continue;
+                    if (whitelist && !disabledGroups.contains(group)) continue;
+                    else if (!whitelist && disabledGroups.contains(group)) continue;
                     arr.add(group);
                 }
                 return arr;
@@ -323,8 +162,8 @@ public class NicknameColorManager {
      * @return empty if not exist or list of group colors
      */
     protected @NotNull List<String> getGroupColors(@NotNull final String group) {
-        if(whitelist && !disabledGroups.contains(group)) return List.of();
-        else if(!whitelist && disabledGroups.contains(group)) return List.of();
+        if (whitelist && !disabledGroups.contains(group)) return List.of();
+        else if (!whitelist && disabledGroups.contains(group)) return List.of();
 
         if (ramColors.isEmpty()) {
             ConfigurationSection colors =
@@ -334,11 +173,93 @@ public class NicknameColorManager {
             } else return List.of();
         }
         List<String> list = new ArrayList<>();
-        if(!ramColors.containsKey(group)) return List.of();
+        if (!ramColors.containsKey(group)) return List.of();
         for (PlayerColor color : ramColors.get(group)) {
             if (color != null) list.add(color.color());
         }
         return list;
+    }
+
+    /**
+     * Get group of the color.
+     *
+     * @param color the color to fond the group from
+     * @return the group if found one
+     */
+    public @Nullable String getColorGroup(final String color) {
+        for (String group : getGroups()) {
+            for (String colors : getGroupColors(color)) {
+                if (colors.equalsIgnoreCase(color)) return group;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get first to match color cost from color name
+     *
+     * @param color the color
+     * @return cost amount; -1 if something went wrong or group doesn't exist
+     */
+    public int getColorCost(final String color) {
+        for (String group : getGroups()) {
+            for (String colors : getGroupColors(group)) {
+                if (colors.equalsIgnoreCase(color)) return getColorCost(group, color);
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get cost to be able to apply color to nickname.
+     *
+     * @param group group that you can get from {@code getGroup} method
+     * @param color color for nickname that you can get from {@code getGroupColors} method
+     * @return cost amount; -1 if something went wrong or group doesn't exist
+     */
+    public int getColorCost(final String group, final String color) {
+        if (whitelist && !disabledGroups.contains(group)) return -1;
+        else if (!whitelist && disabledGroups.contains(group)) return -1;
+        if (ramColors.isEmpty()) {
+            String setting = colorConfig.getString(String.format("groups.%s.%s", group, color));
+            if (setting == null) return -1;
+            return Integer.parseInt(setting.split(":", 3)[1], 10);
+        }
+        if (!ramColors.containsKey(group)) return -1;
+        for (PlayerColor playerColor : ramColors.get(group)) {
+            if (playerColor.color().equalsIgnoreCase(color)) return playerColor.cost();
+        }
+        return -1;
+    }
+
+    /**
+     * Get first to match color cost from color hex
+     *
+     * @param hex hex color
+     * @return cost of the color from color-config.yml
+     */
+    public int getHexColorCost(final String hex) {
+        if (ColorCodes.isHexValid(hex)) {
+            String color = getColorNameByHex(hex);
+            if (color == null) return -1;
+            return getColorCost(color);
+        }
+        return -1;
+    }
+
+    /**
+     * Get hex from given color.
+     *
+     * @param color color for nickname. May be null. You can get this value from {@code getGroupColors} method
+     * @return color or null if not exist
+     */
+    public @Nullable String getColorHex(final String color) {
+        for (String group : getGroups()) {
+            for (String colors : getGroupColors(group)) {
+                if (colors.equalsIgnoreCase(color)) return getColorHex(group, colors);
+            }
+        }
+        return null;
     }
 
     /**
@@ -349,29 +270,139 @@ public class NicknameColorManager {
      * @return color or null
      */
     protected @Nullable String getColorHex(final String group, final String color) {
-        if(whitelist && !disabledGroups.contains(group)) return null;
-        else if(!whitelist && disabledGroups.contains(group)) return null;
+        if (whitelist && !disabledGroups.contains(group)) return null;
+        else if (!whitelist && disabledGroups.contains(group)) return null;
 
         if (ramColors.isEmpty()) {
             String setting = colorConfig.getString(String.format("groups.%s.%s", group, color));
             if (setting == null) return null;
-            return setting.split(":", 2)[0];
+            return setting.split(":", 3)[0];
         }
-        if(!ramColors.containsKey(group)) return null;
+        if (!ramColors.containsKey(group)) return null;
         for (PlayerColor playerColor : ramColors.get(group)) {
             if (playerColor.color().equalsIgnoreCase(color)) return playerColor.hex();
         }
         return null;
     }
 
+
+    /**
+     * Find color name by hex.
+     *
+     * @param hex hex color to find in {@code color-config.yml}.
+     * @return color name or null if not exist
+     */
+    public @Nullable String getColorNameByHex(final String hex) {
+        for (String group : getGroups()) {
+            for (String color : getGroupColors(group)) {
+                String found = getColorHex(group, color);
+                if (found != null && found.equalsIgnoreCase(hex)) return color;
+            }
+        }
+        return null;
+    }
+
+    public @Nullable String getNicknameColor(final String color) {
+        for (String group : getGroups()) {
+            for (String colors : getGroupColors(group)) {
+                if (colors.equalsIgnoreCase(color)) return getNicknameColor(group, color);
+            }
+        }
+        return null;
+    }
+
+    public @Nullable String getNicknameColor(final String group, final String color) {
+        if (whitelist && !disabledGroups.contains(group)) return null;
+        else if (!whitelist && disabledGroups.contains(group)) return null;
+
+        if (ramColors.isEmpty()) {
+            String setting = colorConfig.getString(String.format("groups.%s.%s", group, color));
+            if (setting == null) return null;
+            return setting.split(":", 3)[2];
+        }
+        if (!ramColors.containsKey(group)) return null;
+        for (PlayerColor playerColor : ramColors.get(group)) {
+            if (playerColor.color().equalsIgnoreCase(color)) return playerColor.nickcolor();
+        }
+        return null;
+    }
+
+    /**
+     * Gets player color.
+     *
+     * @param uuid      Player's {@link UUID}
+     * @param returnHex return hex or color name
+     * @return color hex or name
+     */
+    public @Nullable String getPlayerColor(@NotNull final UUID uuid, final boolean returnHex) {
+        String hex = null;
+        if (playerHex.containsKey(uuid)) hex = playerHex.get(uuid).hex();
+        else {
+            final ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
+            try {
+                if (rs.next()) hex = rs.getString("color");
+            } catch (SQLException e) {
+                LOG.error("There was an exception with SQL", e);
+                return null;
+            }
+        }
+        if (hex == null) return null;
+        else if (returnHex) return hex;
+        final String finalHex = hex;
+        final String color = getColorNameByHex(hex);
+        if (color == null) return null;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                final String nickcolor = getNicknameColor(color);
+                final int cost = getColorCost(color);
+                final int stars = getPlayerStars(uuid);
+                if (nickcolor == null || cost == -1 || stars == -1) return;
+                playerHex.put(uuid,
+                        new PlayerColor(color, finalHex, nickcolor, cost, stars)
+                );
+            }
+        }.runTaskAsynchronously(instance);
+        return color;
+    }
+
+    public @Nullable PlayerColor getPlayerInfo(final UUID uuid) {
+        if (playerHex.containsKey(uuid)) return playerHex.get(uuid);
+        else {
+            final String hex = getPlayerColor(uuid, true);
+            final String color = getColorNameByHex(hex);
+            final String nickcolor = getNicknameColor(color);
+            final int cost = getHexColorCost(hex);
+            final int stars = getPlayerStars(uuid);
+            if (hex == null || color == null || nickcolor == null || cost == -1 || stars == -1) return null;
+            PlayerColor answer = new PlayerColor(color, hex, nickcolor, cost, stars);
+            playerHex.put(uuid, answer);
+            return answer;
+        }
+    }
+
     private int getPlayerStars(@NotNull final UUID uuid) {
         if (playerHex.containsKey(uuid)) return playerHex.get(uuid).stars();
-        ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
+        final ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
         try {
-            return rs.getInt("stars");
+            if (rs.next()) return rs.getInt("stars");
         } catch (SQLException e) {
-            return -1;
+            LOG.error("There was an exception with SQL", e);
         }
+        return -1;
+    }
+
+    /**
+     * Get all colors names from all groups
+     *
+     * @return list of colors names
+     */
+    public @NotNull List<String> getAllColorsName() {
+        List<String> list = new ArrayList<>();
+        for (String group : getGroups()) {
+            list.addAll(getGroupColors(group));
+        }
+        return list;
     }
 
     private @Unmodifiable List<Player> getPlayersWhoHasHexColor(String color) throws SQLException {
@@ -389,17 +420,26 @@ public class NicknameColorManager {
     /**
      * @return true if successfully reload
      */
-    public boolean reload () {
+    public boolean reload() {
         con = new Connector();
         try {
             colorConfig.reload();
-            final String color = colorConfig.getString("default", "#CFCFCF");
+            final String before = colorConfig.getString("default", "#CFCFCF:#545454");
+            final String color = before.split(":",2)[0];
+            final String nickcolor = before.split(":",2)[1];
             if (ColorCodes.isHexValid(color)) {
                 defaultColor = color;
                 LOG.debug("Default color now is: " + color);
             } else {
                 defaultColor = "#CFCFCF";
                 LOG.error("Wrong default color in color-config. Using default #CFCFCF");
+            }
+            if (ColorCodes.isHexValid(nickcolor)) {
+                defaultNickColor = nickcolor;
+                LOG.debug("Default nickcolor now is: " + nickcolor);
+            } else {
+                defaultNickColor = "#CFCFCF";
+                LOG.error("Wrong default nickcolor in color-config. Using default #545454");
             }
         } catch (IOException e) {
             LOG.error("Could not load the config.yml file!", e);
@@ -414,7 +454,7 @@ public class NicknameColorManager {
             Bukkit.getScheduler().cancelTask(taskID);
         }
 
-        long updateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
+        final long updateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
         disabledGroups = colorConfig.getStringList("settings.disabledGroups");
         whitelist = colorConfig.getBoolean("settings.WhitelistMode", false);
         LOG.debug("Creating new repeating task");
@@ -423,19 +463,22 @@ public class NicknameColorManager {
             @Override
             public void run() {
                 for (String group : getGroups()) {
-                    if(whitelist && !disabledGroups.contains(group)) continue;
+                    if (whitelist && !disabledGroups.contains(group)) continue;
                     else if (!whitelist && disabledGroups.contains(group)) continue;
                     List<String> groupColors = getGroupColors(group);
                     List<PlayerColor> list = new ArrayList<>();
                     for (String groupColor : groupColors) {
                         final String hex = getColorHex(group, groupColor);
+                        if(groupColor == null) continue;
+                        final String nickcolor = getNicknameColor(groupColor);
                         final int cost = getColorCost(group, groupColor);
-                        if (groupColor == null
+                        if (nickcolor == null
                                 || hex == null
                                 || cost == -1) continue;
                         list.add(new PlayerColor(
                                 groupColor,
                                 hex,
+                                nickcolor,
                                 cost,
                                 0
                         ));
@@ -444,9 +487,10 @@ public class NicknameColorManager {
                     ramColors.put(group, list);
                 }
                 ramColors.put("default",
-                        Collections.singletonList(new PlayerColor("default", defaultColor, 0, 0)));
+                        Collections.singletonList(new PlayerColor("default", defaultColor, defaultNickColor, 0, 0)));
             }
         }.runTaskAsynchronously(instance);
+        placeholders.setup(this, updateTime);
         return true;
     }
 
@@ -458,15 +502,17 @@ public class NicknameColorManager {
     public String getDefaultColor() {
         return defaultColor;
     }
+
     @Contract(pure = true)
     protected @NotNull Set<Map.Entry<UUID, PlayerColor>> getLatelyUsedPlayers() {
         return playerHex.entrySet();
     }
 
-    record PlayerColor(String color, String hex, int cost, int stars) {
-        public PlayerColor(final String color, final String hex, final int cost, final int stars) {
+    record PlayerColor(String color, String hex, String nickcolor,int cost, int stars) {
+        public PlayerColor(final String color, final String hex, final String nickcolor, final int cost, final int stars) {
             this.color = color;
             this.hex = ColorCodes.isHexValid(hex) ? hex : null;
+            this.nickcolor = nickcolor;
             this.cost = cost < 0 ? cost * (-1) : cost;
             this.stars = Math.max(stars, 0);
         }

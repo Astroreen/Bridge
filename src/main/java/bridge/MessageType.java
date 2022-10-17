@@ -50,7 +50,7 @@ public enum MessageType {
     SET_DEBUG_ERROR("debug.set_debug_error"),
     /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
     /**
-     * Variables: Current nickname color name or hex
+     * Variables: Current nickname color name
      */
     YOUR_NICKNAME_COLOR("hooks.tab.colors.your_color"),
     /**
@@ -66,7 +66,7 @@ public enum MessageType {
      */
     YOUR_NICKNAME_IS_UNIQUE("hooks.tab.colors.your_color_is_unique"),
     /**
-     * Variables: Checked player, Current nickname color name or hex
+     * Variables: Checked player, Current nickname color name
      */
     OTHER_PLAYER_NICKNAME_COLOR("hooks.tab.colors.other_player_color"),
     /**

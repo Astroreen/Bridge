@@ -112,9 +112,12 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (noPermission(sender, "bridge.nickname.color.have")) return;
                     if (sender instanceof Player player) {
                         String color = manager.getPlayerColor(player.getUniqueId(), false);
-                        if (color == null) {
-                            sendMessage(player, MessageType.YOUR_NICKNAME_COLOR,
+                        if(color == null && player.hasPermission("bridge.nickname.color.set.hex")) {
+                            sendMessage(sender, MessageType.YOUR_NICKNAME_COLOR,
                                     manager.getPlayerColor(player.getUniqueId(), true));
+                            return;
+                        } else if (color == null) {
+                            sendMessage(player, MessageType.YOUR_NICKNAME_IS_UNIQUE);
                             return;
                         }
                         sendMessage(
@@ -193,18 +196,20 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     Player player = PlayerConverter.getPlayer(args[3]);
                     if (player == null) sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
                     else {
-                        String hex = manager.getPlayerColor(player.getUniqueId(), true);
-                        String color = null;
-                        if (hex != null) {
-                            color = manager.getColorNameByHex(hex);
-                            if (color == null) color = hex;
+                        String color = manager.getPlayerColor(player.getUniqueId(), false);
+                        if(color == null && player.hasPermission("bridge.nickname.color.set.hex")) {
+                            sendMessage(sender, MessageType.OTHER_PLAYER_NICKNAME_COLOR,
+                                    player.getName(), manager.getPlayerColor(player.getUniqueId(), true));
+                            return;
+                        } else if (color == null) {
+                            sendMessage(sender, MessageType.OTHER_PLAYER_NICKNAME_IS_UNIQUE);
+                            return;
                         }
                         sendMessage(
                                 sender,
                                 MessageType.OTHER_PLAYER_NICKNAME_COLOR,
                                 player.getName(),
-                                color
-                        );
+                                color);
                     }
                 }
             }

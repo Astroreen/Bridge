@@ -6,10 +6,12 @@ settings:
   #Сколько может прожить информация об игроке в памяти.
   UpdateTime: 10 #в минутах
 
-default: "#CCFFCC"
+#В default ставится только цвет ника и цвет текста через ":".
+#В группах ставится цвет ника, стоимость, цвет текста через ":".
+default: "#CFCFCF:#545454"
 groups:
   testgroup:
-    white: "#ffffff:10"
-    gray: "#cfcfcf:100"
+    white: "#ffffff:10:#cfcfcf"
+    gray: "#cfcfcf:100:#ffffff"
   Astroreen:
-    black: "#000000:1000"
+    black: "#000000:1000:#545454"
