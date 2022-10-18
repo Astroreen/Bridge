@@ -85,7 +85,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     }
 
     private void handleNickName(final CommandSender sender, final String @NotNull ... args) {
-        NicknameColorManager manager = new TABManager().getManager();
+        NicknameColorManager manager = TABManager.getManager();
         if (manager == null) return;
         if (args.length < 2) {
             sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args);
@@ -360,7 +360,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
                     return Optional.of(names);
                 } else if (args[2].equalsIgnoreCase("set")) {
-                    NicknameColorManager manager = new TABManager().getManager();
+                    NicknameColorManager manager = TABManager.getManager();
                     if (manager == null) return Optional.empty();
                     return Optional.of(manager.getAllColorsName());
                 }

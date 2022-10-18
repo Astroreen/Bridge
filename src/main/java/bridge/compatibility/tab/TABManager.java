@@ -32,21 +32,25 @@ public class TABManager implements TabEvent {
     private final Bridge instance;
     private final Saver saver;
     private final Connector con;
-    private final Currency stars;
     private final List<UUID> exist;
     private static boolean isModuleEnabled;
     private boolean isStarsEnabled;
-    private NicknameColorManager manager = null;
+    private Currency stars = null;
+    private static NicknameColorManager manager = null;
 
     public TABManager () {
         instance = Bridge.getInstance();
         saver = instance.getSaver();
         isModuleEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
-        isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
-        if (isModuleEnabled) manager = new NicknameColorManager(instance);
+        if (isModuleEnabled) {
+            new NicknameColorManager(instance);
+            manager = NicknameColorManager.getInstance();
+        }
+
         con = new Connector();
+        isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
+        if (isStarsEnabled) stars = new Stars(manager, con);
         exist = new ArrayList<>();
-        stars = new Stars(manager, con);
     }
 
     protected void register () {
@@ -76,6 +80,7 @@ public class TABManager implements TabEvent {
             reload();
             return;
         }
+        if(!isModuleEnabled()) return;
         final TabPlayer player = event.getPlayer();
         final UUID uuid = player.getUniqueId();
         final Player p = PlayerConverter.getPlayer(uuid);
@@ -84,7 +89,7 @@ public class TABManager implements TabEvent {
         assert p != null;
         if(!exist.contains(uuid)){
             exist.add(uuid);
-            String color = manager.getDefaultColor();
+            String color = manager.getDefaultNickColor();
             manager.applyNicknameColor(p, color, false);
             saver.add(new Saver.Record(UpdateType.ADD_NICKNAME, uuid.toString(), color));
             return;
@@ -94,16 +99,17 @@ public class TABManager implements TabEvent {
             ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
             if(rs.next()){
                 final String hex = rs.getString("color");
-                if (hex == null) manager.applyNicknameColor(p, manager.getDefaultColor(), false);
+                if (hex == null) manager.applyNicknameColor(p, manager.getDefaultNickColor(), false);
                 manager.applyNicknameColor(p, hex, false);
             }
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
-            manager.applyNicknameColor(p, manager.getDefaultColor(), false);
+            manager.applyNicknameColor(p, manager.getDefaultNickColor(), false);
         }
     }
 
     protected void reload () {
+        if (!isModuleEnabled()) return;
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         manager.reload();
         exist.clear();
@@ -135,7 +141,7 @@ public class TABManager implements TabEvent {
         else return null;
     }
 
-    public @Nullable NicknameColorManager getManager () {
+    public static @Nullable NicknameColorManager getManager () {
         return manager;
     }
     public static boolean isModuleEnabled() {

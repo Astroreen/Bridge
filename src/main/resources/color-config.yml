@@ -1,6 +1,5 @@
 settings:
   disabledGroups:
-    - testgroup
     - Astroreen
   WhitelistMode: false
   #Сколько может прожить информация об игроке в памяти.

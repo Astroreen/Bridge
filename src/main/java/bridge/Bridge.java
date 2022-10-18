@@ -124,7 +124,7 @@ public final class Bridge extends JavaPlugin {
         }
 
         // done
-        log.info("Bridge succesfully disabled!");
+        log.info("Bridge successfully disabled!");
 
         if (this.adventure != null) {
             this.adventure.close();

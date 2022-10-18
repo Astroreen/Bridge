@@ -59,7 +59,7 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
     /**
      * Name of person who created the expansion
      *
-     * @return The color of the author as a String.
+     * @return The name of the author as a String.
      */
     @Override
     public @NotNull String getAuthor() {
@@ -86,21 +86,21 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
     @Override
     public String onRequest(final OfflinePlayer p, final @NotNull String params) {
         switch (params) {
-            case "have_color" -> {
-                if (data.containsKey(p.getUniqueId())) return data.get(p.getUniqueId()).color();
+            case "have_nickcolor", "have_textcolor" -> {
+                if (data.containsKey(p.getUniqueId())) return data.get(p.getUniqueId()).name();
                 final String color = manager.getPlayerColor(p.getUniqueId(), false);
                 return color == null ? "" : color;
             }
-            case "have_color_hex" -> {
-                if (data.containsKey(p.getUniqueId())) return data.get(p.getUniqueId()).hex();
+            case "have_nickcolor_hex" -> {
+                if (data.containsKey(p.getUniqueId())) return data.get(p.getUniqueId()).nickhex();
                 final String hex = manager.getPlayerColor(p.getUniqueId(), true);
                 return hex == null ? "" : hex;
             }
-            case "have_nickcolor" -> {
-                if (data.containsKey(p.getUniqueId())) return data.get(p.getUniqueId()).nickcolor();
+            case "have_textcolor_hex" -> {
+                if (data.containsKey(p.getUniqueId())) return data.get(p.getUniqueId()).texthex();
                 final String color = manager.getPlayerColor(p.getUniqueId(), false);
                 if (color == null) return "";
-                final String nickcolor = manager.getNicknameColor(color);
+                final String nickcolor = manager.getTextColor(color);
                 return nickcolor == null ? "" : nickcolor;
             }
             case "have_custom_color" -> {
@@ -134,7 +134,7 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
             case "can_use_hex" -> {
                 Player player = PlayerConverter.getPlayer(p.getUniqueId());
                 if (player == null) return "";
-                return player.hasPermission("bridge.nickname.color.set.hex") ? "yes" : "no";
+                return player.hasPermission("bridge.nickname.name.set.nickhex") ? "yes" : "no";
             }
             default -> {
                 String[] args = params.split("_");
