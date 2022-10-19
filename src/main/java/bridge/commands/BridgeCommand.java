@@ -156,7 +156,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                         sendMessage(player, MessageType.UNKNOWN_ARGUMENT, args[3]);
                         return;
                     }
-                    Currency currency = new TABManager().getStars();
+                    Currency currency = TABManager.getStars();
                     if (currency != null) {
                         int cost = manager.getHexColorCost(args[3]);
                         int have = currency.getCurrencyAmount(player.getUniqueId());
@@ -265,7 +265,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     uuid = player.getUniqueId();
                 }
                 if (uuid != null) {
-                    Currency currency = new TABManager().getStars();
+                    Currency currency = TABManager.getStars();
                     if (currency != null) {
                         currency.setCurrency(uuid, Integer.parseInt(args[3]));
                         sendMessage(sender, MessageType.OTHER_PLAYER_NICKNAME_STARS_CHANGED,
@@ -279,7 +279,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
 
             //bridge nickname stars add <amount> <PLAYERS>
             else if (args[2].equalsIgnoreCase("add")) {
-                Currency currency = new TABManager().getStars();
+                Currency currency = TABManager.getStars();
                 if (currency == null) {
                     sendMessage(
                             sender,
@@ -313,7 +313,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
 
             //bridge nickname stars have <PLAYERS>
             else if (args[2].equalsIgnoreCase("have")) {
-                Currency currency = new TABManager().getStars();
+                Currency currency = TABManager.getStars();
                 if (currency == null) {
                     sendMessage(
                             sender,

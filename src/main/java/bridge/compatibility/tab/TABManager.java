@@ -34,20 +34,20 @@ public class TABManager implements TabEvent {
     private final Connector con;
     private final List<UUID> exist;
     private static boolean isModuleEnabled;
-    private boolean isStarsEnabled;
-    private Currency stars = null;
+    private static boolean isStarsEnabled;
+    private static Currency stars = null;
     private static NicknameColorManager manager = null;
 
     public TABManager () {
         instance = Bridge.getInstance();
         saver = instance.getSaver();
+        con = new Connector();
+
         isModuleEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
         if (isModuleEnabled) {
             new NicknameColorManager(instance);
             manager = NicknameColorManager.getInstance();
         }
-
-        con = new Connector();
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         if (isStarsEnabled) stars = new Stars(manager, con);
         exist = new ArrayList<>();
@@ -136,7 +136,7 @@ public class TABManager implements TabEvent {
         }.runTaskAsynchronously(instance);
     }
 
-    public @Nullable Currency getStars() {
+    public static @Nullable Currency getStars() {
         if (isStarsEnabled) return stars;
         else return null;
     }

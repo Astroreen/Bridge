@@ -372,11 +372,11 @@ public class NicknameColorManager {
         else {
             final String hex = getPlayerColor(uuid, true);
             final String color = getColorNameByHex(hex);
-            final String nickcolor = getTextColor(color);
+            final String textcolor = getTextColor(color);
             final int cost = getHexColorCost(hex);
             final int stars = getPlayerStars(uuid);
-            if (hex == null || color == null || nickcolor == null || cost == -1 || stars == -1) return null;
-            PlayerColor answer = new PlayerColor(color, hex, nickcolor, cost, stars);
+            if (hex == null || color == null || textcolor == null || cost == -1 || stars == -1) return null;
+            PlayerColor answer = new PlayerColor(color, hex, textcolor, cost, stars);
             playerHex.put(uuid, answer);
             return answer;
         }
@@ -460,23 +460,30 @@ public class NicknameColorManager {
         whitelist = colorConfig.getBoolean("settings.WhitelistMode", false);
         LOG.debug("Creating new repeating task");
         taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, runnable, updateTime, updateTime).getTaskId();
-
-        for (String group : getGroups()) {
-            List<PlayerColor> list = new ArrayList<>();
-            for (String nickcolor : getGroupColors(group)) {
-                if (nickcolor == null) continue;
-                final String hex = getColorHex(group, nickcolor);
-                final String textcolor = getTextColor(nickcolor);
-                final int cost = getColorCost(group, nickcolor);
-                if (textcolor == null || hex == null || cost == -1) continue;
-                list.add(new PlayerColor(nickcolor, hex, textcolor, cost, 0));
-                LOG.debug("Color \"" + nickcolor + "\" was added to the memory.");
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                HashMap<String, List<PlayerColor>> temp = new HashMap<>();
+                List<String> groups = getGroups();
+                for (String group : groups) {
+                    List<PlayerColor> list = new ArrayList<>();
+                    for (String nickcolor : getGroupColors(group)) {
+                        if (nickcolor == null) continue;
+                        final String hex = getColorHex(group, nickcolor);
+                        final String textcolor = getTextColor(nickcolor);
+                        final int cost = getColorCost(group, nickcolor);
+                        if (textcolor == null || hex == null || cost == -1) continue;
+                        list.add(new PlayerColor(nickcolor, hex, textcolor, cost, 0));
+                        LOG.debug("Color \"" + nickcolor + "\" was added to the memory.");
+                    }
+                    if (list.isEmpty()) continue;
+                    temp.put(group, list);
+                }
+                temp.put("default",
+                        Collections.singletonList(new PlayerColor("default", getDefaultNickColor(), getDefaultTextColor(), 0, 0)));
+                ramColors.putAll(temp);
             }
-            if (list.isEmpty()) continue;
-            ramColors.put(group, list);
-        }
-        ramColors.put("default",
-                Collections.singletonList(new PlayerColor("default", getDefaultNickColor(), getDefaultTextColor(), 0, 0)));
+        }.runTaskAsynchronously(plugin);
 
         placeholders.setup(this, updateTime);
         return true;
