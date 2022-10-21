@@ -26,10 +26,8 @@ import java.util.*;
 public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
 
     private final Bridge instance = Bridge.getInstance();
-    DebugHandlerConfig debugHandler;
 
     public BridgeCommand() {
-        debugHandler = new DebugHandlerConfig(instance.getPluginConfig());
         final PluginCommand command = instance.getCommand("bridge");
         if (command != null) {
             command.setExecutor(this);
@@ -59,8 +57,10 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     sendMessage(sender, MessageType.RELOADED);
                 }
                 case "nickname", "nick" -> {
-                    if (!Compatibility.getHooked().contains("TAB")) sendMessage(sender, MessageType.PLUGIN_DISABLED, "TAB");
-                    if (!TABManager.isModuleEnabled()) sendMessage(sender, MessageType.MODULE_STATE, "ColorNickname", Config.getMessage(MessageType.DISABLED));
+                    if (!Compatibility.getHooked().contains("TAB"))
+                        sendMessage(sender, MessageType.PLUGIN_DISABLED, "TAB");
+                    if (!TABManager.isModuleEnabled())
+                        sendMessage(sender, MessageType.MODULE_STATE, "ColorNickname", Config.getMessage(MessageType.DISABLED));
                     handleNickName(sender, args);
                 }
                 default -> sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[0]);
@@ -112,7 +112,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (noPermission(sender, "bridge.nickname.color.have")) return;
                     if (sender instanceof Player player) {
                         String color = manager.getPlayerColor(player.getUniqueId(), false);
-                        if(color == null && player.hasPermission("bridge.nickname.color.set.hex")) {
+                        if (color == null && player.hasPermission("bridge.nickname.color.set.hex")) {
                             sendMessage(sender, MessageType.YOUR_NICKNAME_COLOR,
                                     manager.getPlayerColor(player.getUniqueId(), true));
                             return;
@@ -142,17 +142,9 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (ColorCodes.isHexValid(args[3])) {
                         if (noPermission(sender, "bridge.nickname.color.set.hex")) return;
                         hex = args[3];
-                    } else if (colorList.contains(args[3])) {
-                        String group = manager.getColorGroup(args[3]);
-                        if (
-                                !player.hasPermission(String.format("bridge.nickname.%s.%s", group, args[3]))
-                                        || !player.hasPermission(String.format("bridge.nickname.%s.*", group))
-                                        || !player.hasPermission("bridge.nickname.color.set")) {
-                            sendMessage(player, MessageType.NO_PERMISSION);
-                            return;
-                        }
+                    } else if (colorList.contains(args[3]))
                         hex = manager.getColorHex(args[3]);
-                    } else {
+                    else {
                         sendMessage(player, MessageType.UNKNOWN_ARGUMENT, args[3]);
                         return;
                     }
@@ -197,7 +189,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (player == null) sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
                     else {
                         String color = manager.getPlayerColor(player.getUniqueId(), false);
-                        if(color == null && player.hasPermission("bridge.nickname.color.set.hex")) {
+                        if (color == null && player.hasPermission("bridge.nickname.color.set.hex")) {
                             sendMessage(sender, MessageType.OTHER_PLAYER_NICKNAME_COLOR,
                                     player.getName(), manager.getPlayerColor(player.getUniqueId(), true));
                             return;
@@ -363,8 +355,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     NicknameColorManager manager = TABManager.getManager();
                     if (manager == null) return Optional.empty();
                     return Optional.of(manager.getAllColorsName());
-                }
-                else if (args[2].equalsIgnoreCase("replace")) return Optional.of(List.of("#HEX"));
+                } else if (args[2].equalsIgnoreCase("replace")) return Optional.of(List.of("#HEX"));
             } else if (args.length == 5) {
                 if (args[2].equalsIgnoreCase("set")) {
                     List<String> names = new ArrayList<>();
@@ -422,7 +413,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     private void handleDebug(final CommandSender sender, final String @NotNull ... args) {
         if (args.length == 1) {
             sendMessage(sender, MessageType.DEBUGGING,
-                    debugHandler.isDebugging() ?
+                    DebugHandlerConfig.isDebugging() ?
                             Config.getMessage(MessageType.ENABLED) :
                             Config.getMessage(MessageType.DISABLED));
             return;
@@ -432,22 +423,22 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                 : "false".equalsIgnoreCase(args[1]) ? Boolean.FALSE : null;
         if (input != null && args.length == 2) {
 
-            if (debugHandler.isDebugging() && input || !debugHandler.isDebugging() && !input) {
+            if (DebugHandlerConfig.isDebugging() && input || !DebugHandlerConfig.isDebugging() && !input) {
                 sendMessage(sender, MessageType.ALREADY_DEBUGGING,
-                        debugHandler.isDebugging() ?
+                        DebugHandlerConfig.isDebugging() ?
                                 Config.getMessage(MessageType.ENABLED) :
                                 Config.getMessage(MessageType.DISABLED));
                 return;
             }
 
             try {
-                debugHandler.setDebugging(input);
+                DebugHandlerConfig.setDebugging(input);
             } catch (final IOException e) {
                 sendMessage(sender, MessageType.SET_DEBUG_ERROR);
                 LOG.warn("Could not save new debugging state to configuration file! " + e.getMessage(), e);
             }
             sendMessage(sender, MessageType.SET_DEBUG_SUCCESSFULLY,
-                    debugHandler.isDebugging() ?
+                    DebugHandlerConfig.isDebugging() ?
                             Config.getMessage(MessageType.ENABLED) :
                             Config.getMessage(MessageType.DISABLED));
             return;

@@ -22,7 +22,6 @@ public class BRLoggerImpl implements BRLogger {
      */
     private final Logger logger;
     private boolean debug = true;
-    private DebugHandlerConfig debugHandlerConfig;
 
     /**
      * Creates a decorator for the {@link TopicLogger}.
@@ -35,17 +34,9 @@ public class BRLoggerImpl implements BRLogger {
     public BRLoggerImpl(@NotNull final Plugin plugin, final Logger parentLogger, final Class<?> clazz, final String topic) {
         this.plugin = plugin;
         this.logger = new TopicLogger(parentLogger, clazz, topic);
-        if(Bridge.getInstance().isConfigSet()){
-            debugHandlerConfig = new DebugHandlerConfig(Bridge.getInstance().getPluginConfig());
-            debug = debugHandlerConfig.isDebugging();
-        }
-    }
+        if(Bridge.getInstance().isConfigSet())
+            debug = DebugHandlerConfig.isDebugging();
 
-    public void reload(){
-        if(debugHandlerConfig == null && !Bridge.getInstance().isConfigSet()){
-            debugHandlerConfig = new DebugHandlerConfig(Bridge.getInstance().getPluginConfig());
-            debug = debugHandlerConfig.isDebugging();
-        }
     }
 
     @Override

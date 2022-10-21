@@ -9,6 +9,7 @@ import bridge.database.Database;
 import bridge.database.MySQL;
 import bridge.database.SQLite;
 import bridge.modules.logger.BRLogger;
+import bridge.modules.logger.DebugHandlerConfig;
 import lombok.Getter;
 import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -21,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public final class Bridge extends JavaPlugin {
 
@@ -60,9 +62,8 @@ public final class Bridge extends JavaPlugin {
         log = BRLogger.create(this);
         try {
             config = ConfigurationFile.create(new File(getDataFolder(), "config.yml"), this, "config.yml");
-            log.reload();
         } catch (InvalidConfigurationException | FileNotFoundException e) {
-            log.error("Could not load the config.yml file!", e);
+            getLogger().log(Level.SEVERE,"Could not load the config.yml file!", e);
             return;
         }
 
@@ -151,14 +152,11 @@ public final class Bridge extends JavaPlugin {
         }
         Config.setup(this);
         Compatibility.reload();
+        DebugHandlerConfig.setup(config);
     }
 
     public AsyncSaver getSaver() {
         return saver;
-    }
-
-    public boolean isMySQLUsed () {
-        return isMySQLUsed;
     }
 
     public boolean isConfigSet(){

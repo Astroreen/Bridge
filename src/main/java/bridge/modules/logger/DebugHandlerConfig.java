@@ -23,15 +23,15 @@ public class DebugHandlerConfig {
     /**
      * The {@link ConfigurationFile} where to configure debugging.
      */
-    private final ConfigurationFile config;
+    private static ConfigurationFile config;
 
     /**
      * Wrap the given {@link ConfigurationFile} to easily access the relevant options for the debug {@link Handler}.
      *
      * @param config the related {@link ConfigurationFile}
      */
-    public DebugHandlerConfig(final @NotNull ConfigurationFile config) {
-        this.config = config;
+    public static void setup(final @NotNull ConfigurationFile config) {
+        DebugHandlerConfig.config = config;
         DEBUGGING = config.getBoolean(CONFIG_ENABLED_PATH, false);
     }
 
@@ -40,7 +40,7 @@ public class DebugHandlerConfig {
      *
      * @return true if debugging is enabled in the config; false otherwise
      */
-    public boolean isDebugging() {
+    public static boolean isDebugging() {
         return DEBUGGING;
     }
 
@@ -50,8 +50,8 @@ public class DebugHandlerConfig {
      * @param debug enabled state to set
      * @throws IOException when persisting the changed state fails
      */
-    public void setDebugging(final boolean debug) throws IOException {
-        if (!config.isBoolean(CONFIG_ENABLED_PATH) || config.getBoolean(CONFIG_ENABLED_PATH) != debug) {
+    public static void setDebugging(final boolean debug) throws IOException {
+        if (config.getBoolean(CONFIG_ENABLED_PATH) != debug) {
             config.set(CONFIG_ENABLED_PATH, debug);
             config.save();
             DEBUGGING = debug;

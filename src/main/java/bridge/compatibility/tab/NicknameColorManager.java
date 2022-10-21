@@ -40,7 +40,6 @@ public class NicknameColorManager {
     private String defaultNickColor;
     private String defaultTextColor;
     private int taskID = -1;
-    private NicknamePlaceholders placeholders = null;
     private static List<String> disabledGroups;
     private static boolean whitelist;
     private static Bridge plugin;
@@ -64,11 +63,10 @@ public class NicknameColorManager {
         runnable = playerHex::clear;
         instance = this;
         whitelist = colorConfig.getBoolean("settings.WhitelistMode", false);
-        final long updateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
         //registering placeholders if plugin is enabled
         if (Compatibility.getHooked().contains("PlaceholderAPI")) {
-            placeholders = new NicknamePlaceholders();
-            placeholders.setup(this, updateTime);
+            NicknamePlaceholders placeholders = new NicknamePlaceholders();
+            placeholders.setup(this);
             placeholders.register();
         }
         reload();
@@ -177,21 +175,6 @@ public class NicknameColorManager {
             if (color != null) list.add(color.name());
         }
         return list;
-    }
-
-    /**
-     * Get group of the color.
-     *
-     * @param color the color to find the group from
-     * @return the group if found one
-     */
-    public @Nullable String getColorGroup(final String color) {
-        for (String group : getGroups()) {
-            for (String colors : getGroupColors(color)) {
-                if (colors.equalsIgnoreCase(color)) return group;
-            }
-        }
-        return null;
     }
 
     /**
@@ -484,8 +467,6 @@ public class NicknameColorManager {
                 ramColors.putAll(temp);
             }
         }.runTaskAsynchronously(plugin);
-
-        placeholders.setup(this, updateTime);
         return true;
     }
 

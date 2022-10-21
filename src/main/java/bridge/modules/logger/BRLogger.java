@@ -90,8 +90,6 @@ public interface BRLogger {
         return new BRLoggerImpl(plugin, plugin.getLogger(), plugin.getClass(), topic);
     }
 
-    void reload();
-
     /**
      * Logs a normal message with the {@link Level#INFO} level to log.
      * <p>
