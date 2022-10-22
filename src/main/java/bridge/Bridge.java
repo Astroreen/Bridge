@@ -12,6 +12,7 @@ import bridge.modules.logger.BRLogger;
 import bridge.modules.logger.DebugHandlerConfig;
 import lombok.Getter;
 import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -109,6 +111,17 @@ public final class Bridge extends JavaPlugin {
 
         // done
         log.info("Bridge successfully enabled!");
+
+        //refreshing db connection
+        final long updateTime = config.getLong("mysql.updateTime",30) * 1200;
+        final Runnable runnable = () -> {
+            try {
+                database.getConnection().prepareStatement("SELECT 1").executeQuery().close();
+            } catch (final SQLException e) {
+                log.warn("Refreshing the database...", e);
+            }
+        };
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, runnable, updateTime, updateTime).getTaskId();
     }
 
     @Override
@@ -123,6 +136,8 @@ public final class Bridge extends JavaPlugin {
         if (database != null) {
             database.closeConnection();
         }
+
+        Bukkit.getScheduler().cancelTasks(this);
 
         // done
         log.info("Bridge successfully disabled!");

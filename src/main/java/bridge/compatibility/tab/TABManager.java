@@ -109,6 +109,7 @@ public class TABManager implements TabEvent {
     }
 
     protected void reload () {
+        con.refresh();
         if (!isModuleEnabled()) return;
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         manager.reload();

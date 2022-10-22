@@ -35,7 +35,7 @@ import java.util.*;
 @CustomLog
 public class NicknameColorManager {
 
-    private Connector con;
+    private final Connector con;
     private ConfigurationFile colorConfig;
     private String defaultNickColor;
     private String defaultTextColor;
@@ -405,7 +405,7 @@ public class NicknameColorManager {
      * @return true if successfully reload
      */
     public boolean reload() {
-        con = new Connector();
+        con.refresh();
         try {
             colorConfig.reload();
         } catch (IOException e) {

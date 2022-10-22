@@ -7,7 +7,6 @@ import bridge.utils.PlayerConverter;
 import lombok.CustomLog;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -129,13 +128,13 @@ public class Config {
 
         String result = messages.getString(lang + "." + message.path);
         if (result == null) {
-            result = messages.getString("en." + message.path);
+            result = messages.getString("ru." + message.path);
         }
         if (result == null) {
             result = internal.getConfig().getString(lang + "." + message.path);
         }
         if (result == null) {
-            result = internal.getConfig().getString("en." + message.path);
+            result = internal.getConfig().getString("ru." + message.path);
         }
         if (result != null) {
             if (variables != null) {
@@ -238,18 +237,6 @@ public class Config {
      */
     public static @NotNull TextComponent parseMessage(final @NotNull String msg) {
         return ColorCodes.translateToTextComponent(prefix + msg);
-    }
-
-    /**
-     * Retrieve's a message, replacing variables
-     *
-     * @param uuid player's {@link UUID}
-     * @return The parsed message as Kyori {@link TextComponent}
-     */
-    public static @NotNull TextComponent parseMessage(final @NotNull UUID uuid, final @NotNull String msg) {
-        Player player = PlayerConverter.getPlayer(uuid);
-        if (player != null) return parseMessage(player, msg);
-        else return parseMessage(Bukkit.getOfflinePlayer(uuid), msg);
     }
 
     /**

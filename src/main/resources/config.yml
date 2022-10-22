@@ -13,6 +13,7 @@ settings:
 #то данные будут записываться в локальную базу данных.
 mysql:
   enabled: false
+  updateTime: 30 #минут
   prefix: 'br_'
   host: ''
   port: ''
