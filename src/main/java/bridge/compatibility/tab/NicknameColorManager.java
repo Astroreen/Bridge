@@ -98,7 +98,7 @@ public class NicknameColorManager {
             @Override
             public void run() {
                 final String color = getColorNameByHex(hex);
-                final String nickcolor = getTextColor(color);
+                final String nickcolor = getTextHex(color);
                 final int cost = getHexColorCost(hex);
                 final int stars = getPlayerStars(uuid);
                 if (color == null
@@ -285,16 +285,16 @@ public class NicknameColorManager {
         return null;
     }
 
-    public @Nullable String getTextColor(final String color) {
+    public @Nullable String getTextHex(final String color) {
         for (String group : getGroups()) {
             for (String colors : getGroupColors(group)) {
-                if (colors.equalsIgnoreCase(color)) return getTextColor(group, color);
+                if (colors.equalsIgnoreCase(color)) return getTextHex(group, color);
             }
         }
         return null;
     }
 
-    public @Nullable String getTextColor(final String group, final String color) {
+    public @Nullable String getTextHex(final String group, final String color) {
         if (whitelist && !disabledGroups.contains(group)) return null;
         else if (!whitelist && disabledGroups.contains(group)) return null;
 
@@ -338,7 +338,7 @@ public class NicknameColorManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                final String texthex = getTextColor(color);
+                final String texthex = getTextHex(color);
                 final int cost = getColorCost(color);
                 final int stars = getPlayerStars(uuid);
                 if (texthex == null || cost == -1 || stars == -1) return;
@@ -355,7 +355,7 @@ public class NicknameColorManager {
         else {
             final String hex = getPlayerColor(uuid, true);
             final String color = getColorNameByHex(hex);
-            final String textcolor = getTextColor(color);
+            final String textcolor = getTextHex(color);
             final int cost = getHexColorCost(hex);
             final int stars = getPlayerStars(uuid);
             if (hex == null || color == null || textcolor == null || cost == -1 || stars == -1) return null;
@@ -453,7 +453,7 @@ public class NicknameColorManager {
                     for (String nickcolor : getGroupColors(group)) {
                         if (nickcolor == null) continue;
                         final String hex = getColorHex(group, nickcolor);
-                        final String textcolor = getTextColor(nickcolor);
+                        final String textcolor = getTextHex(nickcolor);
                         final int cost = getColorCost(group, nickcolor);
                         if (textcolor == null || hex == null || cost == -1) continue;
                         list.add(new PlayerColor(nickcolor, hex, textcolor, cost, 0));
@@ -468,6 +468,14 @@ public class NicknameColorManager {
             }
         }.runTaskAsynchronously(plugin);
         return true;
+    }
+
+    public void setPlayerStars(UUID uuid, int stars){
+        if(stars > 0 && playerHex.containsKey(uuid)) {
+            PlayerColor info = playerHex.get(uuid);
+            playerHex.replace(uuid, info,
+                    new PlayerColor(info.name(), info.nickhex(), info.texthex(), info.cost(), stars));
+        }
     }
 
     /**

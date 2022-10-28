@@ -20,7 +20,7 @@ public class Stars extends Currency {
     private final NicknameColorManager manager;
     private final Saver saver;
 
-    public Stars (NicknameColorManager manager, Connector con) {
+    public Stars(NicknameColorManager manager, Connector con) {
         super("stars");
         this.con = con;
         this.manager = manager;
@@ -30,13 +30,13 @@ public class Stars extends Currency {
 
     @Override
     public int getCurrencyAmount(@NotNull final UUID uuid) {
-        if(manager.getLatelyUsedPlayers().contains(uuid)) {
+        if (manager.getLatelyUsedPlayers().contains(uuid)) {
             NicknameColorManager.PlayerColor info = manager.getPlayerInfo(uuid);
-            if(info != null) return info.stars();
+            if (info != null) return info.stars();
         }
         ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
         try {
-            if(rs.next()) return rs.getInt("stars");
+            if (rs.next()) return rs.getInt("stars");
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
         }
@@ -45,6 +45,9 @@ public class Stars extends Currency {
 
     @Override
     public void setCurrency(@NotNull final UUID uuid, final int amount) {
+        if (manager.getLatelyUsedPlayers().contains(uuid)){
+            manager.setPlayerStars(uuid, amount);
+        }
         //save to database async
         saver.add(new Saver.Record(UpdateType.UPDATE_STARS, String.valueOf(amount), uuid.toString()));
     }

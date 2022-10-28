@@ -87,7 +87,7 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
             case "have_textcolor_hex" -> {
                 final String color = manager.getPlayerColor(p.getUniqueId(), false);
                 if (color == null) return "";
-                final String nickcolor = manager.getTextColor(color);
+                final String nickcolor = manager.getTextHex(color);
                 return nickcolor == null ? "" : nickcolor;
             }
             case "have_custom_color" -> {

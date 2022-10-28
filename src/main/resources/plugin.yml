@@ -1,7 +1,6 @@
 name: Bridge
 version: '${version}'
 main: bridge.Bridge
-api-version: 1.19
 prefix: BR
 authors: [ Astroreen ]
 description: Make your live much more interesting

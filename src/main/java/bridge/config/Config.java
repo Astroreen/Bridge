@@ -3,7 +3,6 @@ package bridge.config;
 import bridge.Bridge;
 import bridge.MessageType;
 import bridge.utils.ColorCodes;
-import bridge.utils.PlayerConverter;
 import lombok.CustomLog;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.TextComponent;
@@ -18,7 +17,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @CustomLog
 public class Config {
@@ -146,45 +144,6 @@ public class Config {
         }
         LOG.warn("Message was not found");
         return "";
-    }
-
-    /**
-     * Sends a message to player in his chosen language or default or English
-     * (if previous not found). It will replace all {x} sequences with the
-     * variables.
-     *
-     * @param uuid {@link UUID} of the player
-     * @param msg  ID of the message
-     */
-    public static void sendMessage(final @NotNull UUID uuid, final @NotNull MessageType msg) {
-        sendMessage(uuid, msg, (String[]) null);
-    }
-
-    /**
-     * Sends a message to player in his chosen language or default or English
-     * (if previous not found). It will replace all {x} sequences with the
-     * variables and play the sound.
-     *
-     * @param uuid      {@link UUID} of the player
-     * @param msg       ID of the message
-     * @param variables array of variables which will be inserted into the string
-     */
-    public static void sendMessage(final @NotNull UUID uuid, final @NotNull MessageType msg, final String... variables) {
-        sendMessage(uuid, msg, null, variables);
-    }
-
-    /**
-     * Sends a message to player in his chosen language or default or English
-     * (if previous not found). It will replace all {x} sequences with the
-     * variables and play the sound. It will also add a prefix to the message.
-     *
-     * @param uuid      {@link UUID} of the player
-     * @param msg       ID of the message
-     * @param variables array of variables which will be inserted into the message
-     * @param sound     color of the sound to play to the player
-     */
-    public static void sendMessage(final @NotNull UUID uuid, final @NotNull MessageType msg, final ConfigSound sound, final String... variables) {
-        sendMessage(PlayerConverter.getPlayer(uuid), msg, sound, variables);
     }
 
     /**
