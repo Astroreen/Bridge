@@ -10,6 +10,7 @@ import bridge.database.MySQL;
 import bridge.database.SQLite;
 import bridge.modules.logger.BRLogger;
 import bridge.modules.logger.DebugHandlerConfig;
+import bridge.modules.messenger.Messenger;
 import lombok.Getter;
 import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -51,12 +52,14 @@ public final class Bridge extends JavaPlugin {
     private ConfigurationFile config;
     private Database database;
     private AsyncSaver saver;
+    private Messenger messenger;
     private boolean isMySQLUsed;
 
     @NotNull
     public ConfigurationFile getPluginConfig() {
         return config;
     }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -65,7 +68,7 @@ public final class Bridge extends JavaPlugin {
         try {
             config = ConfigurationFile.create(new File(getDataFolder(), "config.yml"), this, "config.yml");
         } catch (InvalidConfigurationException | FileNotFoundException e) {
-            getLogger().log(Level.SEVERE,"Could not load the config.yml file!", e);
+            getLogger().log(Level.SEVERE, "Could not load the config.yml file!", e);
             return;
         }
 
@@ -109,11 +112,18 @@ public final class Bridge extends JavaPlugin {
         // initialize commands
         new BridgeCommand();
 
+        //registering plugin messenger
+        if(config.getBoolean("settings.modules.updater", true)) {
+            messenger = new Messenger(this);
+            messenger.register();
+            /*TODO make reservation (GetServer, GetServers)*/
+        }
+
         // done
         log.info("Bridge successfully enabled!");
 
         //refreshing db connection
-        final long updateTime = config.getLong("mysql.updateTime",30) * 1200;
+        final long updateTime = config.getLong("mysql.updateTime", 30) * 1200;
         final Runnable runnable = () -> {
             try {
                 database.getConnection().prepareStatement("SELECT 1").executeQuery().close();
@@ -129,12 +139,12 @@ public final class Bridge extends JavaPlugin {
         // Plugin shutdown logic
 
         // cancel database saver
-        if (saver != null) {
-            saver.end();
-        }
         Compatibility.disable();
-        if (database != null) {
-            database.closeConnection();
+        if (saver != null) saver.end();
+        if (database != null) database.closeConnection();
+        if (messenger != null) {
+            messenger.unregister();
+            messenger.getSender().end();
         }
 
         Bukkit.getScheduler().cancelTasks(this);
@@ -149,9 +159,18 @@ public final class Bridge extends JavaPlugin {
     }
 
     /**
+     * Returns the messenger instance
+     *
+     * @return {@link Messenger} instance
+     */
+    public Messenger getMessenger () {
+        return messenger;
+    }
+
+    /**
      * Returns the database instance
      *
-     * @return Database instance
+     * @return {@link Database} instance
      */
     public Database getDB() {
         return database;
@@ -166,6 +185,11 @@ public final class Bridge extends JavaPlugin {
             log.warn("Could not reload config! " + e.getMessage(), e);
         }
         Config.setup(this);
+        //registering plugin messenger
+        if(messenger == null && config.getBoolean("settings.modules.updater", true)) {
+            messenger = new Messenger(this);
+            messenger.register();
+        }
         Compatibility.reload();
         DebugHandlerConfig.setup(config);
     }
@@ -174,14 +198,14 @@ public final class Bridge extends JavaPlugin {
         return saver;
     }
 
-    public boolean isConfigSet(){
+    public boolean isConfigSet() {
         return config != null;
     }
 
     /**
      * Get key in map from value that you will pass.
      *
-     * @param map your map what you want to get key from
+     * @param map   your map what you want to get key from
      * @param value your key
      * @return one key from map
      */

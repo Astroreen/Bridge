@@ -8,6 +8,7 @@ settings:
     tab:
       ColorNickname: true
       UseMoney: true
+    updater: true
 
 #MySQL. Если данные для подключения вписаны неправильно,
 #то данные будут записываться в локальную базу данных.
