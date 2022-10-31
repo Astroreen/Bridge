@@ -1,6 +1,10 @@
 package bridge.modules.messenger;
 
 import bridge.Bridge;
+import bridge.event.GetServerEvent;
+import bridge.event.GetServersEvent;
+import bridge.event.RunUpdaterEvent;
+import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -13,16 +17,23 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
 public class Messenger implements PluginMessageListener, Listener {
 
     private final Bridge plugin;
-    private final LinkedHashMap<Actions, String[]> queue;
+    private final LinkedHashMap<Action, String[]> queue;
     private final AsyncSender sender;
 
-    public Messenger(Bridge plugin) {
+    /**
+     * Delay, after which plugin message will be sent (in ticks).
+     * In case if player just joined to the server.
+     */
+    private final int delay = 20;
+
+    public Messenger(final Bridge plugin) {
         this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
         this.queue = new LinkedHashMap<>();
@@ -36,7 +47,7 @@ public class Messenger implements PluginMessageListener, Listener {
         }
     }
 
-    public void register(@NotNull Channels channels) {
+    public void register(final @NotNull Channels channels) {
         plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, channels.name);
         plugin.getServer().getMessenger().registerIncomingPluginChannel(plugin, channels.name, this);
     }
@@ -47,21 +58,21 @@ public class Messenger implements PluginMessageListener, Listener {
         }
     }
 
-    public void unregister(@NotNull Channels channels) {
+    public void unregister(final @NotNull Channels channels) {
         plugin.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, channels.name);
         plugin.getServer().getMessenger().unregisterIncomingPluginChannel(plugin, channels.name, this);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(final PlayerJoinEvent event) {
         if (queue.isEmpty()) return;
-        for (Actions action : queue.keySet()) {
+        for (Action action : queue.keySet()) {
             send(event.getPlayer().getUniqueId(), action, queue.get(action));
         }
     }
 
     @Override
-    public void onPluginMessageReceived(@NotNull String c, @NotNull Player player, byte @NotNull [] data) {
+    public void onPluginMessageReceived(final @NotNull String c, final @NotNull Player player, final byte @NotNull [] data) {
         //get channel
         Channels channel = null;
         for (Channels chan : Channels.values()) {
@@ -76,8 +87,8 @@ public class Messenger implements PluginMessageListener, Listener {
         final String subchannel = in.readUTF();
 
         //get action
-        Actions action = null;
-        for (Actions a : Actions.values()) {
+        Action action = null;
+        for (Action a : Action.values()) {
             if (subchannel.equals(a.subchannel)) {
                 action = a;
                 break;
@@ -86,47 +97,67 @@ public class Messenger implements PluginMessageListener, Listener {
         if (action == null) return;
 
         //execute action
+        //Bridge messages
         if (channel == Channels.BRIDGE) {
             switch (action) {
-                case RUN_UPDATER -> {
-                    //TODO make executable action
-                }
+                case RUN_UPDATER -> Bukkit.getPluginManager().callEvent(new RunUpdaterEvent());
+            }
+
+            //BungeeCord messages
+        } else if (channel == Channels.BUNGEECORD) {
+            switch (action) {
+                case GET_SERVER -> Bukkit.getPluginManager().callEvent(new GetServerEvent(in.readUTF()));
+                case GET_SERVERS -> Bukkit.getPluginManager().callEvent(new GetServersEvent(in.readUTF().split(", ")));
             }
         }
     }
 
-    public void makeReservation(@NotNull Actions action, String... data) {
-        if (data != null) queue.put(action, data);
+    /**
+     * Execute action at the earliest opportunity.
+     *
+     * @param action action that will be executed
+     * @param data   data, that will be put to packet
+     */
+    public void makeReservation(final @NotNull Action action, final String... data) {
+        Collection<? extends Player> online = Bukkit.getOnlinePlayers();
+        if (!online.isEmpty()) {
+            UUID uuid = Iterables.getFirst(online, null).getUniqueId();
+            send(uuid, action, data);
+        } else queue.put(action, data);
     }
 
-    public void send(@NotNull UUID uuid, @NotNull Actions action, @NotNull String... data) {
+    /**
+     * Send plugin message to exact player.
+     *
+     * @param uuid   uuid of the player
+     * @param action action that will be executed
+     * @param data   data that will be put to packet
+     */
+    public void send(final @NotNull UUID uuid, final @NotNull Action action, final String... data) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        String channel = null;
+
+        //channel to send to
+        final String channel;
         switch (action) {
             case RUN_UPDATER -> {
                 channel = Channels.BRIDGE.name;
-                out.writeUTF("BridgeUpdater");
-                if (data.length != 3) return;
-
-                out.writeUTF(data[0]);
+                out.writeUTF(action.subchannel);
             }
+            case GET_SERVER, GET_SERVERS -> {
+                channel = Channels.BUNGEECORD.name;
+                out.writeUTF(action.subchannel);
+            }
+            default -> channel = null;
         }
-        sender.add(new AsyncSender.Record(uuid, channel, out.toByteArray()));
+
+
+        if(channel == null) return;
+        final byte[] info = out.toByteArray();
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> sender.add(new AsyncSender.Record(uuid, channel, info)), delay);
     }
 
     public Sender getSender() {
         return sender;
-    }
-
-    public enum Actions {
-        //TODO make Forward action (this is bungeecord subchannel)
-        RUN_UPDATER("BridgeUpdater");
-
-        private final String subchannel;
-
-        Actions(String subchannel) {
-            this.subchannel = subchannel;
-        }
     }
 
     private enum Channels {

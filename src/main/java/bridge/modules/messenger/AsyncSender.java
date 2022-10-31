@@ -44,7 +44,7 @@ public class AsyncSender extends Thread implements Listener, Sender {
                         active = false;
                         wait();
                     } catch (final InterruptedException e) {
-                        LOG.error("There was a exception with SQL", e);
+                        LOG.error("There was an exception in AsyncSender module", e);
                     }
                 }
             }

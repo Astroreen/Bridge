@@ -10,6 +10,7 @@ import bridge.database.MySQL;
 import bridge.database.SQLite;
 import bridge.modules.logger.BRLogger;
 import bridge.modules.logger.DebugHandlerConfig;
+import bridge.modules.messenger.Action;
 import bridge.modules.messenger.Messenger;
 import lombok.Getter;
 import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -116,7 +117,8 @@ public final class Bridge extends JavaPlugin {
         if(config.getBoolean("settings.modules.updater", true)) {
             messenger = new Messenger(this);
             messenger.register();
-            /*TODO make reservation (GetServer, GetServers)*/
+            messenger.makeReservation(Action.GET_SERVER);
+            messenger.makeReservation(Action.GET_SERVERS);
         }
 
         // done
@@ -138,16 +140,18 @@ public final class Bridge extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
 
-        // cancel database saver
+
         Compatibility.disable();
-        if (saver != null) saver.end();
-        if (database != null) database.closeConnection();
         if (messenger != null) {
             messenger.unregister();
             messenger.getSender().end();
         }
 
         Bukkit.getScheduler().cancelTasks(this);
+
+        //close database connection
+        if (saver != null) saver.end();
+        if (database != null) database.closeConnection();
 
         // done
         log.info("Bridge successfully disabled!");
