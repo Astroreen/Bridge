@@ -14,8 +14,11 @@ public class GetServerEvent extends Event {
         this.server = server;
     }
 
+    public String getServerName() {return server;}
+
     @Override
     public @NotNull HandlerList getHandlers() {
         return handlers;
     }
+    public static HandlerList getHandlerList() {return handlers;}
 }

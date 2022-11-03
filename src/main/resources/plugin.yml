@@ -1,8 +1,9 @@
 name: Bridge
 version: '${version}'
 main: bridge.Bridge
-prefix: BR
-authors: [ Astroreen ]
+prefix: ""
+authors:
+  - Astroreen
 description: Make your live much more interesting
 softdepend:
   - PlaceholderAPI

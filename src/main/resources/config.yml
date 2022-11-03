@@ -8,7 +8,11 @@ settings:
     tab:
       ColorNickname: true
       UseMoney: true
-    updater: true
+    updater:
+      enabled: false
+      #Меняйте только в том случае, если знаете что делаете.
+      ip: "127.0.0.1"
+      port: 3820
 
 #MySQL. Если данные для подключения вписаны неправильно,
 #то данные будут записываться в локальную базу данных.

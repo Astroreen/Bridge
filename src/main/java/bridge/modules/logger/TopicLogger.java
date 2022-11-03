@@ -12,6 +12,7 @@ public class TopicLogger extends Logger {
      * The topic of this logger.
      */
     private final String topic;
+    private final String ID = "[BR] ";
 
     /**
      * Creates a new {@link TopicLogger} that adds an optional topic.
@@ -24,7 +25,7 @@ public class TopicLogger extends Logger {
         super(clazz.getCanonicalName(), null);
         setParent(parentLogger);
         setLevel(Level.ALL);
-        this.topic = topic == null ? "" : "(" + topic + ") ";
+        this.topic = topic == null ? ID : ID + "(" + topic + ") ";
     }
 
     /**

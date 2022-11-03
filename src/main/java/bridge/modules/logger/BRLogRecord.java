@@ -27,6 +27,11 @@ public class BRLogRecord extends LogRecord {
         this.plugin = pluginName;
     }
 
+    /**
+     * Gets the name of the plugin that logged this record.
+     *
+     * @return The plugin.
+     */
     public @NotNull
     String getPlugin() {
         return plugin;

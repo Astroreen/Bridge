@@ -1,7 +1,7 @@
 package bridge.modules.logger;
 
-import bridge.Bridge;
 import org.bukkit.plugin.Plugin;
+import org.fusesource.jansi.Ansi;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
@@ -21,7 +21,6 @@ public class BRLoggerImpl implements BRLogger {
      * The original logger.
      */
     private final Logger logger;
-    private boolean debug = true;
 
     /**
      * Creates a decorator for the {@link TopicLogger}.
@@ -34,9 +33,6 @@ public class BRLoggerImpl implements BRLogger {
     public BRLoggerImpl(@NotNull final Plugin plugin, final Logger parentLogger, final Class<?> clazz, final String topic) {
         this.plugin = plugin;
         this.logger = new TopicLogger(parentLogger, clazz, topic);
-        if(Bridge.getInstance().isConfigSet())
-            debug = DebugHandlerConfig.isDebugging();
-
     }
 
     @Override
@@ -75,9 +71,10 @@ public class BRLoggerImpl implements BRLogger {
     }
 
     @Override
-    public void debug(String msg, Throwable thrown) {
-        if(!debug) return;
-        final BRLogRecord record = new BRLogRecord(Level.FINE, msg, plugin.getName());
+    public void debug(final String msg, final Throwable thrown) {
+        if (!DebugHandlerConfig.isDebugging()) return;
+        final String DEBUG_ID = Ansi.ansi().fg(Ansi.Color.CYAN) + "[DEBUG] ";
+        final BRLogRecord record = new BRLogRecord(Level.FINE, DEBUG_ID + msg, plugin.getName());
         record.setThrown(thrown);
         logger.log(record);
     }

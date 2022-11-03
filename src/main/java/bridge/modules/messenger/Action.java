@@ -3,25 +3,28 @@ package bridge.modules.messenger;
 public enum Action {
 
     //TODO make Forward action (this is bungeecord subchannel)
+    //TODO make Forward action for Sockets. (Channel, Action, From who, Action, data)
     /**
      * Send: nothing.
      * Get: nothing.
      */
-    RUN_UPDATER("RunBridgeUpdater"),
+    RUN_UPDATER("RunBridgeUpdater", 0),
     /**
      * Send: nothing.
      * Get: server name.
      */
-    GET_SERVER("GetServer"),
+    GET_SERVER("GetServer", 1),
     /**
      * Send: nothing.
      * Get: list of servers (example: Server1, Server2, ...).
      */
-    GET_SERVERS("GetServers");
+    GET_SERVERS("GetServers", 1);
 
     public final String subchannel;
+    public final int lines;
 
-    Action(String subchannel) {
+    Action(final String subchannel, final int lines) {
         this.subchannel = subchannel;
+        this.lines = Math.max(lines, 0);
     }
 }

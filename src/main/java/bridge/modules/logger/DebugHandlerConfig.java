@@ -9,16 +9,11 @@ import java.util.logging.Handler;
 public class DebugHandlerConfig {
 
     /**
-     * The config path that holds all debug configuration settings..
-     */
-    private static final String CONFIG_SECTION = "debug";
-
-    /**
      * The full path to the config setting, that saved if debugging is enabled.
      */
-    private static final String CONFIG_ENABLED_PATH = CONFIG_SECTION + ".enabled";
+    private static final String CONFIG_ENABLED_PATH = "debug";
 
-    private static boolean DEBUGGING;
+    private static boolean DEBUGGING = false;
 
     /**
      * The {@link ConfigurationFile} where to configure debugging.

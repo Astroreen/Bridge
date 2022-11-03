@@ -42,7 +42,6 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     + " with arguments: " + Arrays.toString(args));
             // if the command is empty, display help message
             if (args.length == 0) {
-                //TODO displayHelp(sender, alias);
                 return true;
             }
 

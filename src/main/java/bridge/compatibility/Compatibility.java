@@ -35,7 +35,7 @@ public class Compatibility implements Listener {
             hook(hook);
         }
 
-        Bukkit.getPluginManager().registerEvents(this, Bridge.getInstance());
+        Bridge.getInstance().getListenerManager().registerListener("Compatabilty", this);
         new BukkitRunnable() {
             @Override
             public void run() {

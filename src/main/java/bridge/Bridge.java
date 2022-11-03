@@ -8,10 +8,12 @@ import bridge.database.AsyncSaver;
 import bridge.database.Database;
 import bridge.database.MySQL;
 import bridge.database.SQLite;
+import bridge.listeners.ListenerManager;
 import bridge.modules.logger.BRLogger;
 import bridge.modules.logger.DebugHandlerConfig;
 import bridge.modules.messenger.Action;
 import bridge.modules.messenger.Messenger;
+import bridge.utils.StartScreen;
 import lombok.Getter;
 import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -40,6 +42,7 @@ public final class Bridge extends JavaPlugin {
     @Getter
     private static Bridge instance;
     private static BRLogger log;
+    private ListenerManager listenerManager;
 
     /**
      * The adventure instance.
@@ -72,6 +75,9 @@ public final class Bridge extends JavaPlugin {
             getLogger().log(Level.SEVERE, "Could not load the config.yml file!", e);
             return;
         }
+        DebugHandlerConfig.setup(config);
+
+        listenerManager = new ListenerManager();
 
         adventure = BukkitAudiences.create(this);
         Config.setup(this);
@@ -114,14 +120,15 @@ public final class Bridge extends JavaPlugin {
         new BridgeCommand();
 
         //registering plugin messenger
-        if(config.getBoolean("settings.modules.updater", true)) {
+        if(config.getBoolean("settings.modules.updater.enabled", true)) {
             messenger = new Messenger(this);
             messenger.register();
             messenger.makeReservation(Action.GET_SERVER);
             messenger.makeReservation(Action.GET_SERVERS);
-        }
+        } else messenger = null;
 
         // done
+        new StartScreen(this.getServer().getConsoleSender()).BridgeImage();
         log.info("Bridge successfully enabled!");
 
         //refreshing db connection
@@ -167,9 +174,16 @@ public final class Bridge extends JavaPlugin {
      *
      * @return {@link Messenger} instance
      */
-    public Messenger getMessenger () {
+    public @Nullable Messenger getMessenger () {
         return messenger;
     }
+
+    /**
+     * Returns the manager instance
+     *
+     * @return {@link ListenerManager} instance
+     */
+    public ListenerManager getListenerManager() {return listenerManager;}
 
     /**
      * Returns the database instance
@@ -189,13 +203,13 @@ public final class Bridge extends JavaPlugin {
             log.warn("Could not reload config! " + e.getMessage(), e);
         }
         Config.setup(this);
+        DebugHandlerConfig.setup(config);
         //registering plugin messenger
-        if(messenger == null && config.getBoolean("settings.modules.updater", true)) {
-            messenger = new Messenger(this);
-            messenger.register();
+        if (messenger != null && config.getBoolean("settings.modules.updater.enabled", false)) {
+            messenger.reload();
+            //TODO refresh messenger and sockets
         }
         Compatibility.reload();
-        DebugHandlerConfig.setup(config);
     }
 
     public AsyncSaver getSaver() {

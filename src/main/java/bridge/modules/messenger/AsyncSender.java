@@ -54,7 +54,11 @@ public class AsyncSender extends Thread implements Listener, Sender {
             final Record rec = (Record) queue.poll();
             if (rec != null) {
                 Player p = Bukkit.getPlayer(rec.uuid());
-                if (p == null) return;
+                if (p == null) {
+                    LOG.warn("Couldn't execute Messenger's action because player was null. Skipping it.");
+                    queue.add(rec);
+                    return;
+                }
                 p.sendPluginMessage(plugin, rec.channel(), rec.msg());
             }
         }
