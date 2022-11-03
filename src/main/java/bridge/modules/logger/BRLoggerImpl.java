@@ -74,7 +74,7 @@ public class BRLoggerImpl implements BRLogger {
     public void debug(final String msg, final Throwable thrown) {
         if (!DebugHandlerConfig.isDebugging()) return;
         final String DEBUG_ID = Ansi.ansi().fg(Ansi.Color.CYAN) + "[DEBUG] ";
-        final BRLogRecord record = new BRLogRecord(Level.FINE, DEBUG_ID + msg, plugin.getName());
+        final BRLogRecord record = new BRLogRecord(Level.INFO, DEBUG_ID + msg, plugin.getName());
         record.setThrown(thrown);
         logger.log(record);
     }

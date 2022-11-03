@@ -417,7 +417,7 @@ public class NicknameColorManager {
         final String text = before.split(":", 2)[1];
         if (ColorCodes.isHexValid(nick)) {
             defaultNickColor = nick;
-            LOG.debug("Default name now is: " + nick);
+            LOG.debug("Default nickcolor now is: " + nick);
         } else {
             defaultNickColor = "#CFCFCF";
             LOG.error("Wrong default nickcolor in color-config. Using default #CFCFCF");
@@ -433,15 +433,11 @@ public class NicknameColorManager {
         ramColors.clear();
         playerHex.clear();
 
-        if (taskID != -1) {
-            LOG.debug("Canceling repeating task..");
-            Bukkit.getScheduler().cancelTask(taskID);
-        }
+        if (taskID != -1) Bukkit.getScheduler().cancelTask(taskID);
 
         final long updateTime = colorConfig.getLong("settings.UpdateTime") * 1200;
         disabledGroups = colorConfig.getStringList("settings.disabledGroups");
         whitelist = colorConfig.getBoolean("settings.WhitelistMode", false);
-        LOG.debug("Creating new repeating task");
         taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, runnable, updateTime, updateTime).getTaskId();
         new BukkitRunnable() {
             @Override

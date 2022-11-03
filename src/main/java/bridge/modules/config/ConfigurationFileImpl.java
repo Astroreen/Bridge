@@ -84,7 +84,7 @@ public class ConfigurationFileImpl extends ConfigurationSectionDecorator impleme
         try {
             return ConfigAccessor.create(plugin, resourceFilePatch);
         } catch (final FileNotFoundException e) {
-            LOG.debug(e.getMessage(), e);
+            LOG.debug(e.getMessage());
         }
         return null;
     }

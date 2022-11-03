@@ -33,7 +33,7 @@ public class ListenerManager {
                     final StringBuilder string = new StringBuilder();
                     for (final String name : registered.keySet()) {
                         Bukkit.getPluginManager().registerEvents(registered.get(name), plugin);
-                        string.append(plugin).append(", ");
+                        string.append(name).append(", ");
                     }
                     final String plugins = string.substring(0, string.length() - 2);
                     LOG.debug("Registered listeners on start: " + plugins + ".");

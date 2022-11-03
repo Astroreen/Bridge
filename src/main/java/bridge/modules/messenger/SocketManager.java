@@ -66,7 +66,6 @@ public class SocketManager implements Listener {
     }
 
     public void refresh(final String ip, final int port) {
-        LOG.debug("refreshing sockets.......................................");
         //data validation
         if (!isIPValid(ip) || !isIPReachable(ip)) {
             LOG.error("IP '" + ip + "' is either not valid or not reachable!");
