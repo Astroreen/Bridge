@@ -1,6 +1,8 @@
 package bridge.compatibility.tab;
 
 import bridge.Bridge;
+import bridge.config.ConfigurationFile;
+import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
@@ -10,10 +12,12 @@ import org.jetbrains.annotations.NotNull;
 public class NicknamePlaceholders extends PlaceholderExpansion {
 
     private final Bridge plugin = Bridge.getInstance();
-    private NicknameColorManager manager;
+    private NicknameManager manager;
+    private ConfigurationFile ColorConfig;
 
-    public void setup(NicknameColorManager manager) {
+    public void setup(NicknameManager manager, ConfigurationFile ColorConfig) {
         this.manager = manager;
+        this.ColorConfig = ColorConfig;
     }
 
     /**
@@ -76,28 +80,37 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
     @Override
     public String onRequest(final OfflinePlayer p, final @NotNull String params) {
         switch (params) {
-            case "have_nickcolor", "have_textcolor" -> {
-                final String color = manager.getPlayerColor(p.getUniqueId(), false);
-                return color == null ? "" : color;
+            case "have_nickcolor_name", "have_textcolor_name" -> {
+                final NicknameManager.PlayerColor color = manager.getPlayerInfo(p.getUniqueId());
+                return color == null ? "" : color.name();
+            }
+            case "have_nickcolor" -> {
+                final String color = manager.getPlayerColor(p.getUniqueId());
+                if(color == null) return "";
+                final String[] hex = color.split(">");
+                final String name = p.getName();
+                if (name == null) return "";
+                return ColorCodes.generateColoredMessage(ColorConfig, hex[0], hex[1], name);
             }
             case "have_nickcolor_hex" -> {
-                final String hex = manager.getPlayerColor(p.getUniqueId(), true);
-                return hex == null ? "" : hex;
+                final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
+                if(info == null) return "";
+                final String[] hex = info.gradient().split(">");
+                if(hex[0].equals(hex[1])) return hex[0];
+                return String.format("%s, %s", hex[0], hex[1]) ;
             }
             case "have_textcolor_hex" -> {
-                final String color = manager.getPlayerColor(p.getUniqueId(), false);
-                if (color == null) return "";
-                final String nickcolor = manager.getTextHex(color);
-                return nickcolor == null ? "" : nickcolor;
+                final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
+                return info == null ? "" : info.texthex();
             }
             case "have_custom_color" -> {
-                return manager.getColorNameByHex(
-                        manager.getPlayerColor(p.getUniqueId(),
-                                true)) == null ? "yes" : "no";
+                final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
+                if(info == null) return "";
+                return manager.getColorName(info.name() == null ? "yes" : "no");
             }
             case "color_cost" -> {
                 int cost;
-                final NicknameColorManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
+                final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
                 if (info == null) return "";
                 cost = info.cost();
                 if (cost == -1) return "";
@@ -105,13 +118,13 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
             }
             case "have_stars" -> {
                 int stars;
-                final NicknameColorManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
+                final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
                 if (info == null) return "";
                 stars = info.stars();
                 if (stars == -1) return "";
                 return String.valueOf(stars);
             }
-            case "can_use_hex" -> {
+            case "can_use_hex", "can_use_custom" -> {
                 Player player = PlayerConverter.getPlayer(p.getUniqueId());
                 if (player == null) return "";
                 return player.hasPermission("bridge.nickname.name.set.nickhex") ? "yes" : "no";
@@ -121,7 +134,7 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
                 if (args[0].equals("have")) {
                     if (args[1].equals("stars") && args.length == 3) {
                         int stars;
-                        final NicknameColorManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
+                        final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
                         if (info == null) return "";
                         stars = info.stars();
                         if (stars == -1) return "";
@@ -129,13 +142,10 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
                     }
                 } else if (args[0].equals("can") && args[1].equals("use") && args.length == 3) {
                     if (!manager.getAllColorsName().contains(args[2])) return "";
-                    final int colorCost = manager.getColorCost(args[2]);
-                    int stars;
-                    final NicknameColorManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
-                    if (info == null) return "";
-                    stars = info.stars();
-                    if (stars == -1) return "";
-                    return stars >= colorCost ? "yes" : "no";
+                    final Integer colorCost = manager.getColorCost(args[2]);
+                    final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
+                    if (info == null || colorCost == null || info.stars() == -1) return "";
+                    return info.stars() >= colorCost ? "yes" : "no";
                 } else return "";
             }
         }

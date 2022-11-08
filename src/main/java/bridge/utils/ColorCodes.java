@@ -1,21 +1,89 @@
 package bridge.utils;
 
+import bridge.config.ConfigurationFile;
+import lombok.CustomLog;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+@CustomLog
 public class ColorCodes {
     static public final String WITH_DELIMITER = "((?<=%1$s)|(?=%1$s))";
 
-    private ColorCodes () {}
+    private ColorCodes() {
+    }
 
-    public static boolean isHexValid (String color) {
-        if(color == null) return false;
+    public static boolean isHexValid(String color) {
+        if (color == null) return false;
         return color.matches("^#([A-Fa-f\\d]{6})$");
+    }
+
+    @NotNull
+    public static String generateColoredMessage(@NotNull ConfigurationFile config, @NotNull final String head, @NotNull final String tail, @NotNull final String message) {
+        if (message.isEmpty()) return message;
+
+        final int[] hex = resolveDefinedHexInts(head, tail);
+
+        final double perChar = 100.0 / message.length();
+        final StringBuilder builder = new StringBuilder();
+
+        double current = 0;
+
+        for (final char c : message.toCharArray()) {
+            final int[] values = generatePercentageRGB(hex, current / 100.0);
+
+            final String delimiter = config.getString("delimiter", "§");
+            builder.append(delimiter).append("x").append(delimiter)
+                    .append(String.join(delimiter, String.format("%02X%02X%02X", values[0], values[1], values[2]).split("")))
+                    .append(c);
+
+            current = Math.min(100.0, current + perChar);
+        }
+
+        return builder.toString().replace("B§", "§");
+    }
+
+
+    /**
+     * Create an array of ints representing the rgb values of the provided strings
+     *
+     * @param head The head color of the gradient
+     * @param tail The tail color of the gradient
+     * @return An array of 6 ints between [0..255]
+     * @apiNote Array values are in order [hexOneR, hexOneG, hexOneB, hexTwoR, hexTwoG, hexTwoB]
+     */
+    private static int @NotNull [] resolveDefinedHexInts(@NotNull final String head, @NotNull final String tail) {
+        final int hexOneR = Integer.parseInt(head.substring(1, 3), 16);
+        final int hexOneG = Integer.parseInt(head.substring(3, 5), 16);
+        final int hexOneB = Integer.parseInt(head.substring(5, 7), 16);
+
+        final int hexTwoR = Integer.parseInt(tail.substring(1, 3), 16);
+        final int hexTwoG = Integer.parseInt(tail.substring(3, 5), 16);
+        final int hexTwoB = Integer.parseInt(tail.substring(5, 7), 16);
+
+        return new int[]{hexOneR, hexOneG, hexOneB, hexTwoR, hexTwoG, hexTwoB};
+    }
+
+    /**
+     * Create an array of ints representing the rgb value of the color at the <code>percentage</code> of the  gradient defined by <code>hex</code>
+     *
+     * @param hex        The gradient's hex values
+     * @param percentage The percentage along the gradient to target
+     * @return An array of 3 ints between [0..255]
+     * @apiNote Array values are in order [valueR, valueG, valueB]
+     */
+    @Contract(value = "_, _ -> new", pure = true)
+    private static int @NotNull [] generatePercentageRGB(final int @NotNull [] hex, final double percentage) {
+        final int valueR = (int) (hex[0] + ((hex[3] - hex[0]) * percentage));
+        final int valueG = (int) (hex[1] + ((hex[4] - hex[1]) * percentage));
+        final int valueB = (int) (hex[2] + ((hex[5] - hex[2]) * percentage));
+
+        return new int[]{valueR, valueG, valueB};
     }
 
     /**

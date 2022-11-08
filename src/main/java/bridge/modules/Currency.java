@@ -19,7 +19,7 @@ public abstract class Currency {
      * @param uuid the player's {@link UUID}
      * @return amount of money
      */
-    public abstract int getCurrencyAmount(final UUID uuid);
+    public abstract Integer getCurrencyAmount(final UUID uuid);
 
     /**
      * Set player's amount of money.

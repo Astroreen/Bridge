@@ -30,12 +30,12 @@ public class ListenerManager {
             public void run() {
                 // log which listeners have been registered
                 if (!registered.isEmpty()) {
-                    final StringBuilder string = new StringBuilder();
+                    final StringBuilder builder = new StringBuilder();
                     for (final String name : registered.keySet()) {
                         Bukkit.getPluginManager().registerEvents(registered.get(name), plugin);
-                        string.append(name).append(", ");
+                        builder.append(name).append(", ");
                     }
-                    final String plugins = string.substring(0, string.length() - 2);
+                    final String plugins = builder.substring(0, builder.length() - 2);
                     LOG.debug("Registered listeners on start: " + plugins + ".");
                 }
             }

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'bridge'
-version = '2.2-SNAPSHOT'
+version = '3.9-SNAPSHOT'
 
 test {
     useJUnitPlatform()

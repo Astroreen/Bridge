@@ -36,7 +36,7 @@ public class TABManager implements TabEvent {
     private static boolean isModuleEnabled;
     private static boolean isStarsEnabled;
     private static Currency stars = null;
-    private static NicknameColorManager manager = null;
+    private static NicknameManager manager = null;
 
     public TABManager () {
         instance = Bridge.getInstance();
@@ -45,8 +45,8 @@ public class TABManager implements TabEvent {
 
         isModuleEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
         if (isModuleEnabled) {
-            new NicknameColorManager(instance);
-            manager = NicknameColorManager.getInstance();
+            new NicknameManager(instance);
+            manager = NicknameManager.getInstance();
         }
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         if (isStarsEnabled) stars = new Stars(manager, con);
@@ -89,8 +89,8 @@ public class TABManager implements TabEvent {
         assert p != null;
         if(!exist.contains(uuid)){
             exist.add(uuid);
-            String color = manager.getDefaultNickColor();
-            manager.applyNicknameColor(p, color, false);
+            String color = NicknameManager.getDefaultNickColor();
+            manager.applyColor(p, color, false);
             saver.add(new Saver.Record(UpdateType.ADD_NICKNAME, uuid.toString(), color));
             return;
         }
@@ -99,12 +99,12 @@ public class TABManager implements TabEvent {
             ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
             if(rs.next()){
                 final String hex = rs.getString("color");
-                if (hex == null) manager.applyNicknameColor(p, manager.getDefaultNickColor(), false);
-                manager.applyNicknameColor(p, hex, false);
+                if (hex == null) manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
+                manager.applyColor(p, hex, false);
             }
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
-            manager.applyNicknameColor(p, manager.getDefaultNickColor(), false);
+            manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
         }
     }
 
@@ -129,7 +129,7 @@ public class TABManager implements TabEvent {
                         );
                     }
                     Bukkit.getOnlinePlayers().forEach((p) ->
-                            manager.applyNicknameColor(p, data.get(p.getUniqueId()), false));
+                            manager.applyColor(p, data.get(p.getUniqueId()), false));
                 } catch (SQLException e) {
                     LOG.error("There was an exception with SQL", e);
                 }
@@ -142,7 +142,7 @@ public class TABManager implements TabEvent {
         else return null;
     }
 
-    public static @Nullable NicknameColorManager getManager () {
+    public static @Nullable NicknameManager getManager () {
         return manager;
     }
     public static boolean isModuleEnabled() {

@@ -76,7 +76,7 @@ public enum MessageType {
     /**
      * Variables: Player, His nickname color cost
      */
-    OTHER_PLAYER_NICKNAME_COLOR_COST("hooks.tab.colors.your_color_cost"),
+    OTHER_PLAYER_NICKNAME_COLOR_COST("hooks.tab.colors.other_player_color_cost"),
     /**
      * Variables: Player whose color checking
      */

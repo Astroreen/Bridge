@@ -17,10 +17,10 @@ import java.util.UUID;
 public class Stars extends Currency {
 
     private final Connector con;
-    private final NicknameColorManager manager;
+    private final NicknameManager manager;
     private final Saver saver;
 
-    public Stars(NicknameColorManager manager, Connector con) {
+    public Stars(NicknameManager manager, Connector con) {
         super("stars");
         this.con = con;
         this.manager = manager;
@@ -29,18 +29,19 @@ public class Stars extends Currency {
     }
 
     @Override
-    public int getCurrencyAmount(@NotNull final UUID uuid) {
+    public Integer getCurrencyAmount(@NotNull final UUID uuid) {
         if (manager.getLatelyUsedPlayers().contains(uuid)) {
-            NicknameColorManager.PlayerColor info = manager.getPlayerInfo(uuid);
+            NicknameManager.PlayerColor info = manager.getPlayerInfo(uuid);
             if (info != null) return info.stars();
         }
         ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
         try {
             if (rs.next()) return rs.getInt("stars");
+            return rs.getInt("stars");
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
         }
-        return -1;
+        return null;
     }
 
     @Override
