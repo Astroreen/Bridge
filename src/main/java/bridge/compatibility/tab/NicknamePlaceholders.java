@@ -1,7 +1,6 @@
 package bridge.compatibility.tab;
 
 import bridge.Bridge;
-import bridge.config.ConfigurationFile;
 import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -13,12 +12,8 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
 
     private final Bridge plugin = Bridge.getInstance();
     private NicknameManager manager;
-    private ConfigurationFile ColorConfig;
 
-    public void setup(NicknameManager manager, ConfigurationFile ColorConfig) {
-        this.manager = manager;
-        this.ColorConfig = ColorConfig;
-    }
+    public void setup(NicknameManager manager) {this.manager = manager;}
 
     /**
      * Persist through reloads
@@ -86,18 +81,18 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
             }
             case "have_nickcolor" -> {
                 final String color = manager.getPlayerColor(p.getUniqueId());
-                if(color == null) return "";
+                if (color == null) return "";
                 final String[] hex = color.split(">");
                 final String name = p.getName();
                 if (name == null) return "";
-                return ColorCodes.generateColoredMessage(ColorConfig, hex[0], hex[1], name);
+                return ColorCodes.generateColoredMessage(manager.getConfig(), hex[0], hex[1], name);
             }
             case "have_nickcolor_hex" -> {
                 final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
-                if(info == null) return "";
+                if (info == null) return "";
                 final String[] hex = info.gradient().split(">");
-                if(hex[0].equals(hex[1])) return hex[0];
-                return String.format("%s, %s", hex[0], hex[1]) ;
+                if (hex[0].equals(hex[1])) return hex[0];
+                return String.format("%s, %s", hex[0], hex[1]);
             }
             case "have_textcolor_hex" -> {
                 final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
@@ -105,7 +100,7 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
             }
             case "have_custom_color" -> {
                 final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
-                if(info == null) return "";
+                if (info == null) return "";
                 return manager.getColorName(info.name() == null ? "yes" : "no");
             }
             case "color_cost" -> {
@@ -146,7 +141,14 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
                     final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
                     if (info == null || colorCost == null || info.stars() == -1) return "";
                     return info.stars() >= colorCost ? "yes" : "no";
-                } else return "";
+                } else if (args[0].equals("color") && args[1].equals("preview")) {
+                    final String color = manager.getGradient(args[2]);
+                    if (color == null) return "";
+                    final String[] hex = color.split(">");
+                    final String name = p.getName();
+                    if (name != null)
+                        return ColorCodes.generateColoredMessage(manager.getConfig(), hex[0], hex[1], name);
+                }
             }
         }
         return "";

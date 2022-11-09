@@ -64,7 +64,7 @@ public class NicknameManager {
         //registering placeholders if plugin is enabled
         if (Compatibility.getHooked().contains("PlaceholderAPI")) {
             NicknamePlaceholders placeholders = new NicknamePlaceholders();
-            placeholders.setup(this, ColorConfig);
+            placeholders.setup(this);
             placeholders.register();
         }
         reload();
@@ -469,6 +469,7 @@ public class NicknameManager {
     public static String getDefaultTextColor() {
         return defaultTextColor;
     }
+    public ConfigurationFile getConfig() {return ColorConfig;}
 
     @Contract(pure = true)
     public boolean isGradient(@NotNull String color) {
