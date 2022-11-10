@@ -26,13 +26,21 @@ public class ColorCodes {
     @NotNull
     public static String generateColoredMessage(@NotNull ConfigurationFile config, @NotNull final String head, @NotNull final String tail, @NotNull final String message) {
         if (message.isEmpty()) return message;
-
         final int[] hex = resolveDefinedHexInts(head, tail);
 
         final double perChar = 100.0 / message.length();
         final StringBuilder builder = new StringBuilder();
 
         double current = 0;
+
+        if(head.equals(tail)) {
+            final int[] values = generatePercentageRGB(hex, current / 100.0);
+            final String delimiter = config.getString("delimiter", "§");
+            builder.append(delimiter).append("x").append(delimiter)
+                    .append(String.join(delimiter, String.format("%02X%02X%02X", values[0], values[1], values[2]).split("")))
+                    .append(message);
+            return builder.toString();
+        }
 
         for (final char c : message.toCharArray()) {
             final int[] values = generatePercentageRGB(hex, current / 100.0);
@@ -45,7 +53,7 @@ public class ColorCodes {
             current = Math.min(100.0, current + perChar);
         }
 
-        return builder.toString().replace("B§", "§");
+        return builder.toString();
     }
 
 
