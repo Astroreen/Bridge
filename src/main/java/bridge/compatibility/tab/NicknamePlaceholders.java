@@ -1,6 +1,7 @@
 package bridge.compatibility.tab;
 
 import bridge.Bridge;
+import bridge.modules.Currency;
 import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -82,7 +83,12 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
             case "have_nickcolor" -> {
                 final String color = manager.getPlayerColor(p.getUniqueId());
                 if (color == null) return "";
-                final String[] hex = color.split(">");
+                String[] hex = new String[2];
+                if(manager.isGradient(color)) hex = color.split(">");
+                else if (ColorCodes.isHexValid(color)) {
+                    hex[0] = color;
+                    hex[1] = color;
+                }
                 final String name = p.getName();
                 if (name == null) return "";
                 return ColorCodes.generateColoredMessage(manager.getConfig(), hex[0], hex[1], name);
@@ -112,12 +118,11 @@ public class NicknamePlaceholders extends PlaceholderExpansion {
                 return String.valueOf(cost);
             }
             case "have_stars" -> {
-                int stars;
-                final NicknameManager.PlayerColor info = manager.getPlayerInfo(p.getUniqueId());
-                if (info == null) return "";
-                stars = info.stars();
-                if (stars == -1) return "";
-                return String.valueOf(stars);
+                final Currency stars = TABManager.getStars();
+                if (stars == null) return "";
+                final int amount = stars.getCurrencyAmount(p.getUniqueId());
+                if (amount == -1) return "";
+                return String.valueOf(amount);
             }
             case "can_use_hex", "can_use_custom" -> {
                 Player player = PlayerConverter.getPlayer(p.getUniqueId());

@@ -70,6 +70,14 @@ public class Messenger implements PluginMessageListener, Listener {
         manager.unregister(channel);
     }
 
+    public void stop() {
+        if (SocketManager.isServer()) {
+            manager.stopServer();
+        } else {
+            manager.stopClient();
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(final PlayerJoinEvent event) {
         if (queue.isEmpty()) return;

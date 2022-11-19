@@ -1,6 +1,7 @@
 package bridge.compatibility;
 
 import bridge.Bridge;
+import bridge.compatibility.luckperms.BRLuckPermsIntegrator;
 import bridge.compatibility.placeholderapi.PlaceholderAPIIntegrator;
 import bridge.compatibility.tab.BRTABIntegrator;
 import bridge.exceptions.HookException;
@@ -30,12 +31,13 @@ public class Compatibility implements Listener {
 
         integrators.put("PlaceholderAPI", new PlaceholderAPIIntegrator());
         integrators.put("TAB", new BRTABIntegrator());
+        integrators.put("LuckPerms", new BRLuckPermsIntegrator());
         // hook into already enabled plugins in case Bukkit messes up the loading order
         for (final Plugin hook : Bukkit.getPluginManager().getPlugins()) {
             hook(hook);
         }
 
-        Bridge.getInstance().getListenerManager().registerListener("Compatabilty", this);
+        Bridge.getInstance().getListenerManager().registerListener("Compatibility", this);
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -124,7 +126,7 @@ public class Compatibility implements Listener {
                         Bukkit.getVersion(),
                         exception.getMessage());
                 LOG.error(message, exception);
-                LOG.warn("BetonQuest will work correctly, except for that single integration. "
+                LOG.warn("Bridge will work correctly, except for that single integration. "
                         + "You can turn it off by setting 'hook." + name.toLowerCase(Locale.ROOT)
                         + "' to false in config.yml file.");
             }

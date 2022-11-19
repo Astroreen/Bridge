@@ -217,15 +217,12 @@ public class NicknameManager {
     }
 
     public @Nullable String getGradient(final String ColorName) {
-        boolean stop = false;
         for (String group : getGroups()) {
             for (String color : getGroupColors(group)) {
                 if (color.equals(ColorName)) {
-                    stop = true;
                     return getGradient(group, color);
                 }
             }
-            if(stop) break;
         }
         return null;
     }
@@ -477,8 +474,8 @@ public class NicknameManager {
     }
 
     @Contract(pure = true)
-    protected @NotNull Set<Map.Entry<UUID, PlayerColor>> getLatelyUsedPlayers() {
-        return LoadedPlayers.entrySet();
+    protected Set<UUID> getLatelyUsedPlayers() {
+        return LoadedPlayers.keySet();
     }
 
     protected static NicknameManager getInstance() {

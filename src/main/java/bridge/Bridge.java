@@ -13,6 +13,7 @@ import bridge.modules.logger.BRLogger;
 import bridge.modules.logger.DebugHandlerConfig;
 import bridge.modules.messenger.Action;
 import bridge.modules.messenger.Messenger;
+import bridge.modules.permissions.PermissionManager;
 import bridge.utils.StartScreen;
 import lombok.Getter;
 import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -57,6 +58,7 @@ public final class Bridge extends JavaPlugin {
     private Database database;
     private AsyncSaver saver;
     private Messenger messenger;
+    private PermissionManager perms;
     private boolean isMySQLUsed;
 
     @NotNull
@@ -116,11 +118,13 @@ public final class Bridge extends JavaPlugin {
         // initialize compatibility with other plugins
         new Compatibility();
 
+        perms = new PermissionManager();
+
         // initialize commands
         new BridgeCommand();
 
         //registering plugin messenger
-        if(config.getBoolean("settings.modules.updater.enabled", true)) {
+        if (config.getBoolean("settings.modules.updater.enabled", true)) {
             messenger = new Messenger(this);
             messenger.register();
             messenger.makeReservation(Action.GET_SERVER);
@@ -152,6 +156,7 @@ public final class Bridge extends JavaPlugin {
         if (messenger != null) {
             messenger.unregister();
             messenger.getSender().end();
+            messenger.stop();
         }
 
         Bukkit.getScheduler().cancelTasks(this);
@@ -174,8 +179,17 @@ public final class Bridge extends JavaPlugin {
      *
      * @return {@link Messenger} instance
      */
-    public @Nullable Messenger getMessenger () {
+    public @Nullable Messenger getMessenger() {
         return messenger;
+    }
+
+    /**
+     * Returns the permission manager
+     *
+     * @return {@link Messenger} instance
+     */
+    public PermissionManager getPermManager() {
+        return perms;
     }
 
     /**
@@ -183,7 +197,9 @@ public final class Bridge extends JavaPlugin {
      *
      * @return {@link ListenerManager} instance
      */
-    public ListenerManager getListenerManager() {return listenerManager;}
+    public ListenerManager getListenerManager() {
+        return listenerManager;
+    }
 
     /**
      * Returns the database instance
@@ -205,19 +221,14 @@ public final class Bridge extends JavaPlugin {
         Config.setup(this);
         DebugHandlerConfig.setup(config);
         //registering plugin messenger
-        if (messenger != null && config.getBoolean("settings.modules.updater.enabled", false)) {
+        if (messenger != null && config.getBoolean("settings.modules.updater.enabled", false))
             messenger.reload();
-            //TODO refresh messenger and sockets
-        }
         Compatibility.reload();
+        perms = new PermissionManager();
     }
 
     public AsyncSaver getSaver() {
         return saver;
-    }
-
-    public boolean isConfigSet() {
-        return config != null;
     }
 
     /**

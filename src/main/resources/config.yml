@@ -1,6 +1,7 @@
 hook:
   placeholderapi: true
   tab: true
+  luckperms: true
 
 settings:
   language: ru

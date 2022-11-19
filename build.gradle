@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'bridge'
-version = '4.0'
+version = '4.2'
 
 test {
     useJUnitPlatform()
@@ -41,38 +41,30 @@ repositories {
 dependencies {
     //Paper
     compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
-
     //spigot NMS
     compileOnly 'org.spigotmc:spigot:1.19-R0.1-SNAPSHOT'
-
     //Bungee
     compileOnly 'net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT'
-
     //Mysql
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
-
     //SQLite
     implementation('org.xerial:sqlite-jdbc:3.39.3.0')
-
     //Kyori Adventure Library
     implementation("net.kyori:adventure-api:4.11.0")
-
     //Lombok
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
-
     //Test JUnit
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
-
     //PlaceholderAPI
     compileOnly 'me.clip:placeholderapi:2.11.2'
-
     //TAB
     compileOnly 'me.neznamy:tab-api:3.1.4'
+    //LuckPerms
+    compileOnly("net.luckperms:api:5.4")
 }
 
 def targetJavaVersion = 17

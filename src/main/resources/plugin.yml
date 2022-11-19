@@ -9,38 +9,52 @@ softdepend:
   - PlaceholderAPI
   - TAB
   - EssentialsX
+  - LuckPerms
 commands:
   bridge:
     description: General bridge command
     usage: /<command>
-    permission: bridge.admin
-    aliases: [br]
+    permission: bridge.command.bridge
+    aliases: [ br ]
 permissions:
-  bridge.*:
-    description: Gives access to anything
-    children:
-      bridge.admin: true
   bridge.admin:
     description: Permission for admins to use
     default: op
     children:
-      bridge.reload: true
-      bridge.debug: true
-      bridge.nickname.*: true
+      bridge.nickname: true
+      bridge.command.all: true
 
-  bridge.reload:
-    description: Reload the plugin
+  bridge.command.all:
+    description: Get access to all commands
     default: op
-  bridge.debug:
+    children:
+      bridge.command.bridge: true
+      bridge.command.reload: true
+      bridge.command.debug: true
+      bridge.command.language: true
+      bridge.command.nickname: true
+  bridge.command.bridge:
+    description: Gives access to a default command
+    default: true
+  bridge.command.reload:
+    description: Command to reload the plugin
+    default: op
+  bridge.command.debug:
     description: Access to use debug command
     default: op
-  bridge.nickname.*:
+  bridge.command.language:
+    description: Access to change language
+    default: op
+  bridge.command.nickname:
+    description: Access to use nickname command
+    default: true
+
+  bridge.nickname:
     description: Gives access to all nickname commands
     children:
-      bridge.nickname.color.*: true
-      bridge.nickname.stars.*: true
-
-  bridge.nickname.color.*:
+      bridge.nickname.color: true
+      bridge.nickname.stars: true
+  bridge.nickname.color:
     description: Manipulate yours and others players nickname colors
     children:
       bridge.nickname.color.have: true
@@ -53,7 +67,7 @@ permissions:
       bridge.nickname.color.replace: true
   bridge.nickname.color.have:
     description: See your nickname color
-    default: op
+    default: true
   bridge.nickname.color.have.other:
     description: See nickname color of other player
     default: op
@@ -61,12 +75,12 @@ permissions:
       bridge.nickname.color.have: true
   bridge.nickname.color.cost:
     description: See your nickname color cost
+    default: true
+  bridge.nickname.color.cost.other:
+    description: See nickname color cost of other player
     default: op
-    bridge.nickname.color.cost.other:
-      description: See nickname color cost of other player
-      default: op
-      children:
-        bridge.nickname.color.cost: true
+    children:
+      bridge.nickname.color.cost: true
   bridge.nickname.color.set:
     description: Set your own nickname color
     default: true
@@ -82,7 +96,7 @@ permissions:
     description: Replaces default color in database to a new one
     default: false
 
-  bridge.nickname.stars.*:
+  bridge.nickname.stars:
     description: Manipulate yours and others players stars
     children:
       bridge.nickname.stars.have: true
@@ -98,7 +112,7 @@ permissions:
     description: See how much stars does another player have
     default: op
     children:
-      bridge.nickname.stars: true
+      bridge.nickname.stars.have: true
   bridge.nickname.stars.set:
     description: Replace your stars amount
     default: op

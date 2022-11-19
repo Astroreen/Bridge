@@ -34,11 +34,11 @@ public class SocketManager implements Listener {
     private static final List<Channel> registered = new ArrayList<>();
 
 
-    //server
+    // server //
     private static final HashMap<String, SocketData> ConnectedSockets = new HashMap<>();
     private final String UNDEFINED_SOCKET = "UndefinedSocket_";
     private ServerSocket server = null;
-    //client
+    // client //
     private Socket client = null;
     private int ClientReadingThread = -1;
 
@@ -216,17 +216,24 @@ public class SocketManager implements Listener {
         isServer = true;
         runningTaskID = Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
+                if(server != null) server.close();
                 server = new ServerSocket(port);
                 while (running) {
                     //method accept() will block the path until someone connects.
-                    Socket client = server.accept(); // The client is the sender.
-                    client.setKeepAlive(true);
-                    Bukkit.getPluginManager().callEvent(new ConnectingSocketEvent(client));
+                    Socket client = null; // The client is the sender.
+                    try {
+                        client = server.accept();
+                    } catch (IOException ex) {
+                        //nothing
+                    }
+                    if(client != null && !client.isClosed()){
+                        client.setKeepAlive(true);
+                        Bukkit.getPluginManager().callEvent(new ConnectingSocketEvent(client));
+                    }
                 }
             } catch (IOException e) {
                 LOG.error("There was an exception with ServerSocket", e);
-                stopServer();
-                refresh(ip, port);
+                if(running) stopServer();
             }
         }).getTaskId();
         LOG.debug("Done.");
@@ -235,20 +242,20 @@ public class SocketManager implements Listener {
     /**
      * Closes server.
      */
-    private void stopServer() {
+    protected void stopServer() {
         isServer = false;
         running = false;
         LOG.debug("Closing ServerSocket...");
         //closing sockets before closing server
         for (String name : ConnectedSockets.keySet()) {
-            SocketData socket = ConnectedSockets.get(name);
-            if (socket == null) {
-                ConnectedSockets.remove(name);
+            SocketData SocketData = ConnectedSockets.get(name);
+            if (SocketData == null) {
+                ConnectedSockets.remove(name, null);
             } else {
                 try {
-                    final int id = socket.threadID;
+                    final int id = SocketData.threadID;
                     if (id != -1) Bukkit.getScheduler().cancelTask(id);
-                    socket.socket().close();
+                    SocketData.socket().close();
                 } catch (IOException e) {
                     LOG.error("There was an exception while trying to close SocketData " + name, e);
                 }
@@ -284,6 +291,7 @@ public class SocketManager implements Listener {
         running = true;
         runningTaskID = Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
+                if(client != null ) client.close();
                 client = new Socket(ip, port);
                 ClientReadingThread = startReadingThread(client);
             } catch (IOException e) {
@@ -298,7 +306,7 @@ public class SocketManager implements Listener {
     /**
      * Closes client.
      */
-    private void stopClient() {
+    protected void stopClient() {
         isServer = false;
         running = false;
         LOG.debug("Closing ClientSocket...");
