@@ -1,24 +1,26 @@
 package bridge.compatibility.tab;
 
 import bridge.compatibility.Integrator;
+import bridge.config.Module;
+import bridge.config.ModuleManager;
 
 public class BRTABIntegrator implements Integrator {
 
-    private TABManager manager;
-
+    private final static String MODULE_NAME = "TAB";
     @Override
     public void hook() {
-        manager = new TABManager();
-        manager.register();
+        TABManager.setup();
     }
 
     @Override
     public void reload() {
-        manager.reload();
+        Module module = ModuleManager.getModule(MODULE_NAME);
+        if (module != null && module.active()) module.reload();
     }
 
     @Override
     public void close() {
-        manager.unregister();
+        Module module = ModuleManager.getModule(MODULE_NAME);
+        if (module != null && module.active()) module.disable();
     }
 }

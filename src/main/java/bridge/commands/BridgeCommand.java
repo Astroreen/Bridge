@@ -6,6 +6,8 @@ import bridge.compatibility.Compatibility;
 import bridge.compatibility.tab.NicknameManager;
 import bridge.compatibility.tab.TABManager;
 import bridge.config.Config;
+import bridge.config.Module;
+import bridge.config.ModuleManager;
 import bridge.modules.Currency;
 import bridge.modules.logger.DebugHandlerConfig;
 import bridge.modules.permissions.Permission;
@@ -63,7 +65,8 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                 case "nickname", "nick" -> {
                     if (!Compatibility.getHooked().contains("TAB"))
                         sendMessage(sender, MessageType.PLUGIN_DISABLED, "TAB");
-                    if (!TABManager.isModuleEnabled())
+                    final Module module = ModuleManager.getModule("TAB");
+                    if (module == null || !module.active())
                         sendMessage(sender, MessageType.MODULE_STATE, "ColorNickname", Config.getMessage(MessageType.DISABLED));
                     handleNickName(sender, args);
                 }

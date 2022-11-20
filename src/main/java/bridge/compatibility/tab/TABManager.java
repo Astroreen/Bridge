@@ -1,6 +1,8 @@
 package bridge.compatibility.tab;
 
 import bridge.Bridge;
+import bridge.compatibility.Compatibility;
+import bridge.config.Module;
 import bridge.database.Connector;
 import bridge.database.QueryType;
 import bridge.database.Saver;
@@ -27,18 +29,18 @@ import java.util.List;
 import java.util.UUID;
 
 @CustomLog
-public class TABManager implements TabEvent {
+public class TABManager implements TabEvent, Module {
 
-    private final Bridge instance;
-    private final Saver saver;
-    private final Connector con;
-    private final List<UUID> exist;
+    private static Bridge instance;
+    private static Saver saver;
+    private static Connector con;
+    private static List<UUID> exist;
     private static boolean isModuleEnabled;
     private static boolean isStarsEnabled;
     private static Currency stars = null;
     private static NicknameManager manager = null;
 
-    public TABManager () {
+    public static void setup() {
         instance = Bridge.getInstance();
         saver = instance.getSaver();
         con = new Connector();
@@ -53,34 +55,13 @@ public class TABManager implements TabEvent {
         exist = new ArrayList<>();
     }
 
-    protected void register () {
-        TabAPI.getInstance().getEventBus().register(this);
-        exist.clear();
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_UUIDS);
-                try {
-                    while(rs.next())
-                        exist.add(UUID.fromString(rs.getString("playerID")));
-                } catch (SQLException e) {
-                    LOG.error("There was an exception with SQL", e);
-                }
-            }
-        }.runTaskAsynchronously(instance);
-    }
-
-    protected void unregister () {
-        TabAPI.getInstance().getEventBus().unregister(this);
-    }
-
     @Subscribe
     public void onPlayerLoad (@NotNull final PlayerLoadEvent event) {
         if (!event.isJoin()) {
             reload();
             return;
         }
-        if(!isModuleEnabled()) return;
+        if(!active()) return;
         final TabPlayer player = event.getPlayer();
         final UUID uuid = player.getUniqueId();
         final Player p = PlayerConverter.getPlayer(uuid);
@@ -108,9 +89,29 @@ public class TABManager implements TabEvent {
         }
     }
 
-    protected void reload () {
+    @Override
+    public boolean start(@NotNull Bridge plugin) {
+        TabAPI.getInstance().getEventBus().register(this);
+        exist.clear();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_UUIDS);
+                try {
+                    while(rs.next())
+                        exist.add(UUID.fromString(rs.getString("playerID")));
+                } catch (SQLException e) {
+                    LOG.error("There was an exception with SQL", e);
+                }
+            }
+        }.runTaskAsynchronously(instance);
+        return true;
+    }
+
+    @Override
+    public void reload () {
         con.refresh();
-        if (!isModuleEnabled()) return;
+        if (!active()) return;
         isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         manager.reload();
         exist.clear();
@@ -137,6 +138,25 @@ public class TABManager implements TabEvent {
         }.runTaskAsynchronously(instance);
     }
 
+    @Override
+    public void disable() {
+        TabAPI.getInstance().getEventBus().unregister(this);
+    }
+
+    @Override
+    public boolean isConditionsMet() {
+        if(!Compatibility.getHooked().contains("TAB")){
+            LOG.error("Can't start module 'TAB'. Is this plugin exist?");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean active() {
+        return isModuleEnabled;
+    }
+
     public static @Nullable Currency getStars() {
         if (isStarsEnabled) return stars;
         else return null;
@@ -144,9 +164,6 @@ public class TABManager implements TabEvent {
 
     public static @Nullable NicknameManager getManager () {
         return manager;
-    }
-    public static boolean isModuleEnabled() {
-        return isModuleEnabled;
     }
 
 }

@@ -6,7 +6,10 @@ hook:
 settings:
   language: ru
   modules:
+    ffa:
+      enabled: false
     tab:
+      enabled: true
       ColorNickname: true
       UseMoney: true
     updater:

@@ -4,6 +4,7 @@ import bridge.commands.BridgeCommand;
 import bridge.compatibility.Compatibility;
 import bridge.config.Config;
 import bridge.config.ConfigurationFile;
+import bridge.config.ModuleManager;
 import bridge.database.AsyncSaver;
 import bridge.database.Database;
 import bridge.database.MySQL;
@@ -118,6 +119,9 @@ public final class Bridge extends JavaPlugin {
         // initialize compatibility with other plugins
         new Compatibility();
 
+        // initializing all modules
+        ModuleManager.setup(this);
+        ModuleManager.start();
         perms = new PermissionManager();
 
         // initialize commands
@@ -151,7 +155,7 @@ public final class Bridge extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
 
-
+        ModuleManager.disable();
         Compatibility.disable();
         if (messenger != null) {
             messenger.unregister();
@@ -224,6 +228,7 @@ public final class Bridge extends JavaPlugin {
         if (messenger != null && config.getBoolean("settings.modules.updater.enabled", false))
             messenger.reload();
         Compatibility.reload();
+        ModuleManager.reload(this);
         perms = new PermissionManager();
     }
 
