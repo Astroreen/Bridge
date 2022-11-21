@@ -2,7 +2,7 @@ package bridge.ffa;
 
 import bridge.Bridge;
 import bridge.config.ConfigurationFile;
-import bridge.config.Module;
+import bridge.modules.Module;
 import bridge.utils.FileUtils;
 import lombok.CustomLog;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -36,7 +36,7 @@ public class FFA implements Module {
             return false;
         }
 
-        FFAKitManager.setup(kits);
+        new FFAKitManager(kits);
 
         //fully working
         isActive = true;

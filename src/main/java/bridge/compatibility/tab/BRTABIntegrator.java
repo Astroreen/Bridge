@@ -1,8 +1,8 @@
 package bridge.compatibility.tab;
 
 import bridge.compatibility.Integrator;
-import bridge.config.Module;
-import bridge.config.ModuleManager;
+import bridge.modules.Module;
+import bridge.modules.ModuleManager;
 
 public class BRTABIntegrator implements Integrator {
 

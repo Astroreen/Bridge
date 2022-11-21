@@ -1,17 +1,20 @@
 package bridge.ffa;
 
 import bridge.config.ConfigurationFile;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class FFAKitManager {
 
     private static ConfigurationFile config;
 
-    public static void setup(final @NotNull ConfigurationFile config){
+    public FFAKitManager(final @NotNull ConfigurationFile config){
         FFAKitManager.config = config;
     }
 
-    private void pasteToConfig(final @NotNull FFAKit kit){
+    public void createKitItem (ItemStack stack){
+    }
+    private void pasteToConfig(final @NotNull FFAKitItem kit){
 
     }
 }

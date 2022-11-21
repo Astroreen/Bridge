@@ -1,6 +1,7 @@
 package bridge.modules.messenger;
 
 import bridge.Bridge;
+import bridge.listeners.ListenerManager;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -33,7 +34,7 @@ public class Messenger implements PluginMessageListener, Listener {
 
     public Messenger(final @NotNull Bridge plugin) {
         Messenger.plugin = plugin;
-        plugin.getListenerManager().registerListener("Messenger", this);
+        ListenerManager.register("Messenger", this);
         this.queue = new LinkedHashMap<>();
         final String ip = plugin.getPluginConfig().getString("settings.modules.updater.ip", "localhost");
         final int port = plugin.getPluginConfig().getInt("settings.modules.updater.port", 3820);

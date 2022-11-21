@@ -1,10 +1,12 @@
 package bridge.compatibility;
 
 import bridge.Bridge;
+import bridge.compatibility.itemsadder.BRItemsAdderIntegrator;
 import bridge.compatibility.luckperms.BRLuckPermsIntegrator;
 import bridge.compatibility.placeholderapi.PlaceholderAPIIntegrator;
 import bridge.compatibility.tab.BRTABIntegrator;
 import bridge.exceptions.HookException;
+import bridge.listeners.ListenerManager;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -23,29 +25,30 @@ import java.util.*;
 public class Compatibility implements Listener {
 
     private static Compatibility instance;
-    private final Map<String, Integrator> integrators = new HashMap<>();
-    private final List<String> hooked = new ArrayList<>();
+    private final Map<CompatiblePlugin, Integrator> integrators = new HashMap<>();
+    private final List<CompatiblePlugin> hooked = new ArrayList<>();
 
     public Compatibility() {
         instance = this;
 
-        integrators.put("PlaceholderAPI", new PlaceholderAPIIntegrator());
-        integrators.put("TAB", new BRTABIntegrator());
-        integrators.put("LuckPerms", new BRLuckPermsIntegrator());
+        integrators.put(CompatiblePlugin.PLACEHOLDERAPI, new PlaceholderAPIIntegrator());
+        integrators.put(CompatiblePlugin.TAB, new BRTABIntegrator());
+        integrators.put(CompatiblePlugin.LUCKPERMS, new BRLuckPermsIntegrator());
+        integrators.put(CompatiblePlugin.ITEMSADDER, new BRItemsAdderIntegrator());
         // hook into already enabled plugins in case Bukkit messes up the loading order
         for (final Plugin hook : Bukkit.getPluginManager().getPlugins()) {
             hook(hook);
         }
 
-        Bridge.getInstance().getListenerManager().registerListener("Compatibility", this);
+        ListenerManager.register("Compatibility", this);
         new BukkitRunnable() {
             @Override
             public void run() {
                 // log which plugins have been hooked
                 if (!hooked.isEmpty()) {
                     final StringBuilder string = new StringBuilder();
-                    for (final String plugin : hooked) {
-                        string.append(plugin).append(", ");
+                    for (final CompatiblePlugin plugin : hooked) {
+                        string.append(plugin.name).append(", ");
                     }
                     final String plugins = string.substring(0, string.length() - 2);
                     LOG.info("Hooked into " + plugins + "!");
@@ -58,19 +61,19 @@ public class Compatibility implements Listener {
     /**
      * @return the list of hooked plugins
      */
-    public static List<String> getHooked() {
+    public static List<CompatiblePlugin> getHooked() {
         return instance.hooked;
     }
 
     public static void reload() {
-        for (final String hooked : getHooked()) {
+        for (final CompatiblePlugin hooked : getHooked()) {
             instance.integrators.get(hooked).reload();
         }
     }
 
     public static void disable() {
         if (instance != null) {
-            for (final String hooked : getHooked()) {
+            for (final CompatiblePlugin hooked : getHooked()) {
                 instance.integrators.get(hooked).close();
             }
         }
@@ -82,9 +85,18 @@ public class Compatibility implements Listener {
     }
 
     private void hook(final @NotNull Plugin hookedPlugin) {
+        CompatiblePlugin compatible = null;
+        for (CompatiblePlugin plugin : CompatiblePlugin.values()) {
+            if(hookedPlugin.getName().equals(plugin.name)) {
+                compatible = plugin;
+                break;
+            }
+        }
+
+        if(compatible == null) return;
 
         // don't want to hook twice
-        if (hooked.contains(hookedPlugin.getName())) {
+        if (hooked.contains(compatible)) {
             return;
         }
 
@@ -94,7 +106,7 @@ public class Compatibility implements Listener {
         }
 
         final String name = hookedPlugin.getName();
-        final Integrator integrator = integrators.get(name);
+        final Integrator integrator = integrators.get(compatible);
 
         // this plugin is not an integration
         if (integrator == null) {
@@ -108,7 +120,7 @@ public class Compatibility implements Listener {
             // log important information in case of an error
             try {
                 integrator.hook();
-                hooked.add(name);
+                hooked.add(compatible);
             } catch (final HookException exception) {
                 final String message = String.format("Could not hook into %s %s! %s",
                         hookedPlugin.getName(),

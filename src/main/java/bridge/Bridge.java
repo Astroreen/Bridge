@@ -4,7 +4,7 @@ import bridge.commands.BridgeCommand;
 import bridge.compatibility.Compatibility;
 import bridge.config.Config;
 import bridge.config.ConfigurationFile;
-import bridge.config.ModuleManager;
+import bridge.modules.ModuleManager;
 import bridge.database.AsyncSaver;
 import bridge.database.Database;
 import bridge.database.MySQL;
@@ -44,7 +44,6 @@ public final class Bridge extends JavaPlugin {
     @Getter
     private static Bridge instance;
     private static BRLogger log;
-    private ListenerManager listenerManager;
 
     /**
      * The adventure instance.
@@ -80,7 +79,7 @@ public final class Bridge extends JavaPlugin {
         }
         DebugHandlerConfig.setup(config);
 
-        listenerManager = new ListenerManager();
+        new ListenerManager();
 
         adventure = BukkitAudiences.create(this);
         Config.setup(this);
@@ -194,15 +193,6 @@ public final class Bridge extends JavaPlugin {
      */
     public PermissionManager getPermManager() {
         return perms;
-    }
-
-    /**
-     * Returns the manager instance
-     *
-     * @return {@link ListenerManager} instance
-     */
-    public ListenerManager getListenerManager() {
-        return listenerManager;
     }
 
     /**

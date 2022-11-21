@@ -2,6 +2,7 @@ package bridge.modules.messenger;
 
 import bridge.Bridge;
 import bridge.event.ConnectingSocketEvent;
+import bridge.listeners.ListenerManager;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -44,7 +45,7 @@ public class SocketManager implements Listener {
 
     SocketManager(final String ip, final int port) {
         plugin = Bridge.getInstance();
-        plugin.getListenerManager().registerListener("SocketManager", this);
+        ListenerManager.register("SocketManager", this);
         running = false;
         refresh(ip, port);
     }

@@ -2,7 +2,7 @@ package bridge.compatibility.tab;
 
 import bridge.Bridge;
 import bridge.compatibility.Compatibility;
-import bridge.config.Module;
+import bridge.modules.Module;
 import bridge.database.Connector;
 import bridge.database.QueryType;
 import bridge.database.Saver;

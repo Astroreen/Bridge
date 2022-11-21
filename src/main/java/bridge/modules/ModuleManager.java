@@ -1,4 +1,4 @@
-package bridge.config;
+package bridge.modules;
 
 import bridge.Bridge;
 import bridge.compatibility.tab.TABManager;

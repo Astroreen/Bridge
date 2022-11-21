@@ -14,13 +14,10 @@ import java.util.List;
 @CustomLog
 public class ListenerManager {
 
-    private final Bridge plugin;
-    private final HashMap<String, Listener> registered;
+    private static final Bridge plugin = Bridge.getInstance();
+    private static final HashMap<String, Listener> registered = new HashMap<>();
 
     public ListenerManager() {
-        this.plugin = Bridge.getInstance();
-        registered = new HashMap<>();
-
         //default listeners
         //TODO put here real default listeners or register them out of this class
         registered.put("GetServer", new GetServerEventListener());
@@ -43,13 +40,14 @@ public class ListenerManager {
 
     }
 
-    public void registerListener(final String name, final @NotNull Listener listener) {
+    public static void register(final @NotNull String name, final @NotNull Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, plugin);
+        if(registered.containsKey(name) || registered.containsValue(listener)) return;
         registered.put(name, listener);
         LOG.debug("Listener '" + name + "' was registered.");
     }
 
-    public @NotNull List<Listener> getListeners() {
+    public static @NotNull List<Listener> getListeners() {
         List<Listener> listeners = new ArrayList<>();
         for (final String name : registered.keySet()) {
             listeners.add(registered.get(name));
