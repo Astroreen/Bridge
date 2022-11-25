@@ -6,17 +6,16 @@ import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import lombok.Getter;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ItemsAdderManager implements Listener {
+public class IAManager implements Listener {
 
     @Getter
-    private static ItemsAdderManager instance;
+    private static IAManager instance;
     private static boolean isActive = false;
 
-    public ItemsAdderManager() {
+    public IAManager() {
         instance = this;
         ListenerManager.register("ItemsAdder", this);
     }
@@ -32,14 +31,19 @@ public class ItemsAdderManager implements Listener {
         //empty
     }
 
-    public @Nullable ItemStack getItem(final @NotNull String id){
-        CustomStack stack = CustomStack.getInstance(id);
-        if(stack != null) {
-            return stack.getItemStack();
-        } else return null;
+    /**
+     * Gets custom item as {@link CustomStack}.
+     * @param id the item id
+     * @return ItemsAdder's custom item
+     */
+    public static @Nullable CustomStack getItem(final @NotNull String id) {
+        if(!isActive()) return null;
+        return CustomStack.getInstance(id);
+
     }
 
-    public boolean isItemExist(final @NotNull String id){
+    public static boolean isItemExist(final @NotNull String id){
+        if(isActive()) return false;
         if(isIDValid(id)) return CustomStack.getInstance("your_item") != null;
         else return false;
     }

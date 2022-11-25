@@ -14,10 +14,12 @@ import java.util.List;
 @CustomLog
 public class ListenerManager {
 
-    private static final Bridge plugin = Bridge.getInstance();
+    private static Bridge plugin;
     private static final HashMap<String, Listener> registered = new HashMap<>();
 
-    public ListenerManager() {
+
+    public static void setup(final @NotNull Bridge plugin) {
+        ListenerManager.plugin = plugin;
         //default listeners
         //TODO put here real default listeners or register them out of this class
         registered.put("GetServer", new GetServerEventListener());
@@ -37,7 +39,6 @@ public class ListenerManager {
                 }
             }
         }.runTaskAsynchronously(Bridge.getInstance());
-
     }
 
     public static void register(final @NotNull String name, final @NotNull Listener listener) {

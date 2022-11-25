@@ -37,6 +37,7 @@ public class FFA implements Module {
         }
 
         new FFAKitManager(kits);
+        FFAWorldManager.setup(config);
 
         //fully working
         isActive = true;

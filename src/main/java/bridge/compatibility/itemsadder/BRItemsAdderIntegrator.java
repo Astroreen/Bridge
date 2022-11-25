@@ -5,12 +5,12 @@ import bridge.compatibility.Integrator;
 public class BRItemsAdderIntegrator implements Integrator {
     @Override
     public void hook() {
-        new ItemsAdderManager();
+        new IAManager();
     }
 
     @Override
     public void reload() {
-        ItemsAdderManager.getInstance().reload();
+        IAManager.getInstance().reload();
     }
 
     @Override

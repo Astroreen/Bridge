@@ -4,12 +4,12 @@ import bridge.commands.BridgeCommand;
 import bridge.compatibility.Compatibility;
 import bridge.config.Config;
 import bridge.config.ConfigurationFile;
-import bridge.modules.ModuleManager;
 import bridge.database.AsyncSaver;
 import bridge.database.Database;
 import bridge.database.MySQL;
 import bridge.database.SQLite;
 import bridge.listeners.ListenerManager;
+import bridge.modules.ModuleManager;
 import bridge.modules.logger.BRLogger;
 import bridge.modules.logger.DebugHandlerConfig;
 import bridge.modules.messenger.Action;
@@ -79,7 +79,7 @@ public final class Bridge extends JavaPlugin {
         }
         DebugHandlerConfig.setup(config);
 
-        new ListenerManager();
+        ListenerManager.setup(this);
 
         adventure = BukkitAudiences.create(this);
         Config.setup(this);
