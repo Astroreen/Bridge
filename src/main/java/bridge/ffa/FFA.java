@@ -23,7 +23,7 @@ public class FFA implements Module {
         FFA.plugin = plugin;
         final String dir = "/ffa/";
         if(!FileUtils.createDirectory(dir)) {
-            LOG.error("Wasn't able to create a directory for ffa module.");
+            LOG.error("Wasn't able to create a directory for module.");
             return false;
         }
         if(FileUtils.isValidPath("/schematics/")) FileUtils.createDirectory("/schematics/");
@@ -36,8 +36,8 @@ public class FFA implements Module {
             return false;
         }
 
-        new FFAKitManager(kits);
-        FFAWorldManager.setup(config);
+        FFAKitManager.setup(kits);
+        FFAArenaManager.setup(config);
 
         //fully working
         isActive = true;
@@ -46,11 +46,13 @@ public class FFA implements Module {
 
     @Override
     public void reload() {
-
+        FFAKitManager.setup(kits);
+        FFAArenaManager.setup(config);
     }
 
     @Override
     public void disable() {
+        FFAArenaManager.unloadAllArenas();
         isActive = false;
     }
 

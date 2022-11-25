@@ -28,6 +28,10 @@ public class WorldUtils {
         return Bukkit.getServer().unloadWorld(world, save);
     }
 
+    public static boolean unloadWorld(final @NotNull World world, final boolean save) {
+        return Bukkit.getServer().unloadWorld(world, save);
+    }
+
     public static void createEmptyWorld(final @NotNull String name) {
         new WorldCreator(name)
                 .generator(new VoidChunkGen(Bridge.getInstance(), UUID.randomUUID().toString()))

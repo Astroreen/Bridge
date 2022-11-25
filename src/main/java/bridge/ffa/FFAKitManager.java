@@ -15,8 +15,7 @@ import java.util.HashMap;
 public class FFAKitManager {
 
     private static ConfigurationFile config;
-
-    public FFAKitManager(final @NotNull ConfigurationFile config) {
+    public static void setup(final @NotNull ConfigurationFile config) {
         FFAKitManager.config = config;
     }
 
@@ -28,7 +27,7 @@ public class FFAKitManager {
      * @param item the item
      * @return created item
      */
-    public FFAKitItem createKitItem(final @NotNull String kit, final int slot, final @NotNull ItemStack item) {
+    public static FFAKitItem createKitItem(final @NotNull String kit, final int slot, final @NotNull ItemStack item) {
         return new FFAKitItem(config).create(kit, slot, item);
     }
 
@@ -41,7 +40,7 @@ public class FFAKitManager {
      * @param item the item base
      * @return created item
      */
-    public FFAKitItem createKitItem(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
+    public static FFAKitItem createKitItem(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
         return new FFAKitItem(config).create(kit, slot, item);
     }
 
@@ -62,6 +61,11 @@ public class FFAKitManager {
         return null;
     }
 
+    /**
+     * Gets kit as {@link HashMap}. Key is slot index and value is item.
+     * @param kit the kit name
+     * @return kit configuration
+     */
     public static @NotNull HashMap<Integer, FFAKitItem> getKit(final @NotNull String kit) {
         if (!isKitCreated(kit)) return new HashMap<>();
         final ConfigurationSection section = config.getConfigurationSection(kit);
