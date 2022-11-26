@@ -15,6 +15,7 @@ import java.util.HashMap;
 public class FFAKitManager {
 
     private static ConfigurationFile config;
+
     public static void setup(final @NotNull ConfigurationFile config) {
         FFAKitManager.config = config;
     }
@@ -62,7 +63,8 @@ public class FFAKitManager {
     }
 
     /**
-     * Gets kit as {@link HashMap}. Key is slot index and value is item.
+     * Gets kit as {@link HashMap}. Key is the slot index and value is the item.
+     *
      * @param kit the kit name
      * @return kit configuration
      */

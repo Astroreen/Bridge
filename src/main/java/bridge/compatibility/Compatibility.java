@@ -5,6 +5,7 @@ import bridge.compatibility.itemsadder.BRItemsAdderIntegrator;
 import bridge.compatibility.luckperms.BRLuckPermsIntegrator;
 import bridge.compatibility.placeholderapi.PlaceholderAPIIntegrator;
 import bridge.compatibility.tab.BRTABIntegrator;
+import bridge.compatibility.worldedit.BRFAWEIntegrator;
 import bridge.exceptions.HookException;
 import bridge.listeners.ListenerManager;
 import lombok.CustomLog;
@@ -35,6 +36,7 @@ public class Compatibility implements Listener {
         integrators.put(CompatiblePlugin.TAB, new BRTABIntegrator());
         integrators.put(CompatiblePlugin.LUCKPERMS, new BRLuckPermsIntegrator());
         integrators.put(CompatiblePlugin.ITEMSADDER, new BRItemsAdderIntegrator());
+        integrators.put(CompatiblePlugin.FAWE, new BRFAWEIntegrator());
         // hook into already enabled plugins in case Bukkit messes up the loading order
         for (final Plugin hook : Bukkit.getPluginManager().getPlugins()) {
             hook(hook);

@@ -1,37 +1,73 @@
 package bridge.ffa;
 
+import bridge.Bridge;
+import bridge.compatibility.worldedit.WEManager;
 import bridge.config.ConfigurationFile;
 import bridge.utils.WorldUtils;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.*;
 
 public class FFAArenaManager {
 
+    private static Bridge plugin;
     private static ConfigurationFile config;
+    private static final List<World> activeArenas = new ArrayList<>();
 
-    public static void setup(final @NotNull ConfigurationFile config) {
+    public static void setup(final @NotNull Bridge plugin, final @NotNull ConfigurationFile config) {
+        FFAArenaManager.plugin = plugin;
         FFAArenaManager.config = config;
+        activeArenas.addAll(getActiveFFAWorlds(true));
     }
 
     public static void reload() {
-
+        activeArenas.clear();
+        activeArenas.addAll(getActiveFFAWorlds(true));
     }
 
-    public static void pasteSchematic(final @NotNull Block block, String schematic){
-        //TODO paste schematic
+    /**
+     * Teleports player to given arena and location.
+     *
+     * @param player what player to teleport
+     * @param arena the arena name to teleport to
+     * @param location the location name or null to rtp
+     * @return true if everything went successful
+     */
+    public static boolean teleportToArena(final @NotNull Player player, final @NotNull String arena, final String location){
+        if(!getAllFFAWorlds().contains(arena)) return false;
+        final World world = WorldUtils.getWorld(arena);
+        if(world == null) {
+            if(WorldUtils.isWorldFolderExist(arena))
+                WorldUtils.loadWorld(arena);
+        }
+        final HashMap<String, Location> map = getTeleportPoints(arena);
+        if(location == null || !map.containsKey(location)) {
+            final Location rtp = randomTeleportLocation(arena);
+            //teleport using random points
+            if(rtp != null) return player.teleport(rtp);
+            //teleport to default position
+            else {
+                final Location def = getDefaultTeleportPoint(arena);
+                if(def != null) return player.teleport(def);
+            }
+        }
+        //teleport to exact location
+        return player.teleport(map.get(location));
     }
 
     /**
      * Unloads all working arenas.
      */
     public static void unloadAllArenas() {
-        getActiveFFAWorlds().forEach(w -> WorldUtils.unloadWorld(w, false));
+        getActiveFFAWorlds(false).forEach(w -> WorldUtils.unloadWorld(w, false));
     }
 
     /**
@@ -64,7 +100,7 @@ public class FFAArenaManager {
         if (isArenaDisabled(arena)) return new HashMap<>();
         final World world = WorldUtils.getWorld(arena);
         if (world == null) return new HashMap<>();
-        if (!getActiveFFAWorlds().contains(world)) return new HashMap<>();
+        if (!getActiveFFAWorlds(false).contains(world)) return new HashMap<>();
 
         //if arena teleport locations are disabled, use "default-pos"
         if (!config.getBoolean(String.format("arenas.%s.enabled", arena), false)) {
@@ -109,8 +145,21 @@ public class FFAArenaManager {
         final double y = Double.parseDouble(cords[1]);
         final double z = Double.parseDouble(cords[2]);
         return new Location(world, x, y, z);
+    }
 
-
+    public static @Nullable Location getDefaultTeleportPoint(final @NotNull String arena){
+        if (isArenaDisabled(arena)) return null;
+        final World world = WorldUtils.getWorld(arena);
+        if (world == null) return null;
+        final String def = config.getString(String.format("arenas.%s.default-pos", arena));
+        if(def != null) {
+            final String[] pos = def.split(",");
+            final double x = Double.parseDouble(pos[0]);
+            final double y = Double.parseDouble(pos[1]);
+            final double z = Double.parseDouble(pos[2]);
+            return new Location(world, x, y, z);
+        }
+        return null;
     }
 
     /**
@@ -118,7 +167,8 @@ public class FFAArenaManager {
      *
      * @return list of active FFA worlds
      */
-    public static @NotNull List<World> getActiveFFAWorlds() {
+    public static @NotNull List<World> getActiveFFAWorlds(final boolean reload) {
+        if(!reload) return activeArenas;
         List<World> worlds = new ArrayList<>();
         getExistingFFAWorlds().forEach(name -> {
             World world = WorldUtils.getWorld(name);
@@ -147,10 +197,21 @@ public class FFAArenaManager {
      *
      * @return list of names.
      */
-    public static @NotNull List<String> getAllFFAWorlds() {
+    private static @NotNull List<String> getAllFFAWorlds() {
         final ConfigurationSection section = config.getConfigurationSection("arenas");
         if (section == null) return List.of();
         return new ArrayList<>(section.getKeys(false));
+    }
+
+    /**
+     * Get FFA folder that contains schematics to use.
+     *
+     * @return folder containing schematics
+     */
+    @Contract(" -> new")
+    public static @NotNull File getFFASchematicFolder() {
+        if (config.getBoolean("use-different-schematic-folder")) return WEManager.getDefaultSchematicFolder();
+        return new File(plugin.getDataFolder(), "/ffa/schematics");
     }
 
     /**
@@ -181,16 +242,16 @@ public class FFAArenaManager {
      * @return null, if arena don't exist or can't
      * parse block location from config. Otherwise, returns {@link Block}.
      */
-    public static @Nullable Block getSchematicBlock(final @NotNull String arena) {
+    public static @Nullable Location getSchematicLocation(final @NotNull String arena) {
         if (!haveSchematic(arena)) return null;
         final World world = WorldUtils.getWorld(arena);
         if (world == null) return null;
         final String loc = config.getString(String.format("arenas.%s.schematic-cords", arena));
         if (loc == null) return null;
-        final String[] cords = loc.split(",", 3);
-        final double x = Double.parseDouble(cords[0]);
-        final double y = Double.parseDouble(cords[1]);
-        final double z = Double.parseDouble(cords[2]);
-        return new Location(world, x, y, z).getBlock();
+        final String[] cords = loc.split(":", 3);
+        final double x = Integer.parseInt(cords[0]);
+        final double y = Integer.parseInt(cords[1]);
+        final double z = Integer.parseInt(cords[2]);
+        return new Location(world, x, y, z);
     }
 }

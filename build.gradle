@@ -72,6 +72,9 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
     //ItemsAdder
     compileOnly("com.github.LoneDev6:api-itemsadder:3.0.0")
+    //FAWE
+    compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.4.9')
+    compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.4.9')
 }
 
 def targetJavaVersion = 17

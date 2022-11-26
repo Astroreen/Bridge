@@ -5,7 +5,8 @@ public enum CompatiblePlugin {
     TAB("TAB"),
     PLACEHOLDERAPI("PlaceholderAPI"),
     LUCKPERMS("LuckPerms"),
-    ITEMSADDER("ItemsAdder");
+    ITEMSADDER("ItemsAdder"),
+    FAWE("FastAsyncWorldEdit");
 
     public final String name;
     CompatiblePlugin(final String name) {
