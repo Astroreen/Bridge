@@ -228,7 +228,7 @@ public class FFAArenaManager {
      * Check if arena use schematic.
      *
      * @param arena the name
-     * @return true, if use schematic
+     * @return true, if using schematic
      */
     public static boolean haveSchematic(final @NotNull String arena) {
         final String schem = config.getString(String.format("arenas.%s.schematic", arena));
