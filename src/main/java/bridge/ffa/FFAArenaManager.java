@@ -6,7 +6,6 @@ import bridge.config.ConfigurationFile;
 import bridge.utils.WorldUtils;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
@@ -25,10 +24,6 @@ public class FFAArenaManager {
     public static void setup(final @NotNull Bridge plugin, final @NotNull ConfigurationFile config) {
         FFAArenaManager.plugin = plugin;
         FFAArenaManager.config = config;
-        activeArenas.addAll(getActiveFFAWorlds(true));
-    }
-
-    public static void reload() {
         activeArenas.clear();
         activeArenas.addAll(getActiveFFAWorlds(true));
     }
@@ -86,7 +81,7 @@ public class FFAArenaManager {
         final List<Location> locations = new ArrayList<>();
         getTeleportPoints(arena).forEach((name, loc) -> locations.add(loc));
 
-        return locations.get(new Random(locations.size()).nextInt());
+        return locations.get(new Random(locations.size() - 1).nextInt());
     }
 
     /**
@@ -178,7 +173,8 @@ public class FFAArenaManager {
     }
 
     /**
-     * Get name of the world that is FFA worlds.
+     * Get name of the world that is FFA worlds
+     * and also checks if these worlds even exist.
      * <p>
      * <b>ATTENTION:</b> worlds can be unloaded!
      *
@@ -236,11 +232,11 @@ public class FFAArenaManager {
     }
 
     /**
-     * Get block from config there to place schematic.
+     * Get location from config there to place schematic.
      *
      * @param arena the name
-     * @return null, if arena don't exist or can't
-     * parse block location from config. Otherwise, returns {@link Block}.
+     * @return null, if arena don't exist/unloaded or can't
+     * parse world/location from config. Otherwise, returns {@link Location}.
      */
     public static @Nullable Location getSchematicLocation(final @NotNull String arena) {
         if (!haveSchematic(arena)) return null;

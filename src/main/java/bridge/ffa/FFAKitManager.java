@@ -5,16 +5,22 @@ import bridge.exceptions.ObjectNotFoundException;
 import dev.lone.itemsadder.api.CustomStack;
 import lombok.CustomLog;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 @CustomLog
-public class FFAKitManager {
+public class FFAKitManager implements Listener {
 
     private static ConfigurationFile config;
+    private static final HashMap<UUID, String> PlayersKits = new HashMap<>();
 
     public static void setup(final @NotNull ConfigurationFile config) {
         FFAKitManager.config = config;
@@ -80,6 +86,51 @@ public class FFAKitManager {
             map.put(slot, item);
         }
         return map;
+    }
+
+    /**
+     * Gets all kits that are written in config.
+     * @return list of kits names
+     */
+    public static @NotNull List<String> getKits(){
+        ConfigurationSection section = config.getDefaultSection();
+        if(section == null) return List.of();
+        return section.getKeys(false).stream().toList();
+    }
+
+    /**
+     * Applies kit to player and set all items
+     * to ones written in kit configuration.
+     *
+     * @param player the player to apply kit to
+     * @param kit    the kit name
+     */
+    public static void applyKit(final @NotNull Player player, final @NotNull String kit) {
+        HashMap<Integer, FFAKitItem> settings = getKit(kit);
+        if (settings.isEmpty()) return;
+        Inventory inv = player.getInventory();
+        for (final int i : settings.keySet()) {
+            inv.setItem(i, settings.get(i));
+        }
+        PlayersKits.put(player.getUniqueId(), kit);
+    }
+
+    /**
+     * Removes kit that was applied to player.
+     * @param player the player to remove kit from
+     */
+    public static void removeKit(final @NotNull Player player){
+        PlayersKits.remove(player.getUniqueId());
+    }
+
+    /**
+     * Get kit name using player's UUID.
+     *
+     * @param player the player to get kit from
+     * @return the kit name
+     */
+    public static @Nullable String getPlayerKitName(final @NotNull Player player) {
+        return PlayersKits.get(player.getUniqueId());
     }
 
     /**

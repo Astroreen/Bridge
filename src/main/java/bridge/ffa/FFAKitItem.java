@@ -41,25 +41,6 @@ public class FFAKitItem extends ItemStack {
     }
 
     /**
-     * Creates {@link FFAKitItem} instance from ItemsAdder's item.
-     *
-     * @param kit  which kit set to
-     * @param slot to which slot save
-     * @param item item base
-     * @return created item
-     */
-    public FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
-        this.kit = kit;
-        this.item = item.getItemStack();
-        this.slot = slot;
-
-        config.set(String.format("%s.%s.item", kit, slot), this.item);
-        config.set(String.format("%s.%s.itemsAdder", kit, slot), item.getId());
-        itemsAdderID = item.getId();
-        return new FFAKitItem(config, kit, slot, item);
-    }
-
-    /**
      * Creates {@link FFAKitItem} instance.
      *
      * @param kit  which kit set to
@@ -75,6 +56,25 @@ public class FFAKitItem extends ItemStack {
         config.set(String.format("%s.%s.item", kit, slot), item);
         config.set(String.format("%s.%s.itemsAdder", kit, slot), "none");
         itemsAdderID = "none";
+        return new FFAKitItem(config, kit, slot, item);
+    }
+
+    /**
+     * Creates {@link FFAKitItem} instance from ItemsAdder's item.
+     *
+     * @param kit  which kit set to
+     * @param slot to which slot save
+     * @param item item base
+     * @return created item
+     */
+    public FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
+        this.kit = kit;
+        this.item = item.getItemStack();
+        this.slot = slot;
+
+        config.set(String.format("%s.%s.item", kit, slot), this.item);
+        config.set(String.format("%s.%s.itemsAdder", kit, slot), item.getId());
+        itemsAdderID = item.getId();
         return new FFAKitItem(config, kit, slot, item);
     }
 

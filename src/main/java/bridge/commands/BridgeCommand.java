@@ -6,6 +6,8 @@ import bridge.compatibility.Compatibility;
 import bridge.compatibility.tab.NicknameManager;
 import bridge.compatibility.tab.TABManager;
 import bridge.config.Config;
+import bridge.ffa.FFAArenaManager;
+import bridge.ffa.FFAKitManager;
 import bridge.modules.Module;
 import bridge.modules.ModuleManager;
 import bridge.modules.Currency;
@@ -70,6 +72,12 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                         sendMessage(sender, MessageType.MODULE_STATE, "ColorNickname", Config.getMessage(MessageType.DISABLED));
                     handleNickName(sender, args);
                 }
+                case "ffa" -> {
+                    final Module module = ModuleManager.getModule("TAB");
+                    if (module == null || !module.active())
+                        sendMessage(sender, MessageType.MODULE_STATE, "ColorNickname", Config.getMessage(MessageType.DISABLED));
+                    handleFFA(sender, args);
+                }
                 default -> sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[0]);
             }
             LOG.debug("Command executing done");
@@ -87,12 +95,66 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
             case "language" -> completeLanguage(args);
             case "debug" -> completeDebug(args);
             case "nickname" -> completeNickname(args);
+            case "ffa" -> completeFFA(args);
             default -> Optional.empty();
         };
     }
 
+    private void handleFFA(final CommandSender sender, final String @NotNull ... args) {
+
+    }
+
+    private @NotNull Optional<List<String>> completeFFA(final String @NotNull ... args) {
+        // bridge ffa arena/create/teleport
+        if (args.length == 2) return Optional.of(List.of("arena", "kit", "create", "teleport"));
+        if (args.length == 3) {
+            switch (args[1]) {
+                case "arena":
+                    return Optional.of(List.of("load", "unload", "create"));
+                case "kit":
+                    return Optional.of(List.of("create", "give"));
+                case "create":
+                    return Optional.of(List.of("#NAME"));
+                case "teleport": {
+                    List<String> names = new ArrayList<>();
+                    Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
+                    return Optional.of(names);
+                }
+            }
+        } else if (args.length == 4) {
+            // bridge ffa arena load/unload/create
+            if (args[2].equalsIgnoreCase("arena"))
+                switch (args[3]) {
+                    case "load": {
+                        List<String> names = new ArrayList<>();
+                        FFAArenaManager.getActiveFFAWorlds(false).forEach(world -> names.add(world.getName()));
+                        FFAArenaManager.getExistingFFAWorlds().forEach(names::remove);
+                        return Optional.of(names);
+                    }
+                    case "unload": {
+                        List<String> names = new ArrayList<>();
+                        FFAArenaManager.getActiveFFAWorlds(false).forEach(world -> names.add(world.getName()));
+                        return Optional.of(names);
+                    }
+                    case "create":
+                        return Optional.of(List.of("#NAME"));
+                }
+            // bridge ffa kit create/apply
+            else if (args[2].equalsIgnoreCase("kit"))
+                switch (args[3]){
+                    case "create":
+                        return Optional.of(List.of("#NAME"));
+                    case "give":
+                        return Optional.of(FFAKitManager.getKits());
+                }
+
+
+        }
+        return Optional.empty();
+    }
+
     private void handleNickName(final CommandSender sender, final String @NotNull ... args) {
-        if(noPermission(sender, Permission.COMMAND_NICKNAME)) return;
+        if (noPermission(sender, Permission.COMMAND_NICKNAME)) return;
         NicknameManager manager = TABManager.getManager();
         if (manager == null) return;
         if (args.length < 2) {
@@ -121,12 +183,12 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (noPermission(sender, Permission.NICKNAME_COLOR_HAVE_OWN)) return;
                     if (sender instanceof Player player) {
                         NicknameManager.PlayerColor info = manager.getPlayerInfo(player.getUniqueId());
-                        if(info == null) {
+                        if (info == null) {
                             sendMessage(player, MessageType.YOUR_NICKNAME_IS_UNIQUE);
                             return;
                         }
-                        if(info.name() == null) {
-                            if(permManager.havePermission(player, Permission.NICKNAME_COLOR_SET_HEX)){
+                        if (info.name() == null) {
+                            if (permManager.havePermission(player, Permission.NICKNAME_COLOR_SET_HEX)) {
                                 sendMessage(sender, MessageType.YOUR_NICKNAME_COLOR,
                                         info.gradient());
                                 return;
@@ -229,13 +291,35 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     }
                 }
             }
-            //bridge nickname color set/replace color/<fromCOLOR> <PLAYERS>/<toCOLOR>
+            //bridge nickname color set/replace #color/<fromCOLOR> <PLAYERS>/<toCOLOR>
             else if (args.length == 5) {
                 if (args[2].equalsIgnoreCase("replace")) {
                     if (noPermission(sender, Permission.NICKNAME_COLOR_REPLACE)) return;
-                    if (manager.globallyReplaceColors(args[3], args[4]))
-                        sendMessage(sender, MessageType.REPLACE_COLORS_SUCCESSFULLY, args[3], args[4]);
-                    else sendMessage(sender, MessageType.REPLACE_COLORS_ERROR, args[3], args[4]);
+                    final String gradient1;
+                    if (ColorCodes.isHexValid(args[3])) {
+                        if (noPermission(sender, Permission.NICKNAME_COLOR_SET_HEX)) return;
+                        gradient1 = args[3] + ">" + args[3];
+                    } else if (manager.isGradient(args[3])) gradient1 = args[3];
+                    else if (manager.getAllColorsName().contains(args[3])) {
+                        gradient1 = manager.getGradient(args[3]);
+                    } else {
+                        sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
+                        return;
+                    }
+                    final String gradient2;
+                    if (ColorCodes.isHexValid(args[4])) {
+                        if (noPermission(sender, Permission.NICKNAME_COLOR_SET_HEX)) return;
+                        gradient2 = args[4] + ">" + args[4];
+                    } else if (manager.isGradient(args[4])) gradient2 = args[4];
+                    else if (manager.getAllColorsName().contains(args[4])) {
+                        gradient2 = manager.getGradient(args[4]);
+                    } else {
+                        sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[4]);
+                        return;
+                    }
+                    if (manager.globallyReplaceColors(gradient1, gradient2))
+                        sendMessage(sender, MessageType.REPLACE_COLORS_SUCCESSFULLY, gradient1, gradient2);
+                    else sendMessage(sender, MessageType.REPLACE_COLORS_ERROR, gradient1, gradient2);
                 } else if (args[2].equalsIgnoreCase("set")) {
                     if (noPermission(sender, Permission.NICKNAME_COLOR_SET_OTHER)) return;
                     final String gradient;
@@ -258,8 +342,9 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                         return;
                     }
                     manager.applyColor(p, gradient, true);
-                    sendMessage(p, MessageType.YOUR_NICKNAME_COLOR_CHANGED, ColorName == null ? gradient : ColorName);
-                    sendMessage(sender, MessageType.OTHER_PLAYER_NICKNAME_COLOR_CHANGED, p.getName(), ColorName == null ? gradient : ColorName);
+                    final String result = ColorName == null ? gradient : ColorName;
+                    sendMessage(p, MessageType.YOUR_NICKNAME_COLOR_CHANGED, result);
+                    sendMessage(sender, MessageType.OTHER_PLAYER_NICKNAME_COLOR_CHANGED, p.getName(), result);
                 }
             }
         } else if (args[1].equalsIgnoreCase("stars")) {
@@ -381,16 +466,20 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
         if (args[1].equalsIgnoreCase("color")) {
             if (args.length == 3) return Optional.of(Arrays.asList("have", "cost", "set", "replace"));
             else if (args.length == 4) {
-                if (args[2].equalsIgnoreCase("have")
-                        || args[2].equalsIgnoreCase("cost")) {
-                    List<String> names = new ArrayList<>();
-                    Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
-                    return Optional.of(names);
-                } else if (args[2].equalsIgnoreCase("set")) {
-                    NicknameManager manager = TABManager.getManager();
-                    if (manager == null) return Optional.empty();
-                    return Optional.of(manager.getAllColorsName());
-                } else if (args[2].equalsIgnoreCase("replace")) return Optional.of(List.of("#HEX"));
+                switch (args[2]) {
+                    case "have", "cost": {
+                        List<String> names = new ArrayList<>();
+                        Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
+                        return Optional.of(names);
+                    }
+                    case "set": {
+                        NicknameManager manager = TABManager.getManager();
+                        if (manager == null) return Optional.empty();
+                        return Optional.of(manager.getAllColorsName());
+                    }
+                    case "replace":
+                        return Optional.of(List.of("#HEX"));
+                }
             } else if (args.length == 5) {
                 if (args[2].equalsIgnoreCase("set")) {
                     List<String> names = new ArrayList<>();
@@ -412,7 +501,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     }
 
     private void handleLanguage(final CommandSender sender, final String @NotNull ... args) {
-        if(noPermission(sender, Permission.COMMAND_LANGUAGE)) return;
+        if (noPermission(sender, Permission.COMMAND_LANGUAGE)) return;
         if (args.length == 1) {
             sendMessage(sender, MessageType.CURRENT_LANGUAGE, Config.getLanguage());
             return;
@@ -447,7 +536,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     }
 
     private void handleDebug(final CommandSender sender, final String @NotNull ... args) {
-        if(noPermission(sender, Permission.COMMAND_DEBUG)) return;
+        if (noPermission(sender, Permission.COMMAND_DEBUG)) return;
         if (args.length == 1) {
             sendMessage(sender, MessageType.DEBUGGING,
                     DebugHandlerConfig.isDebugging() ?
@@ -503,8 +592,8 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     }
 
     private boolean noPermission(@NotNull CommandSender sender, @NotNull Permission perm) {
-        if(sender instanceof Player player){
-            if(!permManager.havePermission(player, perm)){
+        if (sender instanceof Player player) {
+            if (!permManager.havePermission(player, perm)) {
                 sendMessage(sender, MessageType.NO_PERMISSION);
                 return true;
             }

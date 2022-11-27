@@ -8,10 +8,16 @@ import bridge.utils.FileUtils;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -82,12 +88,41 @@ public class FFA implements Module, Listener {
                 if (held != null && held.getType() == Material.GLASS_BOTTLE) {
                     held.setAmount(0);
                 }
-
                 if (off.getType() == Material.GLASS_BOTTLE) {
                     off.setAmount(0);
                 }
-
             }, 1L);
+        }
+    }
+
+    /**
+     * Heal player killer and remove from killed player his kit.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerDeathEvent(final @NotNull PlayerDeathEvent event){
+        final Player killer = event.getEntity().getKiller();
+        if (killer == null) return;
+        if(!FFAArenaManager.getActiveFFAWorlds(false).contains(killer.getWorld())) return;
+        final String kit = FFAKitManager.getPlayerKitName(killer);
+        final AttributeInstance maxHealth = killer.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (maxHealth == null) {
+            killer.setHealth(20);
+            if(kit != null) FFAKitManager.applyKit(killer, kit);
+            return;
+        }
+        killer.setHealth(maxHealth.getValue());
+        if(kit != null) FFAKitManager.applyKit(killer, kit);
+        FFAKitManager.removeKit(event.getPlayer());
+    }
+
+    /**
+     * Remove from player his kit if he is not in FFA world system.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerChangedWorldEvent(final @NotNull PlayerChangedWorldEvent event){
+        final World world = event.getPlayer().getWorld();
+        if(!FFAArenaManager.getActiveFFAWorlds(false).contains(world)) {
+            FFAKitManager.removeKit(event.getPlayer());
         }
     }
 
