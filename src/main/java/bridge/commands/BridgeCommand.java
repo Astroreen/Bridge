@@ -3,21 +3,26 @@ package bridge.commands;
 import bridge.Bridge;
 import bridge.MessageType;
 import bridge.compatibility.Compatibility;
+import bridge.compatibility.CompatiblePlugin;
 import bridge.compatibility.tab.NicknameManager;
 import bridge.compatibility.tab.TABManager;
+import bridge.compatibility.worldedit.WEManager;
 import bridge.config.Config;
 import bridge.ffa.FFAArenaManager;
 import bridge.ffa.FFAKitManager;
+import bridge.modules.Currency;
 import bridge.modules.Module;
 import bridge.modules.ModuleManager;
-import bridge.modules.Currency;
 import bridge.modules.logger.DebugHandlerConfig;
 import bridge.modules.permissions.Permission;
 import bridge.modules.permissions.PermissionManager;
 import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
+import bridge.utils.WorldUtils;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -44,7 +49,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
+    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd, final @NotNull String alias, final @NotNull String[] args) {
         if ("bridge".equalsIgnoreCase(cmd.getName())) {
             LOG.debug("Executing /bridge command for user " + sender.getName()
                     + " with arguments: " + Arrays.toString(args));
@@ -87,7 +92,8 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     }
 
     @Override
-    public Optional<List<String>> simpleTabComplete(CommandSender sender, Command command, String alias, String @NotNull ... args) {
+    public Optional<List<String>> simpleTabComplete(final @NotNull CommandSender sender, final @NotNull Command command,
+                                                    final @NotNull String alias, final String @NotNull ... args) {
         if (args.length == 1) {
             return Optional.of(Arrays.asList("language", "version", "reload", "debug", "nickname"));
         }
@@ -100,12 +106,65 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
         };
     }
 
-    private void handleFFA(final CommandSender sender, final String @NotNull ... args) {
+    private void handleFFA(final @NotNull CommandSender sender, final String @NotNull ... args) {
+        switch (args[1]) {
+            // bridge ffa arena
+            case "arena": {
+                if (args[2].equalsIgnoreCase("load")) {
+                    // bridge ffa arena load <name>
+                    if(!FFAArenaManager.getExistingFFAWorlds().contains(args[3])) {
+                        sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
+                        return;
+                    }
+                    final String arena = args[3];
+                    if (WorldUtils.loadWorld(arena)) {
+                        if(FFAArenaManager.haveSchematic(arena)
+                                && Compatibility.getHooked().contains(CompatiblePlugin.FAWE)) {
+                            final String schem = FFAArenaManager.getSchematicFileName(arena);
+                            final Location loc = FFAArenaManager.getSchematicLocation(arena);
+                            if(loc == null) {
+                                sendMessage(sender, MessageType.SCHEMATIC_LOAD_ERROR, schem, arena);
+                                return;
+                            }
+                            WEManager.pasteSchematicAsync(loc, FFAArenaManager.getFFASchematicFolder(), schem);
+                        }
+                        sendMessage(sender, MessageType.ARENA_LOADED_SUCCESSFULLY, arena);
+                    } else sendMessage(sender, MessageType.ARENA_LOADED_ERROR, arena);
+                    // done
+                } else if (args[2].equalsIgnoreCase("unload")) {
+                    // bridge ffa arena unload <name>
+                    final World world = WorldUtils.getWorld(args[3]);
+                    if(world == null || !FFAArenaManager.getActiveFFAWorlds(false).contains(world)) {
+                        sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
+                        return;
+                    }
+                    if(WorldUtils.unloadWorld(world, !FFAArenaManager.haveSchematic(world.getName())))
+                        sendMessage(sender, MessageType.ARENA_UNLOADED_SUCCESSFULLY, world.getName());
+                    else sendMessage(sender, MessageType.ARENA_UNLOADED_ERROR, world.getName());
+                } else if (args[2].equalsIgnoreCase("create")) {
+                    // bridge ffa arena create <name>
+                }
+            }
 
+            // bridge ffa kit
+            case "kit": {
+                if (args[2].equalsIgnoreCase("give")) {
+                    // bridge ffa kit give <kit> (player)
+                } else if (args[2].equalsIgnoreCase("create")) {
+                    // bridge ffa kit create <name>
+                }
+            }
+
+            // bridge ffa teleport
+            case "teleport": {
+                // bridge ffa teleport <arena> (player)
+            }
+        }
+        sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args);
     }
 
     private @NotNull Optional<List<String>> completeFFA(final String @NotNull ... args) {
-        // bridge ffa arena/create/teleport
+        // bridge ffa arena/kit/create/teleport
         if (args.length == 2) return Optional.of(List.of("arena", "kit", "create", "teleport"));
         if (args.length == 3) {
             switch (args[1]) {
@@ -113,13 +172,8 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     return Optional.of(List.of("load", "unload", "create"));
                 case "kit":
                     return Optional.of(List.of("create", "give"));
-                case "create":
-                    return Optional.of(List.of("#NAME"));
-                case "teleport": {
-                    List<String> names = new ArrayList<>();
-                    Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
-                    return Optional.of(names);
-                }
+                case "teleport":
+                    return Optional.of(FFAArenaManager.getExistingFFAWorlds());
             }
         } else if (args.length == 4) {
             // bridge ffa arena load/unload/create
@@ -139,16 +193,20 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     case "create":
                         return Optional.of(List.of("#NAME"));
                 }
-            // bridge ffa kit create/apply
+                // bridge ffa kit create/apply
             else if (args[2].equalsIgnoreCase("kit"))
-                switch (args[3]){
+                switch (args[3]) {
                     case "create":
                         return Optional.of(List.of("#NAME"));
                     case "give":
                         return Optional.of(FFAKitManager.getKits());
                 }
-
-
+                // bridge ffa teleport <arena> (player)
+            else if (args[2].equalsIgnoreCase("teleport")) {
+                List<String> names = new ArrayList<>();
+                Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
+                return Optional.of(names);
+            }
         }
         return Optional.empty();
     }

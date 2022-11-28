@@ -17,7 +17,14 @@ ru:
     already_debugging: "&2Debug режим уже {0}!"
     set_debug_successfully: "&aDebug режим был успешно {0}"
     set_debug_error: "&cНе удалось сохранить новый параметр debug в файл конфигурации!"
-  hooks:
+  module:
+    ffa:
+      arena:
+        loaded_successfully: "Арена '{0}' была успешно загружена."
+        loaded_error: "Не смогли загрузить арену '{0}'."
+        unloaded_successfully: "Арена '{0}' была успешно выгружена."
+        unloaded_error: "Не смогли выгрузить арену '{0}'."
+        schematic_load_error: "Схематик '{0}' для арены '{1}' не был поставлен!"
     tab.colors:
       your_color: "Ваш цвет ника: {0}"
       your_color_changed: "Ваш цвет ника изменился на {0}"

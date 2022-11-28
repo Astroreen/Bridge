@@ -36,22 +36,22 @@ public class FFAArenaManager {
      * @param location the location name or null to rtp
      * @return true if everything went successful
      */
-    public static boolean teleportToArena(final @NotNull Player player, final @NotNull String arena, final String location){
-        if(!getAllFFAWorlds().contains(arena)) return false;
+    public static boolean teleportToArena(final @NotNull Player player, final @NotNull String arena, final String location) {
+        if (!getAllFFAWorlds().contains(arena)) return false;
         final World world = WorldUtils.getWorld(arena);
-        if(world == null) {
-            if(WorldUtils.isWorldFolderExist(arena))
+        if (world == null) {
+            if (WorldUtils.isWorldFolderExist(arena))
                 WorldUtils.loadWorld(arena);
         }
         final HashMap<String, Location> map = getTeleportPoints(arena);
-        if(location == null || !map.containsKey(location)) {
+        if (location == null || !map.containsKey(location)) {
             final Location rtp = randomTeleportLocation(arena);
             //teleport using random points
-            if(rtp != null) return player.teleport(rtp);
-            //teleport to default position
+            if (rtp != null) return player.teleport(rtp);
+                //teleport to default position
             else {
                 final Location def = getDefaultTeleportPoint(arena);
-                if(def != null) return player.teleport(def);
+                if (def != null) return player.teleport(def);
             }
         }
         //teleport to exact location
@@ -249,5 +249,16 @@ public class FFAArenaManager {
         final double y = Integer.parseInt(cords[1]);
         final double z = Integer.parseInt(cords[2]);
         return new Location(world, x, y, z);
+    }
+
+    /**
+     * Return arena's schematic name.
+     *
+     * @param arena the arena name
+     * @return "none" if schematic wasn't found.
+     * Otherwise, schematics file name.
+     */
+    public static @NotNull String getSchematicFileName(final @NotNull String arena){
+        return config.getString(String.format("arenas.%s.schematic", arena), "none");
     }
 }

@@ -33,6 +33,7 @@ permissions:
       bridge.command.debug: true
       bridge.command.language: true
       bridge.command.nickname: true
+      bridge.command.ffa: true
   bridge.command.bridge:
     description: Gives access to a default command
     default: true
@@ -48,6 +49,26 @@ permissions:
   bridge.command.nickname:
     description: Access to use nickname command
     default: true
+  bridge.command.ffa:
+    description: Main command to control ffa module
+    default: op
+
+
+
+  bridge.ffa:
+    description: Gives access to all ffa commands
+    children:
+      bridge.ffa.arena: true
+
+  bridge.ffa.arena:
+    description: Gives access to control ffa arena
+    children:
+      bridge.ffa.arena.load: true
+  bridge.ffa.arena.load:
+    description: Loads ffa arena
+    default: op
+
+
 
   bridge.nickname:
     description: Gives access to all nickname commands

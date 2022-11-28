@@ -52,63 +52,84 @@ public enum MessageType {
     /**
      * Variables: Current nickname color name
      */
-    YOUR_NICKNAME_COLOR("hooks.tab.colors.your_color"),
+    YOUR_NICKNAME_COLOR("module.tab.colors.your_color"),
     /**
      * Variables: New nickname color
      */
-    YOUR_NICKNAME_COLOR_CHANGED("hooks.tab.colors.your_color_changed"),
+    YOUR_NICKNAME_COLOR_CHANGED("module.tab.colors.your_color_changed"),
     /**
      * Variables: Current nickname color cost
      */
-    YOUR_NICKNAME_COLOR_COST("hooks.tab.colors.your_color_cost"),
+    YOUR_NICKNAME_COLOR_COST("module.tab.colors.your_color_cost"),
     /**
      * Variables: None
      */
-    YOUR_NICKNAME_IS_UNIQUE("hooks.tab.colors.your_color_is_unique"),
+    YOUR_NICKNAME_IS_UNIQUE("module.tab.colors.your_color_is_unique"),
     /**
      * Variables: Checked player, Current nickname color name
      */
-    OTHER_PLAYER_NICKNAME_COLOR("hooks.tab.colors.other_player_color"),
+    OTHER_PLAYER_NICKNAME_COLOR("module.tab.colors.other_player_color"),
     /**
      * Variables: Player, His new nickname color
      */
-    OTHER_PLAYER_NICKNAME_COLOR_CHANGED("hooks.tab.colors.other_player_color_changed"),
+    OTHER_PLAYER_NICKNAME_COLOR_CHANGED("module.tab.colors.other_player_color_changed"),
     /**
      * Variables: Player, His nickname color cost
      */
-    OTHER_PLAYER_NICKNAME_COLOR_COST("hooks.tab.colors.other_player_color_cost"),
+    OTHER_PLAYER_NICKNAME_COLOR_COST("module.tab.colors.other_player_color_cost"),
     /**
      * Variables: Player whose color checking
      */
-    OTHER_PLAYER_NICKNAME_IS_UNIQUE("hooks.tab.colors.other_player_color_is_unique"),
+    OTHER_PLAYER_NICKNAME_IS_UNIQUE("module.tab.colors.other_player_color_is_unique"),
     /**
      * Variables: Player's amount of stars
      */
-    YOUR_NICKNAME_STARS("hooks.tab.colors.your_money"),
+    YOUR_NICKNAME_STARS("module.tab.colors.your_money"),
     /**
      * Variables: New player's amount of stars
      */
-    YOUR_NICKNAME_STARS_CHANGED("hooks.tab.colors.your_money_changed"),
+    YOUR_NICKNAME_STARS_CHANGED("module.tab.colors.your_money_changed"),
     /**
      * Variables: Player name, Player's amount of stars
      */
-    OTHER_PLAYER_NICKNAME_STARS("hooks.tab.colors.other_player_money"),
+    OTHER_PLAYER_NICKNAME_STARS("module.tab.colors.other_player_money"),
     /**
      * Variables: Amount what you set, "Self" variable or Player's name
      */
-    OTHER_PLAYER_NICKNAME_STARS_CHANGED("hooks.tab.colors.other_player_money_changed"),
+    OTHER_PLAYER_NICKNAME_STARS_CHANGED("module.tab.colors.other_player_money_changed"),
     /**
      * Variables: From what Color, To what Color
      */
-    REPLACE_COLORS_SUCCESSFULLY("hooks.tab.colors.replace_color_successfully"),
+    REPLACE_COLORS_SUCCESSFULLY("module.tab.colors.replace_color_successfully"),
     /**
      * Variables: From what Color, To what Color
      */
-    REPLACE_COLORS_ERROR("hooks.tab.colors.replace_color_error"),
+    REPLACE_COLORS_ERROR("module.tab.colors.replace_color_error"),
     /**
      * Variables: How much money till can buy
      */
-    NOT_ENOUGH_STARS("hooks.tab.colors.not_enough_money"),
+    NOT_ENOUGH_STARS("module.tab.colors.not_enough_money"),
+    /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
+    /**
+     * Variables: arena name
+     */
+    ARENA_LOADED_SUCCESSFULLY("module.ffa.arena.loaded_successfully"),
+    /**
+     * Variables: arena name
+     */
+    ARENA_LOADED_ERROR("module.ffa.arena.loaded_error"),
+    /**
+     * Variables: arena name
+     */
+    ARENA_UNLOADED_SUCCESSFULLY("module.ffa.arena.unloaded_successfully"),
+    /**
+     * Variables: arena name
+     */
+    ARENA_UNLOADED_ERROR("module.ffa.arena.unloaded_error"),
+    /**
+     * Variables: schematic name, arena name
+     */
+    SCHEMATIC_LOAD_ERROR("module.ffa.arena.schematic_load_error"),
     /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
     /**
      * Variables: Arguments

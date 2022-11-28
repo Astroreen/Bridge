@@ -16,6 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -124,6 +126,29 @@ public class FFA implements Module, Listener {
         if(!FFAArenaManager.getActiveFFAWorlds(false).contains(world)) {
             FFAKitManager.removeKit(event.getPlayer());
         }
+    }
+
+    /**
+     * Allows break blocks only on arenas with schematic.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBlockBreakEvent(final @NotNull BlockBreakEvent event){
+        final World world = event.getPlayer().getWorld();
+        if(FFAArenaManager.getActiveFFAWorlds(false).contains(world)
+                && !FFAArenaManager.haveSchematic(world.getName()))
+            event.setCancelled(true);
+    }
+
+    /**
+     * Not allows to explode blocks on FFA's arenas that do not have schematic.
+     * @param event
+     */
+    @EventHandler
+    public void onBlockExplodeEvent(final @NotNull BlockExplodeEvent event){
+        final World world = event.getBlock().getWorld();
+        if(FFAArenaManager.getActiveFFAWorlds(false).contains(world)
+                && !FFAArenaManager.haveSchematic(world.getName()))
+            event.setCancelled(true);
     }
 
     @Override
