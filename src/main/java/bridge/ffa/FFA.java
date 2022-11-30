@@ -131,7 +131,7 @@ public class FFA implements Module, Listener {
     /**
      * Allows break blocks only on arenas with schematic.
      */
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onBlockBreakEvent(final @NotNull BlockBreakEvent event){
         final World world = event.getPlayer().getWorld();
         if(FFAArenaManager.getActiveFFAWorlds(false).contains(world)
@@ -141,9 +141,8 @@ public class FFA implements Module, Listener {
 
     /**
      * Not allows to explode blocks on FFA's arenas that do not have schematic.
-     * @param event
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onBlockExplodeEvent(final @NotNull BlockExplodeEvent event){
         final World world = event.getBlock().getWorld();
         if(FFAArenaManager.getActiveFFAWorlds(false).contains(world)

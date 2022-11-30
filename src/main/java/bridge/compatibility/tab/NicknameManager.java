@@ -2,6 +2,7 @@ package bridge.compatibility.tab;
 
 import bridge.Bridge;
 import bridge.compatibility.Compatibility;
+import bridge.compatibility.CompatiblePlugin;
 import bridge.config.ConfigurationFile;
 import bridge.database.Connector;
 import bridge.database.QueryType;
@@ -62,7 +63,7 @@ public class NicknameManager {
         instance = this;
         whitelist = ColorConfig.getBoolean("settings.WhitelistMode", false);
         //registering placeholders if plugin is enabled
-        if (Compatibility.getHooked().contains("PlaceholderAPI")) {
+        if (Compatibility.getHooked().contains(CompatiblePlugin.PLACEHOLDERAPI)) {
             NicknamePlaceholders placeholders = new NicknamePlaceholders();
             placeholders.setup(this);
             placeholders.register();

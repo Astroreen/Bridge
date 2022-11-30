@@ -59,13 +59,30 @@ permissions:
     description: Gives access to all ffa commands
     children:
       bridge.ffa.arena: true
+      bridge.ffa.kit: true
 
   bridge.ffa.arena:
     description: Gives access to control ffa arena
     children:
       bridge.ffa.arena.load: true
+      bridge.ffa.arena.unload: true
+      bridge.ffa.arena.teleport: true
   bridge.ffa.arena.load:
     description: Loads ffa arena
+    default: op
+  bridge.ffa.arena.unload:
+    description: Unloads ffa arena
+    default: op
+  bridge.ffa.arena.teleport:
+    description: Teleports to arena
+    default: true
+
+  bridge.ffa.kit:
+    description: Full control on FFA kits
+    children:
+      bridge.ffa.kit.crate: true
+  bridge.ffa.kit.create:
+    description: Create FFA kits and its items
     default: op
 
 

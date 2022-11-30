@@ -19,14 +19,32 @@ public class PermissionManager implements Perms {
             lpPermsActive = true;
         }
     }
+
     @Override
-    public boolean havePermission(final @NotNull Player player, final Permission permission) {
+    public boolean havePermission(@NotNull Player player, @NotNull String permission) {
         if(lpPermsActive) return lpPerms.havePermission(player, permission);
         else return havePermission(player.getUniqueId(), permission);
     }
 
     @Override
-    public boolean havePermission(final @NotNull UUID uuid, final Permission permission) {
+    public boolean havePermission(final @NotNull Player player, final @NotNull Permission permission) {
+        if(lpPermsActive) return lpPerms.havePermission(player, permission);
+        else return havePermission(player.getUniqueId(), permission);
+    }
+
+    @Override
+    public boolean havePermission(@NotNull UUID uuid, @NotNull String permission) {
+        if(lpPermsActive) {
+            return lpPerms.havePermission(uuid, permission);
+        } else {
+            Player player = PlayerConverter.getPlayer(uuid);
+            if (player == null) return false;
+            return player.hasPermission(permission);
+        }
+    }
+
+    @Override
+    public boolean havePermission(final @NotNull UUID uuid, final @NotNull Permission permission) {
         if(lpPermsActive) {
             return lpPerms.havePermission(uuid, permission);
         } else {
@@ -37,13 +55,13 @@ public class PermissionManager implements Perms {
     }
 
     @Override
-    public void addPermission(final @NotNull Player player, final Permission permission, final boolean value) {
+    public void addPermission(final @NotNull Player player, final @NotNull Permission permission, final boolean value) {
         if(lpPermsActive) lpPerms.addPermission(player, permission, value);
         else addPermission(player.getUniqueId(), permission, value);
     }
 
     @Override
-    public void addPermission(final @NotNull UUID uuid, final Permission permission, final boolean value) {
+    public void addPermission(final @NotNull UUID uuid, final @NotNull Permission permission, final boolean value) {
         if(lpPermsActive) {
             lpPerms.addPermission(uuid, permission, value);
         }

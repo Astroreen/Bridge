@@ -34,7 +34,7 @@ public class FFAKitManager implements Listener {
      * @param item the item
      * @return created item
      */
-    public static FFAKitItem createKitItem(final @NotNull String kit, final int slot, final @NotNull ItemStack item) {
+    public static @NotNull FFAKitItem createKitItem(final @NotNull String kit, final int slot, final @NotNull ItemStack item) {
         return new FFAKitItem(config).create(kit, slot, item);
     }
 
@@ -47,7 +47,7 @@ public class FFAKitManager implements Listener {
      * @param item the item base
      * @return created item
      */
-    public static FFAKitItem createKitItem(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
+    public static @NotNull FFAKitItem createKitItem(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
         return new FFAKitItem(config).create(kit, slot, item);
     }
 

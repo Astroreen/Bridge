@@ -48,7 +48,7 @@ public class FFAKitItem extends ItemStack {
      * @param item item base
      * @return created item
      */
-    public FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull ItemStack item) {
+    public @NotNull FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull ItemStack item) {
         this.kit = kit;
         this.item = item;
         this.slot = slot;
@@ -67,7 +67,7 @@ public class FFAKitItem extends ItemStack {
      * @param item item base
      * @return created item
      */
-    public FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
+    public @NotNull FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
         this.kit = kit;
         this.item = item.getItemStack();
         this.slot = slot;

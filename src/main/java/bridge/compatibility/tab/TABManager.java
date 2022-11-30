@@ -70,23 +70,15 @@ public class TABManager implements TabEvent, Module {
         assert p != null;
         if(!exist.contains(uuid)){
             exist.add(uuid);
-            String color = NicknameManager.getDefaultNickColor();
+            final String color = NicknameManager.getDefaultNickColor();
             manager.applyColor(p, color, false);
             saver.add(new Saver.Record(UpdateType.ADD_NICKNAME, uuid.toString(), color));
             return;
         }
 
-        try {
-            ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
-            if(rs.next()){
-                final String hex = rs.getString("color");
-                if (hex == null) manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
-                manager.applyColor(p, hex, false);
-            }
-        } catch (SQLException e) {
-            LOG.error("There was an exception with SQL", e);
-            manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
-        }
+        final String color = manager.getPlayerColor(uuid);
+        if(color == null) manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
+        else manager.applyColor(p, color, false);
     }
 
     @Override

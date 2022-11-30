@@ -21,6 +21,11 @@ public class FFAArenaManager {
     private static ConfigurationFile config;
     private static final List<World> activeArenas = new ArrayList<>();
 
+    /**
+     * Same method as reload.
+     *
+     * @param config the main ffa config
+     */
     public static void setup(final @NotNull Bridge plugin, final @NotNull ConfigurationFile config) {
         FFAArenaManager.plugin = plugin;
         FFAArenaManager.config = config;
@@ -31,8 +36,8 @@ public class FFAArenaManager {
     /**
      * Teleports player to given arena and location.
      *
-     * @param player what player to teleport
-     * @param arena the arena name to teleport to
+     * @param player   what player to teleport
+     * @param arena    the arena name to teleport to
      * @param location the location name or null to rtp
      * @return true if everything went successful
      */
@@ -142,12 +147,12 @@ public class FFAArenaManager {
         return new Location(world, x, y, z);
     }
 
-    public static @Nullable Location getDefaultTeleportPoint(final @NotNull String arena){
+    public static @Nullable Location getDefaultTeleportPoint(final @NotNull String arena) {
         if (isArenaDisabled(arena)) return null;
         final World world = WorldUtils.getWorld(arena);
         if (world == null) return null;
         final String def = config.getString(String.format("arenas.%s.default-pos", arena));
-        if(def != null) {
+        if (def != null) {
             final String[] pos = def.split(",");
             final double x = Double.parseDouble(pos[0]);
             final double y = Double.parseDouble(pos[1]);
@@ -163,7 +168,7 @@ public class FFAArenaManager {
      * @return list of active FFA worlds
      */
     public static @NotNull List<World> getActiveFFAWorlds(final boolean reload) {
-        if(!reload) return activeArenas;
+        if (!reload) return activeArenas;
         List<World> worlds = new ArrayList<>();
         getExistingFFAWorlds().forEach(name -> {
             World world = WorldUtils.getWorld(name);
@@ -258,7 +263,7 @@ public class FFAArenaManager {
      * @return "none" if schematic wasn't found.
      * Otherwise, schematics file name.
      */
-    public static @NotNull String getSchematicFileName(final @NotNull String arena){
+    public static @NotNull String getSchematicFileName(final @NotNull String arena) {
         return config.getString(String.format("arenas.%s.schematic", arena), "none");
     }
 }

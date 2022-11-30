@@ -24,7 +24,7 @@ public class ColorCodes {
     }
 
     @NotNull
-    public static String generateColoredMessage(@NotNull ConfigurationFile config, @NotNull final String head, @NotNull final String tail, @NotNull final String message) {
+    public static String generateColoredMessage(final @NotNull ConfigurationFile config, @NotNull final String head, @NotNull final String tail, @NotNull final String message) {
         if (message.isEmpty()) return message;
         final int[] hex = resolveDefinedHexInts(head, tail);
 

@@ -15,10 +15,9 @@ import java.util.UUID;
 
 public class WorldUtils {
 
-    public static boolean loadWorld(final @NotNull String name) {
-        if(isWorldLoaded(name)) return true;
-        new WorldCreator(name).createWorld();
-        return true;
+    public static World loadWorld(final @NotNull String name) {
+        if(isWorldLoaded(name)) return getWorld(name);
+        return new WorldCreator(name).createWorld();
     }
 
     public static boolean unloadWorld(final @NotNull String name, final boolean save) {
@@ -32,8 +31,8 @@ public class WorldUtils {
         return Bukkit.getServer().unloadWorld(world, save);
     }
 
-    public static void createEmptyWorld(final @NotNull String name) {
-        new WorldCreator(name)
+    public static World createEmptyWorld(final @NotNull String name) {
+        return new WorldCreator(name)
                 .generator(new VoidChunkGen(Bridge.getInstance(), UUID.randomUUID().toString()))
                 .createWorld();
     }

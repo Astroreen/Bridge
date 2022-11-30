@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ public class ModuleManager {
 
     private static Bridge plugin;
     private static final HashMap<String, Module> modules = new HashMap<>();
-    private static final String MODULE_PATH = "settings.modules";
+    private static final String MODULE_PATH = "settings.modules.";
     private static final String ENABLED = ".enabled";
 
     /**
@@ -27,21 +28,23 @@ public class ModuleManager {
      */
     public static void setup(final Bridge plugin) {
         ModuleManager.plugin = plugin;
-        HashMap<String, Module> temp = new HashMap<>();
+        final HashMap<String, Module> temp = new HashMap<>();
         temp.put("ffa", new FFA());
         temp.put("tab", new TABManager());
-        for (String key : temp.keySet())
+        temp.keySet().forEach(key -> {
             if (!modules.containsKey(key)) modules.put(key, temp.get(key));
+        });
     }
 
     public static void start() {
-        for (final String path : modules.keySet()) {
+        if(modules.isEmpty()) return;
+        new ArrayList<>(modules.keySet()).forEach(path -> {
             final boolean use = plugin.getPluginConfig().getBoolean(MODULE_PATH + path + ENABLED, false);
             if (use) {
                 final Module module = modules.get(path);
                 if (!start(plugin, module)) modules.remove(path);
             } else modules.remove(path);
-        }
+        });
     }
 
     private static boolean start(final @NotNull Bridge plugin, final @NotNull Module module) {
@@ -52,7 +55,8 @@ public class ModuleManager {
     public static void reload(final @NotNull Bridge plugin) {
         //load all modules again
         setup(plugin);
-        for (String key : modules.keySet()) {
+        if(modules.isEmpty()) return;
+        new ArrayList<>(modules.keySet()).forEach(key -> {
             final Module module = modules.get(key);
             final boolean use = plugin.getPluginConfig().getBoolean(MODULE_PATH + key + ENABLED, false);
             if (use) {
@@ -64,10 +68,11 @@ public class ModuleManager {
                 if (module.active()) module.disable();
                 modules.remove(key);
             }
-        }
+        });
     }
 
     public static void disable() {
+        if(modules.isEmpty()) return;
         for (String key : modules.keySet()) disable(modules.get(key));
     }
 
@@ -78,7 +83,7 @@ public class ModuleManager {
     /**
      * Get Set of active module's names.
      *
-     * @return {@link Set} of names
+     * @return {@link Set<String>} of names
      */
     @Contract(pure = true)
     public static @NotNull Set<String> getActive() {

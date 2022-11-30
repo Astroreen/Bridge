@@ -7,6 +7,7 @@ public enum Permission {
     COMMAND_DEBUG("bridge.command.debug", false),
     COMMAND_LANGUAGE("bridge.command.language", false),
     COMMAND_NICKNAME("bridge.command.nickname", true),
+    COMMAND_FFA("bridge.command.ffa", false),
 
     /// /// NICKNAME /// ///
         ///  COLOR   ///
@@ -24,7 +25,14 @@ public enum Permission {
     NICKNAME_STARS_SET_OWN("bridge.nickname.stars.set", false),
     NICKNAME_STARS_SET_OTHER("bridge.nickname.stars.set.other",false),
     NICKNAME_STARS_ADD_OWN("bridge.nickname.stars.add",false),
-    NICKNAME_STARS_ADD_OTHER("bridge.nickname.stars.add.other",false)
+    NICKNAME_STARS_ADD_OTHER("bridge.nickname.stars.add.other",false),
+    /// /// FFA /// ///
+       /// ARENA ///
+    FFA_ARENA_LOAD("bridge.ffa.arena.load", false),
+    FFA_ARENA_UNLOAD("bridge.ffa.arena.unload", false),
+    FFA_ARENA_TELEPORT("bridge.ffa.arena.teleport", true),
+        /// KIT ///
+    FFA_KIT_CREATE("bridge.ffa.kit.create", false),
     ;
 
 

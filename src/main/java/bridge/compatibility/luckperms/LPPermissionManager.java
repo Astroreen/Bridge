@@ -24,7 +24,15 @@ public class LPPermissionManager implements Perms {
     }
 
     @Override
-    public boolean havePermission(final @NotNull Player player, final Permission permission){
+    public boolean havePermission(final @NotNull Player player, final @NotNull String permission) {
+        User user = LuckPerms.getUserManager().getUser(player.getUniqueId());
+        if(user != null)
+            return user.getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+        else return false;
+    }
+
+    @Override
+    public boolean havePermission(final @NotNull Player player, final @NotNull Permission permission){
         User user = LuckPerms.getUserManager().getUser(player.getUniqueId());
         if(user != null)
             return user.getCachedData().getPermissionData().checkPermission(permission.perm).asBoolean();
@@ -32,7 +40,20 @@ public class LPPermissionManager implements Perms {
     }
 
     @Override
-    public boolean havePermission(final @NotNull UUID uuid, final Permission permission) {
+    public boolean havePermission(@NotNull UUID uuid, @NotNull String permission) {
+        Player player = PlayerConverter.getPlayer(uuid);
+        if(player != null) havePermission(player, permission);
+        try {
+            User user = LuckPerms.getUserManager().loadUser(uuid).get();
+            return user.getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("There was an exception checking player permissions", e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean havePermission(final @NotNull UUID uuid, final @NotNull Permission permission) {
         Player player = PlayerConverter.getPlayer(uuid);
         if(player != null) havePermission(player, permission);
         try {
@@ -45,7 +66,7 @@ public class LPPermissionManager implements Perms {
     }
 
     @Override
-    public void addPermission(final @NotNull UUID uuid, final Permission permission, final boolean value) {
+    public void addPermission(final @NotNull UUID uuid, final @NotNull Permission permission, final boolean value) {
         LuckPerms.getUserManager().modifyUser(uuid, user -> user.data().add(convert(permission, value)));
     }
 
