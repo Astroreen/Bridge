@@ -150,11 +150,11 @@ public enum MessageType {
     /**
      * Variables: item name
      */
-    FFA_ITEM_CREATED_SUCCESSFULLY("module.kit.created-successfully"),
+    FFA_KIT_CREATED_SUCCESSFULLY("module.kit.created-successfully"),
     /**
      * Variables: item name
      */
-    FFA_ITEM_CREATED_ERROR("module.kit.created-error"),
+    FFA_KIT_CREATED_ERROR("module.kit.created-error"),
     /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
     /**
      * Variables: Arguments

@@ -9,7 +9,7 @@ use-different-schematic-folder: false
 #Если укажите "none", то арена тоже не будет обновляться.
 #Создав несуществующую арену, она создастся как пустой мир.
 arenas:
-  world: #Название арены
+  exampleworldname: #Название арены
     use: false #Использовать эту арену?
     schematic: "none" #Используемый схематик. Пример: "random-schematic.schem".
     schematic-cords: "0:70:0" #На какой блок поставить схематик (x, y, z).

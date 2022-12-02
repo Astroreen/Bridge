@@ -4,6 +4,7 @@ import bridge.Bridge;
 import bridge.MessageType;
 import bridge.compatibility.Compatibility;
 import bridge.compatibility.CompatiblePlugin;
+import bridge.compatibility.itemsadder.IAManager;
 import bridge.compatibility.tab.NicknameManager;
 import bridge.compatibility.tab.TABManager;
 import bridge.compatibility.worldedit.WEManager;
@@ -20,6 +21,7 @@ import bridge.modules.permissions.PermissionManager;
 import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
 import bridge.utils.WorldUtils;
+import dev.lone.itemsadder.api.CustomStack;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -77,16 +79,16 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (!Compatibility.getHooked().contains(CompatiblePlugin.TAB))
                         sendMessage(sender, MessageType.PLUGIN_DISABLED, "TAB");
                     final Module module = ModuleManager.getModule("tab");
-                    if (module == null || !module.active()){
+                    if (module == null || !module.active()) {
                         sendMessage(sender, MessageType.MODULE_STATE, "ColorNickname", Config.getMessage(MessageType.DISABLED));
                         return true;
                     }
                     handleNickName(sender, args);
                 }
                 case "ffa" -> {
-                    if(noPermission(sender, Permission.COMMAND_FFA)) return true;
+                    if (noPermission(sender, Permission.COMMAND_FFA)) return true;
                     final Module module = ModuleManager.getModule("ffa");
-                    if (module == null || !module.active()){
+                    if (module == null || !module.active()) {
                         sendMessage(sender, MessageType.MODULE_STATE, "FFA", Config.getMessage(MessageType.DISABLED));
                         return true;
                     }
@@ -140,7 +142,10 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                         }
                         sendMessage(sender, MessageType.ARENA_LOADED_SUCCESSFULLY, arena);
                     } else sendMessage(sender, MessageType.ARENA_LOADED_ERROR, arena);
+                    //reloading list of enabled worlds
+                    FFAArenaManager.getActiveFFAWorlds(true);
                     // done
+                    return;
                 } else if (args[2].equalsIgnoreCase("unload")) {
                     // bridge ffa arena unload <name>
                     if (noPermission(sender, Permission.FFA_ARENA_UNLOAD)) return;
@@ -153,6 +158,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     if (WorldUtils.unloadWorld(world, !FFAArenaManager.haveSchematic(world.getName())))
                         sendMessage(sender, MessageType.ARENA_UNLOADED_SUCCESSFULLY, world.getName());
                     else sendMessage(sender, MessageType.ARENA_UNLOADED_ERROR, world.getName());
+                    return;
                     //done
                 } else if (args[2].equalsIgnoreCase("create")) {
                     // bridge ffa arena create <name>
@@ -162,11 +168,11 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                         return;
                     }
                     //creating empty world that player should add to config
-                    if (WorldUtils.createEmptyWorld(args[3]) == null)
+                    if (WorldUtils.createEmptyWorld(name) == null)
                         sendMessage(sender, MessageType.ARENA_CREATED_ERROR, name);
                     else sendMessage(sender, MessageType.ARENA_CREATED_SUCCESSFULLY, name);
-                    return;
                     //done
+                    return;
                 }
             }
 
@@ -187,14 +193,18 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                         sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args);
                         return;
                     }
-                    if (!permManager.havePermission(player, "bridge.ffa.kit." + name)) return;
-                    final HashMap<Integer, FFAKitItem> kit = FFAKitManager.getKit(args[3]);
+                    if (!permManager.havePermission(player, "bridge.ffa.kit." + name)) {
+                        sendMessage(sender, MessageType.NO_PERMISSION);
+                        return;
+                    }
+                    final HashMap<Integer, FFAKitItem> kit = FFAKitManager.getKit(name);
                     if (kit.isEmpty()) { // if kit empty, it means nothing there or an error occurred
                         sendMessage(sender, MessageType.KIT_NOT_CREATED, name);
                         return;
                     }
                     FFAKitManager.applyKit(player, name);
                     //done
+                    return;
                 } else if (args[2].equalsIgnoreCase("create")) {
                     // bridge ffa kit create <name>
                     if (!(sender instanceof final Player player)) {
@@ -205,68 +215,95 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
 
                     final String name = args[3];
                     final PlayerInventory inv = player.getInventory();
-                    final ItemStack hand = inv.getItemInMainHand();
-                    //check if player have item
-                    if (hand.getType() == Material.AIR) {
-                        sendMessage(player, MessageType.NO_ITEM_IN_HAND);
-                        return;
+                    final List<Material> list = new ArrayList<>();
+                    //adding all items to the kit
+                    inv.forEach(item -> {
+                        if (item != null)
+                            if (!list.contains(item.getType())) list.add(item.getType());
+                    });
+                    List<FFAKitItem> items = new ArrayList<>();
+                    for (Material material : list) {
+                        HashMap<Integer, ? extends ItemStack> map = inv.all(material);
+                        for (final int slot : map.keySet()) {
+                            if (IAManager.isActive()) {
+                                final CustomStack customItem = CustomStack.byItemStack(map.get(slot));
+                                if (customItem != null) items.add(FFAKitManager.createKitItem(name, slot, customItem));
+                            } else items.add(FFAKitManager.createKitItem(name, slot, map.get(slot)));
+                        }
                     }
-                    //replaces or creates item in FFA's kit
                     try {
-                        FFAKitManager.createKitItem(name, inv.getHeldItemSlot(), hand).save();
-                        sendMessage(player, MessageType.FFA_ITEM_CREATED_SUCCESSFULLY, name);
+                        FFAKitManager.saveAll(items);
+                        sendMessage(player, MessageType.FFA_KIT_CREATED_SUCCESSFULLY, name);
                     } catch (IOException e) {
-                        sendMessage(player, MessageType.FFA_ITEM_CREATED_ERROR, name);
+                        sendMessage(player, MessageType.FFA_KIT_CREATED_ERROR, name);
                         LOG.error("An error occurred while tried to save FFA's kit item in config!", e);
                     }
-                    return;
                     //done
+                    return;
                 }
             }
 
             // bridge ffa teleport
             case "teleport": {
                 // bridge ffa teleport <arena> random/default/<pos> (player)
+                if (args.length < 4 || args.length > 5) {
+                    sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args);
+                    return;
+                }
                 //check perm
                 if (noPermission(sender, Permission.FFA_ARENA_TELEPORT)) return;
                 //initialize arena
-                final String arena = args[3];
+                final String arena = args[2];
                 if (!FFAArenaManager.getExistingFFAWorlds().contains(arena)) {
-                    sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
+                    sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[2]);
                     return;
                 }
                 World world = WorldUtils.getWorld(arena);
-                if (world == null) WorldUtils.loadWorld(arena);
+                if (world == null) {
+                    if (WorldUtils.loadWorld(arena) != null) {
+                        //reloading list of active worlds
+                        FFAArenaManager.getActiveFFAWorlds(true);
+                        if (FFAArenaManager.haveSchematic(arena)
+                                && Compatibility.getHooked().contains(CompatiblePlugin.FAWE)) {
+                            final String schem = FFAArenaManager.getSchematicFileName(arena);
+                            final Location loc = FFAArenaManager.getSchematicLocation(arena);
+                            if (loc == null) return;
+                            WEManager.pasteSchematicAsync(loc, FFAArenaManager.getFFASchematicFolder(), schem);
+                        }
+                    }
+                }
                 //initialize location
                 final Location choice;
-                if (args[4].equals("default"))
+                if (args[3].equals("default"))
                     choice = FFAArenaManager.getDefaultTeleportPoint(arena);
-                else if (args[4].equals("random"))
+                else if (args[3].equals("random"))
                     choice = FFAArenaManager.randomTeleportLocation(arena);
                 else
-                    choice = FFAArenaManager.getTeleportPoint(arena, args[4]);
+                    choice = FFAArenaManager.getTeleportPoint(arena, args[3]);
                 if (choice == null) {
-                    sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[4]);
+                    sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
                     return;
                 }
                 //initialize player
                 Player player = null;
-                if (args.length == 5 && sender instanceof Player p) player = p;
-                else if (args.length == 6 && PlayerConverter.getPlayer(args[4]) != null)
-                    player = PlayerConverter.getPlayer(args[5]);
+                if (args.length == 4 && sender instanceof Player p) player = p;
+                else if (args.length == 5 && PlayerConverter.getPlayer(args[4]) != null)
+                    player = PlayerConverter.getPlayer(args[4]);
                 if (player == null) {
                     sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args);
                     return;
                 }
                 player.teleport(choice);
+                //done
+                return;
             }
         }
         sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args);
     }
 
     private @NotNull Optional<List<String>> completeFFA(final String @NotNull ... args) {
-        // bridge ffa arena/kit/create/teleport
-        if (args.length == 2) return Optional.of(List.of("arena", "kit", "create", "teleport"));
+        // bridge ffa arena/kit/teleport
+        if (args.length == 2) return Optional.of(List.of("arena", "kit", "teleport"));
         if (args.length == 3) {
             switch (args[1]) {
                 case "arena":
@@ -277,13 +314,12 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     return Optional.of(FFAArenaManager.getExistingFFAWorlds());
             }
         } else if (args.length == 4) {
-            if (args[2].equalsIgnoreCase("arena"))
-                // bridge ffa arena load/unload/create
-                switch (args[3]) {
+            if (args[1].equalsIgnoreCase("arena"))
+                // bridge ffa arena load/unload/create <#NAME>
+                switch (args[2]) {
                     case "load": {
-                        List<String> names = new ArrayList<>();
-                        FFAArenaManager.getActiveFFAWorlds(false).forEach(world -> names.add(world.getName()));
-                        FFAArenaManager.getExistingFFAWorlds().forEach(names::remove);
+                        List<String> names = new ArrayList<>(FFAArenaManager.getExistingFFAWorlds());
+                        FFAArenaManager.getActiveFFAWorlds(false).forEach(world -> names.remove(world.getName()));
                         return Optional.of(names);
                     }
                     case "unload": {
@@ -294,27 +330,22 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     case "create":
                         return Optional.of(List.of("#NAME"));
                 }
-            else if (args[2].equalsIgnoreCase("kit"))
+            else if (args[1].equalsIgnoreCase("kit"))
                 // bridge ffa kit create/apply
-                switch (args[3]) {
+                switch (args[2]) {
                     case "create":
                         return Optional.of(List.of("#NAME"));
                     case "give":
                         return Optional.of(FFAKitManager.getKits());
                 }
-            else if (args[2].equalsIgnoreCase("teleport"))
-                // bridge ffa teleport <arena> random/default/<pos> (player)
-                return Optional.of(FFAArenaManager.getExistingFFAWorlds());
-
-        } else if (args.length == 5) {
-            if (args[2].equalsIgnoreCase("teleport")) {
-                // bridge ffa teleport <arena> random/default/<pos> (player)
-                final List<String> names = new ArrayList<>(FFAArenaManager.getTeleportPoints(args[3]).keySet());
+            else if (args[1].equalsIgnoreCase("teleport")) {
+                // bridge ffa teleport <arena> random/default/<pos>
+                final List<String> names = new ArrayList<>(FFAArenaManager.getTeleportPoints(args[2]).keySet());
                 names.add("random");
-                names.add("default");
                 return Optional.of(names);
             }
-        } else if (args.length == 6) {
+
+        } else if (args.length == 5) {
             if (args[2].equalsIgnoreCase("teleport")) {
                 // bridge ffa teleport <arena> random/default/<pos> (player)
                 List<String> names = new ArrayList<>();

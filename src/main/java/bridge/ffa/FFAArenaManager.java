@@ -29,8 +29,7 @@ public class FFAArenaManager {
     public static void setup(final @NotNull Bridge plugin, final @NotNull ConfigurationFile config) {
         FFAArenaManager.plugin = plugin;
         FFAArenaManager.config = config;
-        activeArenas.clear();
-        activeArenas.addAll(getActiveFFAWorlds(true));
+        getActiveFFAWorlds(true);
     }
 
     /**
@@ -80,13 +79,13 @@ public class FFAArenaManager {
      */
     public static @Nullable Location randomTeleportLocation(final @NotNull String arena) {
         if (isArenaDisabled(arena)) return null;
-        if (!config.getBoolean(String.format("arenas.%s.teleport.rtp-enabled", arena))) return null;
         final World world = WorldUtils.getWorld(arena);
         if (world == null) return null;
+        if (!config.getBoolean(String.format("arenas.%s.teleport.rtp-enabled", arena))) return getDefaultTeleportPoint(arena);
         final List<Location> locations = new ArrayList<>();
         getTeleportPoints(arena).forEach((name, loc) -> locations.add(loc));
-
-        return locations.get(new Random(locations.size() - 1).nextInt());
+        if(locations.isEmpty()) return null;
+        return locations.get(new Random().nextInt(locations.size()));
     }
 
     /**
@@ -103,24 +102,25 @@ public class FFAArenaManager {
         if (!getActiveFFAWorlds(false).contains(world)) return new HashMap<>();
 
         //if arena teleport locations are disabled, use "default-pos"
-        if (!config.getBoolean(String.format("arenas.%s.enabled", arena), false)) {
-            Location loc = getTeleportPoint(arena, "default-pos");
+        if (!config.getBoolean(String.format("arenas.%s.teleport.enabled", arena), false)) {
             HashMap<String, Location> location = new HashMap<>(1);
-            location.put("default-pos", loc);
+            Location loc = getDefaultTeleportPoint(arena);
+            location.put("default", loc);
             if (loc != null) return location;
-            return new HashMap<>();
+            else return new HashMap<>();
         }
 
         final ConfigurationSection section =
                 config.getConfigurationSection(String.format("arenas.%s.teleport", arena));
         if (section == null) return new HashMap<>();
         final Set<String> pos = section.getKeys(false);
-        pos.remove("rtp-enabled");
         pos.remove("enabled");
+        pos.remove("rtp-enabled");
         final HashMap<String, Location> locations = new HashMap<>();
-        for (String name : pos) {
-            Location loc = getTeleportPoint(arena, name);
-            if (loc != null) locations.put(arena, loc);
+        locations.put("default", getDefaultTeleportPoint(arena));
+        for (final String name : pos) {
+            final Location loc = getTeleportPoint(arena, name);
+            if (loc != null) locations.put(name, loc);
         }
         return locations;
     }
@@ -174,6 +174,8 @@ public class FFAArenaManager {
             World world = WorldUtils.getWorld(name);
             if (world != null) worlds.add(world);
         });
+        activeArenas.clear();
+        activeArenas.addAll(worlds);
         return worlds;
     }
 
@@ -186,8 +188,9 @@ public class FFAArenaManager {
      * @return list of FFA worlds names.
      */
     public static @NotNull List<String> getExistingFFAWorlds() {
-        List<String> worlds = new ArrayList<>(getAllFFAWorlds());
-        worlds.forEach(name -> {
+        final List<String> list = getAllFFAWorlds();
+        final List<String> worlds = new ArrayList<>(list);
+        list.forEach(name -> {
             if (!WorldUtils.isWorldFolderExist(name)) worlds.remove(name);
         });
         return worlds;

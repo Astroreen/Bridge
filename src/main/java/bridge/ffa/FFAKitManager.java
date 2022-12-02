@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +62,7 @@ public class FFAKitManager implements Listener {
      */
     public static @Nullable FFAKitItem loadItem(final @NotNull String kit, final int slot) {
         try {
-            if (FFAKitItem.isCreated(kit, slot)) return new FFAKitItem(config).load(kit, slot);
+            if (FFAKitItem.isCreated(config, kit, slot)) return new FFAKitItem(config).load(kit, slot);
         } catch (ObjectNotFoundException e) {
             LOG.error("There was exception with FFA item in kit: " + kit + ", in slot: " + slot, e);
         }
@@ -75,11 +76,10 @@ public class FFAKitManager implements Listener {
      * @return kit configuration
      */
     public static @NotNull HashMap<Integer, FFAKitItem> getKit(final @NotNull String kit) {
-        if (!isKitCreated(kit)) return new HashMap<>();
         final ConfigurationSection section = config.getConfigurationSection(kit);
         if (section == null) return new HashMap<>();
         HashMap<Integer, FFAKitItem> map = new HashMap<>();
-        for (String slotIndex : section.getKeys(false)) {
+        for (final String slotIndex : section.getKeys(false)) {
             final int slot = Integer.parseInt(slotIndex);
             final FFAKitItem item = loadItem(kit, slot);
             if (item == null) continue;
@@ -90,11 +90,12 @@ public class FFAKitManager implements Listener {
 
     /**
      * Gets all kits that are written in config.
+     *
      * @return list of kits names
      */
-    public static @NotNull List<String> getKits(){
+    public static @NotNull List<String> getKits() {
         ConfigurationSection section = config.getDefaultSection();
-        if(section == null) return List.of();
+        if (section == null) return List.of();
         return section.getKeys(false).stream().toList();
     }
 
@@ -109,17 +110,31 @@ public class FFAKitManager implements Listener {
         HashMap<Integer, FFAKitItem> settings = getKit(kit);
         if (settings.isEmpty()) return;
         Inventory inv = player.getInventory();
-        for (final int i : settings.keySet()) {
-            inv.setItem(i, settings.get(i));
-        }
+        for (final int i : settings.keySet()) inv.setItem(i, settings.get(i));
         PlayersKits.put(player.getUniqueId(), kit);
     }
 
     /**
+     * Saves all items that are in array.
+     *
+     * @param items the array full with {@link FFAKitItem}
+     * @throws IOException when trying to save
+     */
+    public static void saveAll(final @NotNull List<FFAKitItem> items) throws IOException {
+        for (final FFAKitItem item : items) {
+            config.set(String.format("%s.%s.item", item.getKitName(), item.getSlotIndex()), new ItemStack(item.toItem()).serialize());
+            if (item.isIAItem())
+                config.set(String.format("%s.%s.itemsAdder", item.getKitName(), item.getSlotIndex()), item.getIAItemID());
+        }
+        config.save();
+    }
+
+    /**
      * Removes kit that was applied to player.
+     *
      * @param player the player to remove kit from
      */
-    public static void removeKit(final @NotNull Player player){
+    public static void removeKit(final @NotNull Player player) {
         PlayersKits.remove(player.getUniqueId());
     }
 

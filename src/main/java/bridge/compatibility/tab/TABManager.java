@@ -2,12 +2,14 @@ package bridge.compatibility.tab;
 
 import bridge.Bridge;
 import bridge.compatibility.Compatibility;
+import bridge.compatibility.CompatiblePlugin;
 import bridge.modules.Module;
 import bridge.database.Connector;
 import bridge.database.QueryType;
 import bridge.database.Saver;
 import bridge.database.UpdateType;
 import bridge.modules.Currency;
+import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
 import lombok.CustomLog;
 import me.neznamy.tab.api.TabAPI;
@@ -31,7 +33,7 @@ import java.util.UUID;
 @CustomLog
 public class TABManager implements TabEvent, Module {
 
-    private static Bridge instance;
+    private static Bridge plugin;
     private static Saver saver;
     private static Connector con;
     private static List<UUID> exist;
@@ -41,22 +43,22 @@ public class TABManager implements TabEvent, Module {
     private static NicknameManager manager = null;
 
     public static void setup() {
-        instance = Bridge.getInstance();
-        saver = instance.getSaver();
+        plugin = Bridge.getInstance();
+        saver = plugin.getSaver();
         con = new Connector();
 
-        isModuleEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
+        isModuleEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
         if (isModuleEnabled) {
-            new NicknameManager(instance);
+            new NicknameManager(plugin);
             manager = NicknameManager.getInstance();
         }
-        isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
+        isStarsEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         if (isStarsEnabled) stars = new Stars(manager, con);
         exist = new ArrayList<>();
     }
 
     @Subscribe
-    public void onPlayerLoad (@NotNull final PlayerLoadEvent event) {
+    public void onPlayerLoad (final @NotNull PlayerLoadEvent event) {
         if (!event.isJoin()) {
             reload();
             return;
@@ -77,12 +79,13 @@ public class TABManager implements TabEvent, Module {
         }
 
         final String color = manager.getPlayerColor(uuid);
-        if(color == null) manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
+        if(color == null || !(NicknameManager.getInstance().isGradient(color)
+                || ColorCodes.isHexValid(color))) manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
         else manager.applyColor(p, color, false);
     }
 
     @Override
-    public boolean start(@NotNull Bridge plugin) {
+    public boolean start(final @NotNull Bridge plugin) {
         TabAPI.getInstance().getEventBus().register(this);
         exist.clear();
         new BukkitRunnable() {
@@ -96,7 +99,7 @@ public class TABManager implements TabEvent, Module {
                     LOG.error("There was an exception with SQL", e);
                 }
             }
-        }.runTaskAsynchronously(instance);
+        }.runTaskAsynchronously(TABManager.plugin);
         return true;
     }
 
@@ -104,7 +107,7 @@ public class TABManager implements TabEvent, Module {
     public void reload () {
         con.refresh();
         if (!active()) return;
-        isStarsEnabled = instance.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
+        isStarsEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         manager.reload();
         exist.clear();
         new BukkitRunnable() {
@@ -127,7 +130,7 @@ public class TABManager implements TabEvent, Module {
                     LOG.error("There was an exception with SQL", e);
                 }
             }
-        }.runTaskAsynchronously(instance);
+        }.runTaskAsynchronously(plugin);
     }
 
     @Override
@@ -137,7 +140,7 @@ public class TABManager implements TabEvent, Module {
 
     @Override
     public boolean isConditionsMet() {
-        if(!Compatibility.getHooked().contains("TAB")){
+        if(!Compatibility.getHooked().contains(CompatiblePlugin.TAB)){
             LOG.error("Can't start module 'TAB'. Is this plugin exist?");
             return false;
         }

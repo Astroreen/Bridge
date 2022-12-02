@@ -40,9 +40,14 @@ public class FFA implements Module, Listener {
         //register this class as listener
         ListenerManager.register("FFA", this);
 
-        final String dir = "/ffa/schematics/";
+        final String dir = "/ffa/";
         if(!FileUtils.createDirectory(dir)) {
             LOG.error("Wasn't able to create a directory for module.");
+            return false;
+        }
+        final String schem = "/ffa/schematics/";
+        if(!FileUtils.createDirectory(schem)) {
+            LOG.error("Wasn't able to create a schematic directory for module.");
             return false;
         }
         final File root = new File(plugin.getDataFolder() + dir);

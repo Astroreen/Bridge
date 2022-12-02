@@ -4,6 +4,8 @@ import bridge.compatibility.itemsadder.IAManager;
 import bridge.config.ConfigurationFile;
 import bridge.exceptions.ObjectNotFoundException;
 import dev.lone.itemsadder.api.CustomStack;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +18,6 @@ public class FFAKitItem extends ItemStack {
 
     private String kit;
     private int slot;
-    private ItemStack item;
     private String itemsAdderID;
 
 
@@ -26,18 +27,29 @@ public class FFAKitItem extends ItemStack {
 
     private FFAKitItem(final @NotNull ConfigurationFile config, final @NotNull String kit, final int slot, final @NotNull ItemStack item) {
         FFAKitItem.config = config;
-        this.item = item;
         this.slot = slot;
         this.kit = kit;
         this.itemsAdderID = "none";
+
+        final Material type = item.getType();
+        this.setType(type);
+        this.setAmount(item.getAmount());
+        if (type.isLegacy()) this.setData(item.getData());
+        if (item.hasItemMeta()) this.setItemMeta(item.getItemMeta());
     }
 
-    private FFAKitItem(final @NotNull ConfigurationFile config, final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
+    private FFAKitItem(final @NotNull ConfigurationFile config, final @NotNull String kit, final int slot, final @NotNull CustomStack customItem) {
         FFAKitItem.config = config;
-        this.item = item.getItemStack();
         this.slot = slot;
         this.kit = kit;
-        this.itemsAdderID = item.getId();
+        this.itemsAdderID = customItem.getId();
+
+        final ItemStack item = customItem.getItemStack();
+        final Material type = item.getType();
+        this.setType(type);
+        this.setAmount(item.getAmount());
+        if (type.isLegacy()) this.setData(item.getData());
+        if (item.hasItemMeta()) this.setItemMeta(item.getItemMeta());
     }
 
     /**
@@ -50,32 +62,43 @@ public class FFAKitItem extends ItemStack {
      */
     public @NotNull FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull ItemStack item) {
         this.kit = kit;
-        this.item = item;
         this.slot = slot;
+        this.itemsAdderID = "none";
 
-        config.set(String.format("%s.%s.item", kit, slot), item);
+        final Material type = item.getType();
+        this.setType(type);
+        this.setAmount(item.getAmount());
+        if (type.isLegacy()) this.setData(item.getData());
+        if (item.hasItemMeta()) this.setItemMeta(item.getItemMeta());
+
+        config.set(String.format("%s.%s.item", kit, slot), new ItemStack(this.toItem()).serialize());
         config.set(String.format("%s.%s.itemsAdder", kit, slot), "none");
-        itemsAdderID = "none";
         return new FFAKitItem(config, kit, slot, item);
     }
 
     /**
      * Creates {@link FFAKitItem} instance from ItemsAdder's item.
      *
-     * @param kit  which kit set to
-     * @param slot to which slot save
-     * @param item item base
+     * @param kit        which kit set to
+     * @param slot       to which slot save
+     * @param customItem item base
      * @return created item
      */
-    public @NotNull FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull CustomStack item) {
+    public @NotNull FFAKitItem create(final @NotNull String kit, final int slot, final @NotNull CustomStack customItem) {
         this.kit = kit;
-        this.item = item.getItemStack();
         this.slot = slot;
+        this.itemsAdderID = customItem.getId();
 
-        config.set(String.format("%s.%s.item", kit, slot), this.item);
-        config.set(String.format("%s.%s.itemsAdder", kit, slot), item.getId());
-        itemsAdderID = item.getId();
-        return new FFAKitItem(config, kit, slot, item);
+        final ItemStack item = customItem.getItemStack();
+        final Material type = item.getType();
+        this.setType(type);
+        this.setAmount(item.getAmount());
+        if (type.isLegacy()) this.setData(item.getData());
+        if (item.hasItemMeta()) this.setItemMeta(item.getItemMeta());
+
+        config.set(String.format("%s.%s.item", kit, slot), new ItemStack(this.toItem()).serialize());
+        config.set(String.format("%s.%s.itemsAdder", kit, slot), customItem.getId());
+        return new FFAKitItem(config, kit, slot, customItem);
     }
 
     /**
@@ -87,17 +110,13 @@ public class FFAKitItem extends ItemStack {
      * @throws ObjectNotFoundException when item wasn't found/created in config.
      */
     public @NotNull FFAKitItem load(final @NotNull String kit, final int slot) throws ObjectNotFoundException {
-        if (!isCreated()) throw new ObjectNotFoundException("FFAKitItem object is not created yet!");
-        final ItemStack stack = config.getItemStack(String.format("%s.%s.item", kit, slot));
-        assert stack != null;
+        if (!isCreated(config, kit, slot)) throw new ObjectNotFoundException("FFAKitItem object is not created yet!");
+        final ConfigurationSection section = config.getConfigurationSection(String.format("%s.%s.item", kit, slot));
+        assert section != null;
+        final ItemStack stack = ItemStack.deserialize(section.getValues(false));
         final FFAKitItem item = new FFAKitItem(config, kit, slot, stack);
         final String id = config.getString(String.format("%s.%s.itemsAdder", kit, slot), "none");
-        if (IAManager.isIDValid(id)) {
-            CustomStack temp = IAManager.getItem(id);
-            if (temp != null) {
-                item.replaceWithIAItem(temp);
-            }
-        }
+        if (IAManager.isIDValid(id)) item.replaceWithIAItem(id);
         return item;
     }
 
@@ -107,29 +126,28 @@ public class FFAKitItem extends ItemStack {
      * @throws IOException when can't save to config
      */
     public void save() throws IOException {
-        config.set(String.format("%s.%s.item", kit, slot), new ItemStack(item));
-        config.set(String.format("%s.%s.itemsAdder", kit, slot), itemsAdderID);
+        config.set(String.format("%s.%s.item", kit, slot), new ItemStack(this.toItem()).serialize());
+        config.set(String.format("%s.%s.itemsAdder", kit, slot), this.getIAItemID());
         config.save();
     }
 
     /**
-     * Clone this item to another kit or slot or both.
+     * Clone this item to another kit and slot.
      *
-     * @param item item base
      * @param kit  the kit name
      * @param slot the slot index
      * @return new cloned item
      * @throws ObjectNotFoundException when passed item base was not created yet.
      */
-    public FFAKitItem clone(final @NotNull FFAKitItem item, final @NotNull String kit, final int slot) throws ObjectNotFoundException {
-        if (!item.isCreated()) throw new ObjectNotFoundException("FFAKitItem object is not created yet!");
-        if (item.isIAItem()) {
-            final String id = item.getIAItemID();
-            if (id == null) return create(kit, slot, item);
+    public FFAKitItem clone(final @NotNull String kit, final int slot) throws ObjectNotFoundException {
+        if (!this.isCreated()) throw new ObjectNotFoundException("FFAKitItem object is not created yet!");
+        if (this.isIAItem()) {
+            final String id = this.getIAItemID();
+            if (id == null) return create(kit, slot, this);
             final CustomStack custom = IAManager.getItem(id);
             if (custom != null) return create(kit, slot, custom);
         }
-        return create(kit, slot, item);
+        return create(kit, slot, this);
     }
 
 
@@ -150,7 +168,11 @@ public class FFAKitItem extends ItemStack {
      */
     public void replaceWithIAItem(final @NotNull CustomStack item) {
         this.itemsAdderID = item.getId();
-        this.item = item.getItemStack();
+        final ItemStack i = item.getItemStack();
+        this.setType(i.getType());
+        this.setAmount(i.getAmount());
+        if (i.getType().isLegacy()) this.setData(i.getData());
+        if (i.hasItemMeta()) this.setItemMeta(i.getItemMeta());
     }
 
     /**
@@ -161,7 +183,7 @@ public class FFAKitItem extends ItemStack {
      * @return slot index
      */
     public int getSlotIndex() {
-        return slot;
+        return this.slot;
     }
 
     /**
@@ -170,7 +192,7 @@ public class FFAKitItem extends ItemStack {
      * @return kit's name
      */
     public String getKitName() {
-        return kit;
+        return this.kit;
     }
 
     /**
@@ -179,7 +201,7 @@ public class FFAKitItem extends ItemStack {
      * @return true if it is
      */
     public boolean isIAItem() {
-        return !itemsAdderID.equals("none");
+        return !this.itemsAdderID.equals("none");
     }
 
     public @Nullable String getIAItemID() {
@@ -188,12 +210,32 @@ public class FFAKitItem extends ItemStack {
     }
 
     /**
+     * Returns this class as ItemStack.
+     * Same as {@link #getItem()} ()}
+     *
+     * @return minecraft item
+     */
+    public ItemStack toItem() {
+        return this.getItem();
+    }
+
+    /**
+     * Returns this class as ItemStack.
+     * Same as {@link #toItem()}
+     *
+     * @return minecraft item
+     */
+    public ItemStack getItem() {
+        return this;
+    }
+
+    /**
      * Check if this item was created.
      *
      * @return true if was created
      */
     public boolean isCreated() {
-        return isCreated(kit, slot);
+        return FFAKitItem.isCreated(config, kit, slot);
     }
 
     /**
@@ -203,7 +245,7 @@ public class FFAKitItem extends ItemStack {
      * @param slot the slot index
      * @return true if was created
      */
-    public static boolean isCreated(final @NotNull String kit, final int slot) {
-        return config.getConfigurationSection(String.format("%s.%s", kit, slot)) != null;
+    public static boolean isCreated(final @NotNull ConfigurationFile config, final @NotNull String kit, final int slot) {
+        return config.getConfigurationSection(String.format("%s.%s.item", kit, slot)) != null;
     }
 }

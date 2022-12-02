@@ -77,7 +77,6 @@ public class WEManager {
                     .build();
             Operations.complete(operation);
             session.close();
-
         });
         return true;
     }
