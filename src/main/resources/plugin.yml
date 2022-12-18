@@ -10,6 +10,9 @@ softdepend:
   - TAB
   - EssentialsX
   - LuckPerms
+  - ItemsAdder
+  - FastAsyncWorldEdit
+  - ProtocolLib
 commands:
   bridge:
     description: General bridge command
@@ -60,6 +63,7 @@ permissions:
     children:
       bridge.ffa.arena: true
       bridge.ffa.kit: true
+      bridge.ffa.manage.info: true
 
   bridge.ffa.arena:
     description: Gives access to control ffa arena
@@ -85,7 +89,9 @@ permissions:
     description: Create FFA kits and its items
     default: op
 
-
+  bridge.ffa.manage.info:
+    description: Manage ffa kills and deaths
+    default: op
 
   bridge.nickname:
     description: Gives access to all nickname commands

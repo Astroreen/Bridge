@@ -113,11 +113,12 @@ public class FFAKitItem extends ItemStack {
         if (!isCreated(config, kit, slot)) throw new ObjectNotFoundException("FFAKitItem object is not created yet!");
         final ConfigurationSection section = config.getConfigurationSection(String.format("%s.%s.item", kit, slot));
         assert section != null;
-        final ItemStack stack = ItemStack.deserialize(section.getValues(false));
-        final FFAKitItem item = new FFAKitItem(config, kit, slot, stack);
         final String id = config.getString(String.format("%s.%s.itemsAdder", kit, slot), "none");
-        if (IAManager.isIDValid(id)) item.replaceWithIAItem(id);
-        return item;
+        if (IAManager.isIDValid(id)){
+            final CustomStack customItem = CustomStack.getInstance(id);
+            if(customItem != null) return new FFAKitItem(config, kit, slot, customItem);
+        }
+        return new FFAKitItem(config, kit, slot, ItemStack.deserialize(section.getValues(true)));
     }
 
     /**

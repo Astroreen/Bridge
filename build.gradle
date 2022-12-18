@@ -28,16 +28,18 @@ repositories {
     //spigot NMS
     maven {
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-        content {
+        /*content {
             includeGroup 'org.bukkit'
             includeGroup 'org.spigotmc'
-        }
+        }*/
     }
     //ItemsAdder
     maven {
         name = 'jitpack-repo'
         url = 'https://jitpack.io'
     }
+    //ProtocolLib
+    maven { url "https://repo.dmulloy2.net/repository/public/" }
     //maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     //maven { url = 'https://oss.sonatype.org/content/repositories/central' }
     mavenLocal()
@@ -47,6 +49,7 @@ dependencies {
     //Paper
     compileOnly 'io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT'
     //spigot NMS
+    //TUTORIAL -> https://www.spigotmc.org/wiki/spigot-gradle/#build-gradle
     compileOnly 'org.spigotmc:spigot:1.19-R0.1-SNAPSHOT'
     //Bungee
     compileOnly 'net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT'
@@ -72,6 +75,8 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
     //ItemsAdder
     compileOnly("com.github.LoneDev6:api-itemsadder:3.0.0")
+    //ProtocolLib
+    compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.8.0";
     //FAWE
     compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.4.9')
     compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.4.9')

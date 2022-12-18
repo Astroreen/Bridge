@@ -15,16 +15,19 @@ import java.util.UUID;
 
 public class WorldUtils {
 
-    public static World loadWorld(final @NotNull String name) {
-        if(isWorldLoaded(name)) return getWorld(name);
+    public static @Nullable World loadWorld(final @NotNull String name) {
+        if (!isWorldFolderExist(name)) return null;
+        if (isWorldLoaded(name)) return getWorld(name);
         return new WorldCreator(name).createWorld();
     }
 
     public static boolean unloadWorld(final @NotNull String name, final boolean save) {
-        if(!isWorldLoaded(name)) return true;
-        World world = getWorld(name);
-        if(world == null) return true;
-        return Bukkit.getServer().unloadWorld(world, save);
+        if (isWorldFolderExist(name)) {
+            if (!isWorldLoaded(name)) return true;
+            World world = getWorld(name);
+            if (world == null) return true;
+            return Bukkit.getServer().unloadWorld(world, save);
+        } else return false;
     }
 
     public static boolean unloadWorld(final @NotNull World world, final boolean save) {
@@ -38,7 +41,7 @@ public class WorldUtils {
     }
 
     @Contract(pure = true)
-    public static @Nullable World getWorld(final @NotNull String name){
+    public static @Nullable World getWorld(final @NotNull String name) {
         return Bukkit.getWorld(name);
     }
 

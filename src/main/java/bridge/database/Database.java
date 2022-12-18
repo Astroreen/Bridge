@@ -62,6 +62,10 @@ public abstract class Database {
                     .executeUpdate("CREATE TABLE IF NOT EXISTS " + prefix + "nickname (id INTEGER PRIMARY KEY "
                             + autoIncrement + ", playerID VARCHAR(256) NOT NULL, color VARCHAR(15) "
                             + "NOT NULL, stars INT NOT NULL);");
+            getConnection().createStatement()
+                    .executeUpdate("CREATE TABLE IF NOT EXISTS " + prefix + "ffa (id INTEGER PRIMARY KEY "
+                            + autoIncrement + ", playerID VARCHAR(256) NOT NULL, kills INT "
+                            + "NOT NULL, deaths INT NOT NULL);");
         } catch (final SQLException e) {
             LOG.error("There was an exception with SQL", e);
         }

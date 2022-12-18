@@ -15,7 +15,7 @@ public enum QueryType {
      */
     SELECT_UUID_BY_COLOR(prefix -> "SELECT playerID FROM " + prefix + "nickname WHERE color = ?;"),
     /**
-     * Select player stars. PlayerID
+     * Select player stars. playerID
      */
     SELECT_STARS(prefix -> "SELECT stars FROM " + prefix + "nickname WHERE playerID = ?;"),
 
@@ -27,6 +27,13 @@ public enum QueryType {
      * Select playerID and color from nickname table.
      */
     LOAD_ALL_NICKNAME_COLORS(prefix -> "SELECT playerID,color FROM " + prefix + "nickname"),
+
+    /**
+     * Select kill and death count. playerID
+     */
+    SELECT_FFA_DATA(prefix -> "SELECT deaths,kills FROM " + prefix + "ffa WHERE playerID = ?;"),
+
+    LOAD_ALL_FFA_UUIDS(prefix -> "SELECT playerID FROM " + prefix + "ffa"),
     ;
 
     /**

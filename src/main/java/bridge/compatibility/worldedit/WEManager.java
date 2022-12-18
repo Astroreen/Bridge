@@ -15,7 +15,6 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,17 +37,16 @@ public class WEManager {
      * Pastes schematic to a given location.
      *
      * @param location the location to paste
-     * @param folder the folder to get schematic from
+     * @param folder   the folder to get schematic from
      * @param name     the schematic name <p>
      *                 (ex: random-schematic.schem)
-     * @return false, if cant find file. Otherwise, true.
      */
-    public static boolean pasteSchematicAsync(final @NotNull Location location, final @NotNull File folder, final @NotNull String name) {
-        if (!name.matches("^[A-Z\\-.+_()a-z1-9]+\\.schem")) return false;
-
+    public static void pasteSchematicAsync(final @NotNull Location location, final @NotNull File folder, final @NotNull String name) {
+        if(!isEnabled) return;
+        if (!name.matches("^[A-Z\\-.+_()a-z1-9]+\\.schem")) return;
         //get and check if schematic exists
         final File schematic = new File(folder, name);
-        if (!schematic.exists()) return false;
+        if (!schematic.exists()) return;
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             ClipboardFormat format = ClipboardFormats.findByFile(schematic);
@@ -62,12 +60,6 @@ public class WEManager {
                 LOG.error("The exception occurred while tried to asynchronously paste schematic.", e);
             }
 
-            if (location.getBlockX() == 0 && location.getBlockY() == 0 && location.getBlockZ() == 0) {
-                LOG.debug("Schematic location is not set correctly. "
-                        + "Can't paste schematic '" + name + "'");
-                return;
-            }
-
             com.sk89q.worldedit.world.World adaptedWorld = BukkitAdapter.adapt(location.getWorld());
             EditSession session = WorldEdit.getInstance().newEditSession(adaptedWorld);
             Operation operation = new ClipboardHolder(clipboard[0])
@@ -78,7 +70,6 @@ public class WEManager {
             Operations.complete(operation);
             session.close();
         });
-        return true;
     }
 
     /**
@@ -87,18 +78,13 @@ public class WEManager {
      *
      * @return path as file or null if plugin isn't enabled
      */
-    @Contract(" -> new")
     public static @Nullable File getDefaultSchematicFolder() {
-        if (isEnabled()) return null;
+        if (!isEnabled) return null;
         return new File(plugin.getDataFolder().toPath()
                 .resolve("../FastAsyncWorldEdit/schematics").toString());
     }
 
     public static void disable() {
         isEnabled = false;
-    }
-
-    public static boolean isEnabled() {
-        return isEnabled;
     }
 }

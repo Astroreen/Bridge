@@ -4,10 +4,10 @@ import bridge.Bridge;
 import bridge.compatibility.worldedit.WEManager;
 import bridge.config.ConfigurationFile;
 import bridge.utils.WorldUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +20,7 @@ public class FFAArenaManager {
     private static Bridge plugin;
     private static ConfigurationFile config;
     private static final List<World> activeArenas = new ArrayList<>();
+    private static final HashMap<String, Integer> restarters = new HashMap<>();
 
     /**
      * Same method as reload.
@@ -33,40 +34,37 @@ public class FFAArenaManager {
     }
 
     /**
-     * Teleports player to given arena and location.
-     *
-     * @param player   what player to teleport
-     * @param arena    the arena name to teleport to
-     * @param location the location name or null to rtp
-     * @return true if everything went successful
-     */
-    public static boolean teleportToArena(final @NotNull Player player, final @NotNull String arena, final String location) {
-        if (!getAllFFAWorlds().contains(arena)) return false;
-        final World world = WorldUtils.getWorld(arena);
-        if (world == null) {
-            if (WorldUtils.isWorldFolderExist(arena))
-                WorldUtils.loadWorld(arena);
-        }
-        final HashMap<String, Location> map = getTeleportPoints(arena);
-        if (location == null || !map.containsKey(location)) {
-            final Location rtp = randomTeleportLocation(arena);
-            //teleport using random points
-            if (rtp != null) return player.teleport(rtp);
-                //teleport to default position
-            else {
-                final Location def = getDefaultTeleportPoint(arena);
-                if (def != null) return player.teleport(def);
-            }
-        }
-        //teleport to exact location
-        return player.teleport(map.get(location));
-    }
-
-    /**
      * Unloads all working arenas.
      */
     public static void unloadAllArenas() {
         getActiveFFAWorlds(false).forEach(w -> WorldUtils.unloadWorld(w, false));
+    }
+    public static void addRestarter(final @NotNull World world){
+        if(!getActiveFFAWorlds(false).contains(world)) return;
+        final Integer task = launchSchematicRestarter(world);
+        if(task == null) return;
+        restarters.put(world.getName(), task);
+    }
+
+    public static void removeRestarter(final @NotNull String arena){
+        if(restarters.containsKey(arena)) Bukkit.getScheduler().cancelTask(restarters.get(arena));
+    }
+
+    private static @Nullable Integer launchSchematicRestarter(final @NotNull World world) {
+        if(!getActiveFFAWorlds(false).contains(world)) return null;
+        final String arena = world.getName();
+        if(isArenaDisabled(arena)) return null;
+        if(!haveSchematic(arena)) return null;
+
+        final int minutes = config.getInt(String.format("arenas.%s.schematic-restart", arena), 30) * 1200;
+
+        return Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            //pastes schematic
+            final String schem = FFAArenaManager.getSchematicFileName(world.getName());
+            final Location location = FFAArenaManager.getSchematicLocation(world.getName());
+            if (location == null) return;
+            WEManager.pasteSchematicAsync(location, FFAArenaManager.getFFASchematicFolder(), schem);
+        }, minutes, minutes).getTaskId();
     }
 
     /**
@@ -110,18 +108,37 @@ public class FFAArenaManager {
             else return new HashMap<>();
         }
 
-        final ConfigurationSection section =
-                config.getConfigurationSection(String.format("arenas.%s.teleport", arena));
-        if (section == null) return new HashMap<>();
-        final Set<String> pos = section.getKeys(false);
-        pos.remove("enabled");
-        pos.remove("rtp-enabled");
         final HashMap<String, Location> locations = new HashMap<>();
-        locations.put("default", getDefaultTeleportPoint(arena));
-        for (final String name : pos) {
+        final Set<String> names = getTeleportPointsName(arena);
+        for (final String name : names) {
             final Location loc = getTeleportPoint(arena, name);
             if (loc != null) locations.put(name, loc);
         }
+        return locations;
+    }
+
+    public static @NotNull Set<String> getTeleportPointsName(final @NotNull String arena){
+        if(isArenaDisabled(arena)) return new HashSet<>();
+        if(!getExistingFFAWorlds().contains(arena)) return new HashSet<>();
+
+        //if arena teleport locations are disabled, use "default-pos"
+        if (!config.getBoolean(String.format("arenas.%s.teleport.enabled", arena), false)) {
+            Set<String> location = new HashSet<>(1);
+            Location loc = getDefaultTeleportPoint(arena);
+            location.add("default");
+            if (loc != null) return location;
+            else return new HashSet<>();
+        }
+
+        final ConfigurationSection section =
+                config.getConfigurationSection(String.format("arenas.%s.teleport", arena));
+        if (section == null) return new HashSet<>();
+        final Set<String> pos = section.getKeys(false);
+        pos.remove("enabled");
+        pos.remove("rtp-enabled");
+        final Set<String> locations = new HashSet<>();
+        locations.add("default");
+        locations.addAll(pos);
         return locations;
     }
 
@@ -169,14 +186,14 @@ public class FFAArenaManager {
      */
     public static @NotNull List<World> getActiveFFAWorlds(final boolean reload) {
         if (!reload) return activeArenas;
-        List<World> worlds = new ArrayList<>();
+        final List<World> worlds = new ArrayList<>();
         getExistingFFAWorlds().forEach(name -> {
-            World world = WorldUtils.getWorld(name);
+            final World world = WorldUtils.getWorld(name);
             if (world != null) worlds.add(world);
         });
         activeArenas.clear();
         activeArenas.addAll(worlds);
-        return worlds;
+        return activeArenas;
     }
 
     /**
@@ -214,8 +231,9 @@ public class FFAArenaManager {
      */
     @Contract(" -> new")
     public static @NotNull File getFFASchematicFolder() {
-        if (config.getBoolean("use-different-schematic-folder")) return WEManager.getDefaultSchematicFolder();
-        return new File(plugin.getDataFolder(), "/ffa/schematics");
+        final File def = WEManager.getDefaultSchematicFolder();
+        if (config.getBoolean("use-different-schematic-folder") && def != null) return def;
+        else return new File(plugin.getDataFolder(), "/ffa/schematics");
     }
 
     /**
@@ -236,7 +254,9 @@ public class FFAArenaManager {
      */
     public static boolean haveSchematic(final @NotNull String arena) {
         final String schem = config.getString(String.format("arenas.%s.schematic", arena));
-        return schem != null && !schem.equals("none") && !schem.split("\\.", 2)[1].equals("schem");
+        if (schem == null) return false;
+        final String[] split = schem.split("\\.");
+        return !schem.equals("none") && split[split.length - 1].equals("schem");
     }
 
     /**

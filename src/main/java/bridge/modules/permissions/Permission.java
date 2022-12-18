@@ -33,6 +33,8 @@ public enum Permission {
     FFA_ARENA_TELEPORT("bridge.ffa.arena.teleport", true),
         /// KIT ///
     FFA_KIT_CREATE("bridge.ffa.kit.create", false),
+    /// DEATHS/KILLS ///
+    FFA_MANAGE_INFO("bridge.ffa.manage.info", false),
     ;
 
 

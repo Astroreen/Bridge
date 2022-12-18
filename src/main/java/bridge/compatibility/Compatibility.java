@@ -4,6 +4,7 @@ import bridge.Bridge;
 import bridge.compatibility.itemsadder.BRItemsAdderIntegrator;
 import bridge.compatibility.luckperms.BRLuckPermsIntegrator;
 import bridge.compatibility.placeholderapi.PlaceholderAPIIntegrator;
+import bridge.compatibility.protocollib.BRProtocolLibIntegrator;
 import bridge.compatibility.tab.BRTABIntegrator;
 import bridge.compatibility.worldedit.BRFAWEIntegrator;
 import bridge.exceptions.HookException;
@@ -37,6 +38,7 @@ public class Compatibility implements Listener {
         integrators.put(CompatiblePlugin.LUCKPERMS, new BRLuckPermsIntegrator());
         integrators.put(CompatiblePlugin.ITEMSADDER, new BRItemsAdderIntegrator());
         integrators.put(CompatiblePlugin.FAWE, new BRFAWEIntegrator());
+        integrators.put(CompatiblePlugin.PROTOCOLLIB, new BRProtocolLibIntegrator());
         // hook into already enabled plugins in case Bukkit messes up the loading order
         for (final Plugin hook : Bukkit.getPluginManager().getPlugins()) {
             hook(hook);

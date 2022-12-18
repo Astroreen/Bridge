@@ -144,10 +144,6 @@ public enum MessageType {
      */
     KIT_NOT_CREATED("module.kit.not-created"),
     /**
-     * Variables:
-     */
-    NO_ITEM_IN_HAND("module.kit.no-item-in-hand"),
-    /**
      * Variables: item name
      */
     FFA_KIT_CREATED_SUCCESSFULLY("module.kit.created-successfully"),
@@ -155,6 +151,14 @@ public enum MessageType {
      * Variables: item name
      */
     FFA_KIT_CREATED_ERROR("module.kit.created-error"),
+    /**
+     * Variables: set or add variable, amount of deaths/kills, kills or deaths variable
+     */
+    FFA_YOUR_INFO_CHANGED("module.ffa.your-info-changed"),
+    /**
+     * Variables: set or add variable, player name, amount of deaths/kills, kills or deaths variable,
+     */
+    FFA_OTHER_INFO_CHANGED("module.ffa.other-info-changed"),
     /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
     /**
      * Variables: Arguments
@@ -162,7 +166,12 @@ public enum MessageType {
     UNKNOWN_ARGUMENT("unknown-argument"),
     SELF("variables.self"),
     ENABLED("variables.enabled"),
-    DISABLED("variables.disabled");
+    DISABLED("variables.disabled"),
+    KILLS("variables.kills"),
+    DEATHS("variables.deaths"),
+    SET("variables.set"),
+    ADD("variables.add"),
+    ;
 
     public final String path;
 

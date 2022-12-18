@@ -2,10 +2,15 @@ hook:
   placeholderapi: true
   tab: true
   luckperms: true
+  fastasyncworldedit: true
+  itemsadder: true
+  protocollib: true
 
 settings:
   language: ru
   modules:
+    fake-players:
+      enabled: true
     ffa:
       enabled: false
     tab:

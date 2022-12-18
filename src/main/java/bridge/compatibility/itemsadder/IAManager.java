@@ -49,7 +49,8 @@ public class IAManager implements Listener {
     }
 
     public static boolean isIDValid(final @NotNull String id){
-        return id.matches("^[A-Za-z1-9]+:[A-Za-z1-9]+");
+        if(id.contains(":")) return id.matches("^[A-Za-z1-9_\\-+()./\\\\\\[\\]<>]+:[A-Za-z1-9_\\-+()./\\\\\\[\\]<>]+");
+        else return true;
     }
 
     public static boolean isActive() {return isActive;}
