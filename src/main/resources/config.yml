@@ -9,8 +9,9 @@ hook:
 settings:
   language: ru
   modules:
-    fake-players:
+    emoji-taber:
       enabled: true
+      list: []
     ffa:
       enabled: false
     tab:

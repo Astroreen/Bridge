@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'bridge'
-version = '5.2'
+version = '5.3'
 
 test {
     useJUnitPlatform()
@@ -28,10 +28,10 @@ repositories {
     //spigot NMS
     maven {
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-        /*content {
+        content {
             includeGroup 'org.bukkit'
             includeGroup 'org.spigotmc'
-        }*/
+        }
     }
     //ItemsAdder
     maven {
@@ -76,11 +76,12 @@ dependencies {
     //ItemsAdder
     compileOnly("com.github.LoneDev6:api-itemsadder:3.0.0")
     //ProtocolLib
-    compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.8.0";
+    compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.8.0"
     //FAWE
     compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.4.9')
     compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.4.9')
 }
+
 
 def targetJavaVersion = 17
 java {

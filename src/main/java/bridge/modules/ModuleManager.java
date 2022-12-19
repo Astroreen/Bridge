@@ -3,7 +3,7 @@ package bridge.modules;
 import bridge.Bridge;
 import bridge.compatibility.tab.TABManager;
 import bridge.ffa.FFA;
-import bridge.packets.player.FakePlayersManager;
+import bridge.packets.player.EmojiTaber;
 import lombok.CustomLog;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class ModuleManager {
         final HashMap<String, Module> temp = new HashMap<>();
         temp.put("ffa", new FFA());
         temp.put("tab", new TABManager());
-        temp.put("fake-players", new FakePlayersManager());
+        temp.put("emoji-taber", new EmojiTaber());
         temp.keySet().forEach(key -> {
             if (!modules.containsKey(key)) modules.put(key, temp.get(key));
         });
