@@ -1,0 +1,5 @@
+permission-base: "bridge.emoji"
+#Название группы добавляется в конец permission-base
+#Таким образом появляется permission, по которому можно
+#получить этот пак эмодзи
+default: []
