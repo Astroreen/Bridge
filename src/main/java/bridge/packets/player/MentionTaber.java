@@ -106,8 +106,10 @@ public class MentionTaber implements Module, Listener {
         //broadcast every mention to player
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
            for(final @NotNull Player p : Bukkit.getOnlinePlayers()){
+               final PacketContainer packet = getPlayerPacket(p, EnumWrappers.PlayerInfoAction.ADD_PLAYER);
+               if(packet == null) return;
                try {
-                   manager.sendServerPacket(player, getPlayerPacket(p, EnumWrappers.PlayerInfoAction.ADD_PLAYER));
+                   manager.sendServerPacket(player, packet);
                } catch (InvocationTargetException e) {
                    LOG.error("There was error after trying to send ADD_PLAYER packets to " + player.getName(), e);
                }
