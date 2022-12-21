@@ -3,12 +3,11 @@ package bridge.compatibility.tab;
 import bridge.Bridge;
 import bridge.compatibility.Compatibility;
 import bridge.compatibility.CompatiblePlugin;
-import bridge.modules.Module;
 import bridge.database.Connector;
 import bridge.database.QueryType;
-import bridge.database.Saver;
 import bridge.database.UpdateType;
 import bridge.modules.Currency;
+import bridge.modules.Module;
 import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
 import lombok.CustomLog;
@@ -34,17 +33,15 @@ import java.util.UUID;
 public class TABManager implements TabEvent, Module {
 
     private static Bridge plugin;
-    private static Saver saver;
     private static Connector con;
-    private static List<UUID> exist;
     private static boolean isModuleEnabled;
     private static boolean isStarsEnabled;
     private static Currency stars = null;
     private static NicknameManager manager = null;
+    private final static List<UUID> exist = new ArrayList<>();
 
-    public static void setup() {
+    public void setup() {
         plugin = Bridge.getInstance();
-        saver = plugin.getSaver();
         con = new Connector();
 
         isModuleEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
@@ -54,11 +51,11 @@ public class TABManager implements TabEvent, Module {
         }
         isStarsEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         if (isStarsEnabled) stars = new Stars(manager, con);
-        exist = new ArrayList<>();
+        TabAPI.getInstance().getEventBus().register(this);
     }
 
     @Subscribe
-    public void onPlayerLoad (final @NotNull PlayerLoadEvent event) {
+    public void onPlayerLoadEvent (final @NotNull PlayerLoadEvent event) {
         if (!event.isJoin()) {
             reload();
             return;
@@ -67,31 +64,28 @@ public class TABManager implements TabEvent, Module {
         final TabPlayer player = event.getPlayer();
         final UUID uuid = player.getUniqueId();
         final Player p = PlayerConverter.getPlayer(uuid);
-
         //cuz event was fired, and we can get from it TabPlayer instance
         assert p != null;
         if(!exist.contains(uuid)){
+            con.updateSQL(UpdateType.ADD_NICKNAME, uuid.toString(), NicknameManager.getDefaultNickColor());
             exist.add(uuid);
-            final String color = NicknameManager.getDefaultNickColor();
-            manager.applyColor(p, color, false);
-            saver.add(new Saver.Record(UpdateType.ADD_NICKNAME, uuid.toString(), color));
+            manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
             return;
         }
 
         final String color = manager.getPlayerColor(uuid);
         if(color == null || !(NicknameManager.getInstance().isGradient(color)
-                || ColorCodes.isHexValid(color))) manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
-        else manager.applyColor(p, color, false);
+                || ColorCodes.isHexValid(color))) manager.applyColor(p, NicknameManager.getDefaultNickColor(), true);
+        else manager.applyColor(p, color, true);
     }
 
     @Override
     public boolean start(final @NotNull Bridge plugin) {
-        TabAPI.getInstance().getEventBus().register(this);
         exist.clear();
         new BukkitRunnable() {
             @Override
             public void run() {
-                ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_UUIDS);
+                final ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_UUIDS);
                 try {
                     while(rs.next())
                         exist.add(UUID.fromString(rs.getString("playerID")));
@@ -113,11 +107,11 @@ public class TABManager implements TabEvent, Module {
         new BukkitRunnable() {
             @Override
             public void run() {
-                ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_COLORS);
+                final ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_COLORS);
                 try {
-                    HashMap<UUID, String> data = new HashMap<>();
+                    final HashMap<UUID, String> data = new HashMap<>();
                     while(rs.next()) {
-                        UUID uuid = UUID.fromString(rs.getString("playerID"));
+                        final UUID uuid = UUID.fromString(rs.getString("playerID"));
                         exist.add(uuid);
                         data.put(
                                 uuid,

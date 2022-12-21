@@ -81,18 +81,22 @@ public class NicknameManager {
      * @param save     save color to database or not
      */
     public void applyColor(@NotNull final Player p, final String gradient, final boolean save) {
-        UUID uuid = p.getUniqueId();
-        TabPlayer player = TabAPI.getInstance().getPlayer(uuid);
-        UnlimitedNametagManager nameTagManager =
+        final UUID uuid = p.getUniqueId();
+        final UnlimitedNametagManager nameTagManager =
                 TabAPI.getInstance().getTeamManager() instanceof UnlimitedNametagManager
                         ? (UnlimitedNametagManager) TabAPI.getInstance().getTeamManager() : null;
+        final TabPlayer player = TabAPI.getInstance().getPlayer(uuid);
         if (nameTagManager == null) return;
+        if(gradient == null) {
+            applyColor(p, getDefaultNickColor(), false);
+            return;
+        }
         final String[] hex;
         if (isGradient(gradient)) hex = gradient.toLowerCase().split(">", 2);
         else if (ColorCodes.isHexValid(gradient)) hex = new String[]{gradient.toLowerCase(), gradient.toLowerCase()};
         else return;
 
-        String name = ColorCodes.generateColoredMessage(ColorConfig, hex[0], hex[1], p.getName());
+        final String name = ColorCodes.generateColoredMessage(ColorConfig, hex[0], hex[1], p.getName());
 
         //Applying to nickname
         nameTagManager.setName(player, name + ChatColor.RESET);
@@ -417,8 +421,8 @@ public class NicknameManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                HashMap<String, List<PlayerColor>> temp = new HashMap<>();
-                StringBuilder builder = new StringBuilder();
+                final HashMap<String, List<PlayerColor>> temp = new HashMap<>();
+                final StringBuilder builder = new StringBuilder();
                 temp.put("default",
                         Collections.singletonList(new PlayerColor("default", getDefaultNickColor(), getDefaultTextColor(), 0, 0)));
                 for (String group : getGroups()) {
