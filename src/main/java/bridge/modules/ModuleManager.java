@@ -4,6 +4,7 @@ import bridge.Bridge;
 import bridge.compatibility.tab.TABManager;
 import bridge.ffa.FFA;
 import bridge.packets.player.EmojiTaber;
+import bridge.packets.player.MentionTaber;
 import lombok.CustomLog;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +34,7 @@ public class ModuleManager {
         temp.put("ffa", new FFA());
         temp.put("tab", new TABManager());
         temp.put("emoji-taber", new EmojiTaber());
+        temp.put("mention-taber", new MentionTaber());
         temp.keySet().forEach(key -> {
             if (!modules.containsKey(key)) modules.put(key, temp.get(key));
         });

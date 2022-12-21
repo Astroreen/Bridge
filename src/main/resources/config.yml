@@ -11,7 +11,9 @@ settings:
   modules:
     emoji-taber:
       enabled: true
-      list: []
+    mention-taber:
+      enabled: true
+      symbol: "@"
     ffa:
       enabled: false
     tab:

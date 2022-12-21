@@ -167,7 +167,7 @@ public class EmojiTaber implements Module, Listener {
             final WrappedGameProfile prof = WrappedGameProfile.fromHandle(profile);
             data.add(new PlayerInfoData(prof, 10, EnumWrappers.NativeGameMode.SPECTATOR, WrappedChatComponent.fromText(name)));
         }
-        LOG.warn("Found " + l.size() + " emoji which are more that 16 characters: " + l.toString().substring(1, l.toString().length() - 1));
+        if(l.size() != 0) LOG.warn("Found " + l.size() + " emoji which are more that 16 characters: " + l.toString().substring(1, l.toString().length() - 1));
 
         //split list into chunks
         final List<List<PlayerInfoData>> temp = Lists.partition(data.stream().toList(), 10);
@@ -232,8 +232,7 @@ public class EmojiTaber implements Module, Listener {
 
     @Override
     public boolean isConditionsMet() {
-        return Bridge.getInstance().getPluginConfig().getBoolean("settings.modules.emoji-taber", true)
-                && ProtocolLibManager.isActive();
+        return ProtocolLibManager.isActive();
     }
 
     @Override
