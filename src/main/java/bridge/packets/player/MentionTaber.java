@@ -54,12 +54,6 @@ public class MentionTaber implements Module, Listener {
 
     @Override
     public void reload() {
-        final String symbol = plugin.getPluginConfig().getString("setting.modules.mention-taber.prefix", "@");
-        if(symbol.length() > 1) {
-            LOG.error("Prefix cannot be more that one symbol. Using default '@' symbol.");
-            prefix = "@";
-        } else prefix = symbol;
-
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             //remove every player mention
             for(final @NotNull Player player : Bukkit.getOnlinePlayers()){
@@ -67,6 +61,13 @@ public class MentionTaber implements Module, Listener {
                 if(packet == null) return;
                 manager.broadcastServerPacket(packet);
             }
+
+            final String symbol = plugin.getPluginConfig().getString("setting.modules.mention-taber.prefix", "@");
+            if(symbol.length() > 1) {
+                LOG.error("Prefix cannot be more that one symbol. Using default '@' symbol.");
+                prefix = "@";
+            } else prefix = symbol;
+
             //add every player mention
             for(final @NotNull Player player : Bukkit.getOnlinePlayers()){
                 final PacketContainer packet1 = getPlayerPacket(player, EnumWrappers.PlayerInfoAction.ADD_PLAYER);

@@ -60,7 +60,7 @@ public class ModuleManager {
         //load all modules again
         setup(plugin);
         if(modules.isEmpty()) return;
-        new ArrayList<>(modules.keySet()).forEach(key -> {
+        modules.keySet().forEach(key -> {
             final Module module = modules.get(key);
             final boolean use = plugin.getPluginConfig().getBoolean(MODULE_PATH + key + ENABLED, false);
             if (use) {

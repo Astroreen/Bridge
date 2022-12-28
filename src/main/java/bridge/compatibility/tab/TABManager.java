@@ -24,10 +24,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @CustomLog
 public class TABManager implements TabEvent, Module {
@@ -38,10 +38,38 @@ public class TABManager implements TabEvent, Module {
     private static boolean isStarsEnabled;
     private static Currency stars = null;
     private static NicknameManager manager = null;
-    private final static List<UUID> exist = new ArrayList<>();
+    private static boolean starting = true;
+    private final static Set<UUID> exist = new HashSet<>();
+    private final static Set<UUID> check = new HashSet<>();
 
-    public void setup() {
-        plugin = Bridge.getInstance();
+    @Subscribe
+    public void onPlayerLoadEvent(final @NotNull PlayerLoadEvent event) {
+        if (!event.isJoin()) {
+            reload();
+            return;
+        }
+        if (!active()) return;
+        final TabPlayer player = event.getPlayer();
+        final UUID uuid = player.getUniqueId();
+        final Player p = PlayerConverter.getPlayer(uuid);
+        //cuz event was fired, and we can get from it TabPlayer instance
+        assert p != null;
+        if (!exist.contains(uuid)) {
+            if(starting) check.add(uuid);
+            else con.updateSQL(UpdateType.ADD_NICKNAME, uuid.toString(), NicknameManager.getDefaultNickColor());
+            manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
+            return;
+        }
+
+        final String color = manager.getPlayerColor(uuid);
+        if (color == null || !(NicknameManager.getInstance().isGradient(color)
+                || ColorCodes.isHexValid(color))) manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
+        else manager.applyColor(p, color, false);
+    }
+
+    @Override
+    public boolean start(final @NotNull Bridge plugin) {
+        TABManager.plugin = plugin;
         con = new Connector();
 
         isModuleEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
@@ -52,77 +80,46 @@ public class TABManager implements TabEvent, Module {
         isStarsEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         if (isStarsEnabled) stars = new Stars(manager, con);
         TabAPI.getInstance().getEventBus().register(this);
-    }
 
-    @Subscribe
-    public void onPlayerLoadEvent (final @NotNull PlayerLoadEvent event) {
-        if (!event.isJoin()) {
-            reload();
-            return;
-        }
-        if(!active()) return;
-        final TabPlayer player = event.getPlayer();
-        final UUID uuid = player.getUniqueId();
-        final Player p = PlayerConverter.getPlayer(uuid);
-        //cuz event was fired, and we can get from it TabPlayer instance
-        assert p != null;
-        if(!exist.contains(uuid)){
-            con.updateSQL(UpdateType.ADD_NICKNAME, uuid.toString(), NicknameManager.getDefaultNickColor());
-            exist.add(uuid);
-            manager.applyColor(p, NicknameManager.getDefaultNickColor(), false);
-            return;
-        }
-
-        final String color = manager.getPlayerColor(uuid);
-        if(color == null || !(NicknameManager.getInstance().isGradient(color)
-                || ColorCodes.isHexValid(color))) manager.applyColor(p, NicknameManager.getDefaultNickColor(), true);
-        else manager.applyColor(p, color, true);
-    }
-
-    @Override
-    public boolean start(final @NotNull Bridge plugin) {
         exist.clear();
+
         new BukkitRunnable() {
             @Override
             public void run() {
-                final ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_UUIDS);
-                try {
-                    while(rs.next())
-                        exist.add(UUID.fromString(rs.getString("playerID")));
+                try (final ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_UUIDS)) {
+                    while (rs.next()) exist.add(UUID.fromString(rs.getString("playerID")));
                 } catch (SQLException e) {
                     LOG.error("There was an exception with SQL", e);
                 }
+                //if player joins when list is not loaded, he will be added to the check-list.
+                //after uuid was loaded, filtering the new ones and adding to database
+                check.stream().filter(uuid -> !exist.contains(uuid))
+                        .collect(Collectors.toSet()).forEach(uuid -> {
+                            con.updateSQL(UpdateType.ADD_NICKNAME, uuid.toString(), NicknameManager.getDefaultNickColor());
+                            exist.add(uuid);
+                        });
+                //then, apply to player their color
+                Bukkit.getOnlinePlayers().forEach(p -> manager.applyColor(p, manager.getPlayerColor(p.getUniqueId()), false));
+                check.clear();
+                LOG.warn("Colors were returned back!");
             }
-        }.runTaskAsynchronously(TABManager.plugin);
+        }.runTaskAsynchronously(plugin);
+
+        TABManager.starting = false;
         return true;
     }
 
     @Override
-    public void reload () {
+    public void reload() {
         con.refresh();
         if (!active()) return;
         isStarsEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
         manager.reload();
-        exist.clear();
         new BukkitRunnable() {
             @Override
             public void run() {
-                final ResultSet rs = con.querySQL(QueryType.LOAD_ALL_NICKNAME_COLORS);
-                try {
-                    final HashMap<UUID, String> data = new HashMap<>();
-                    while(rs.next()) {
-                        final UUID uuid = UUID.fromString(rs.getString("playerID"));
-                        exist.add(uuid);
-                        data.put(
-                                uuid,
-                                rs.getString("color")
-                        );
-                    }
-                    Bukkit.getOnlinePlayers().forEach((p) ->
-                            manager.applyColor(p, data.get(p.getUniqueId()), false));
-                } catch (SQLException e) {
-                    LOG.error("There was an exception with SQL", e);
-                }
+                Bukkit.getOnlinePlayers().forEach((p) ->
+                        manager.applyColor(p, manager.getPlayerColor(p.getUniqueId()), false));
             }
         }.runTaskAsynchronously(plugin);
     }
@@ -134,7 +131,7 @@ public class TABManager implements TabEvent, Module {
 
     @Override
     public boolean isConditionsMet() {
-        if(!Compatibility.getHooked().contains(CompatiblePlugin.TAB)){
+        if (!Compatibility.getHooked().contains(CompatiblePlugin.TAB)) {
             LOG.error("Can't start module 'TAB'. Is this plugin exist?");
             return false;
         }
@@ -151,7 +148,7 @@ public class TABManager implements TabEvent, Module {
         else return null;
     }
 
-    public static @Nullable NicknameManager getManager () {
+    public static @Nullable NicknameManager getManager() {
         return manager;
     }
 

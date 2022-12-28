@@ -6,7 +6,7 @@ public class BRTABIntegrator implements Integrator {
 
     @Override
     public void hook() {
-        new TABManager().setup();
+
     }
 
     @Override
