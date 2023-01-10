@@ -4,6 +4,7 @@ import bridge.Bridge;
 import bridge.compatibility.worldedit.WEManager;
 import bridge.config.ConfigurationFile;
 import bridge.utils.WorldUtils;
+import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -13,8 +14,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
+@CustomLog
 public class FFAArenaManager {
 
     private static Bridge plugin;
@@ -30,6 +33,11 @@ public class FFAArenaManager {
     public static void setup(final @NotNull Bridge plugin, final @NotNull ConfigurationFile config) {
         FFAArenaManager.plugin = plugin;
         FFAArenaManager.config = config;
+        try {
+            config.reload();
+        } catch (IOException e) {
+            LOG.warn("Could not reload ffa-config.yml! " + e.getMessage(), e);
+        }
         getActiveFFAWorlds(true);
     }
 

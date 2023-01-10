@@ -3,6 +3,7 @@ package bridge.modules;
 import bridge.Bridge;
 import bridge.compatibility.tab.TABManager;
 import bridge.ffa.FFA;
+import bridge.listeners.PlayerToggleSneakEventListener;
 import bridge.packets.player.EmojiTaber;
 import bridge.packets.player.MentionTaber;
 import lombok.CustomLog;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 @CustomLog(topic = "ModuleManager")
@@ -35,6 +37,7 @@ public class ModuleManager {
         temp.put("tab", new TABManager());
         temp.put("emoji-taber", new EmojiTaber());
         temp.put("mention-taber", new MentionTaber());
+        temp.put("shift-fly", new PlayerToggleSneakEventListener());
         temp.keySet().forEach(key -> {
             if (!modules.containsKey(key)) modules.put(key, temp.get(key));
         });
@@ -60,19 +63,21 @@ public class ModuleManager {
         //load all modules again
         setup(plugin);
         if(modules.isEmpty()) return;
+        final Set<String> disabling = new HashSet<>();
         modules.keySet().forEach(key -> {
             final Module module = modules.get(key);
             final boolean use = plugin.getPluginConfig().getBoolean(MODULE_PATH + key + ENABLED, false);
             if (use) {
                 if (!module.active()) {
                     if (module.isConditionsMet()) start(plugin, module);
-                    else modules.remove(key);
+                    else disabling.add(key);
                 } else module.reload();
             } else {
                 if (module.active()) module.disable();
-                modules.remove(key);
+                disabling.add(key);
             }
         });
+        disabling.forEach(modules::remove);
     }
 
     public static void disable() {

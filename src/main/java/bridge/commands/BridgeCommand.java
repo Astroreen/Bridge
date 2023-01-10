@@ -210,15 +210,17 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
 
                     final String name = args[3];
                     final PlayerInventory inv = player.getInventory();
-                    //adding all items to the kit
-                    List<FFAKitItem> items = new ArrayList<>();
-                    for (ItemStack item : inv.getContents()) {
-                        HashMap<Integer, ? extends ItemStack> map = inv.all(item);
+                    //adding all items to the list
+                    final List<FFAKitItem> items = new ArrayList<>();
+                    for (final Material item : Material.values()) {
+                        if(item == null) continue;
+                        final HashMap<Integer, ? extends ItemStack> map = inv.all(item);
                         if (map.isEmpty()) continue;
                         for (final int slot : map.keySet()) {
                             if (IAManager.isActive()) {
                                 final CustomStack customItem = CustomStack.byItemStack(map.get(slot));
                                 if (customItem != null) items.add(FFAKitManager.createKitItem(name, slot, customItem));
+                                else items.add(FFAKitManager.createKitItem(name, slot, map.get(slot)));
                             } else items.add(FFAKitManager.createKitItem(name, slot, map.get(slot)));
                         }
                     }
@@ -388,39 +390,46 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
         if (args.length == 2) return Optional.of(List.of("arena", "kit", "teleport", "deaths", "kills"));
         if (args.length == 3) {
             switch (args[1]) {
-                case "arena":
+                case "arena" -> {
                     return Optional.of(List.of("load", "unload", "create"));
-                case "kit":
+                }
+                case "kit" -> {
                     return Optional.of(List.of("create", "give"));
-                case "teleport":
+                }
+                case "teleport" -> {
                     return Optional.of(FFAArenaManager.getExistingFFAWorlds());
-                case "deaths", "kills":
+                }
+                case "deaths", "kills" -> {
                     return Optional.of(List.of("set", "add"));
+                }
             }
         } else if (args.length == 4) {
             if (args[1].equalsIgnoreCase("arena"))
                 // bridge ffa arena load/unload/create <#NAME>
                 switch (args[2]) {
-                    case "load": {
+                    case "load" -> {
                         List<String> names = new ArrayList<>(FFAArenaManager.getExistingFFAWorlds());
                         FFAArenaManager.getActiveFFAWorlds(false).forEach(world -> names.remove(world.getName()));
                         return Optional.of(names);
                     }
-                    case "unload": {
+                    case "unload" -> {
                         List<String> names = new ArrayList<>();
                         FFAArenaManager.getActiveFFAWorlds(false).forEach(world -> names.add(world.getName()));
                         return Optional.of(names);
                     }
-                    case "create":
+                    case "create" -> {
                         return Optional.of(List.of("#NAME"));
+                    }
                 }
             else if (args[1].equalsIgnoreCase("kit"))
                 // bridge ffa kit create/apply
                 switch (args[2]) {
-                    case "create":
+                    case "create" -> {
                         return Optional.of(List.of("#NAME"));
-                    case "give":
+                    }
+                    case "give" -> {
                         return Optional.of(FFAKitManager.getKits());
+                    }
                 }
             else if (args[1].equalsIgnoreCase("teleport")) {
                 // bridge ffa teleport <arena> random/default/<pos>
@@ -764,18 +773,19 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
             if (args.length == 3) return Optional.of(Arrays.asList("have", "cost", "set", "replace"));
             else if (args.length == 4) {
                 switch (args[2]) {
-                    case "have", "cost": {
+                    case "have", "cost" -> {
                         List<String> names = new ArrayList<>();
                         Bukkit.getOnlinePlayers().forEach((p) -> names.add(p.getName()));
                         return Optional.of(names);
                     }
-                    case "set": {
+                    case "set" -> {
                         NicknameManager manager = TABManager.getManager();
                         if (manager == null) return Optional.empty();
                         return Optional.of(manager.getAllColorsName());
                     }
-                    case "replace":
+                    case "replace" -> {
                         return Optional.of(List.of("#HEX"));
+                    }
                 }
             } else if (args.length == 5) {
                 if (args[2].equalsIgnoreCase("set")) {

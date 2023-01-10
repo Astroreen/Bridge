@@ -9,17 +9,27 @@ hook:
 settings:
   language: ru
   modules:
+
+    shift-fly:
+      enabled: false
+      #Материал либо id предмета из itemsadder'а (пример: "DIAMOND_HELMET, LEATHER_CHESTPLATE, ...").
+      armor: "" #"Шлем, Нагрудник, Поножи, Ботинки".
+
     emoji-taber:
       enabled: true
+
     mention-taber:
       enabled: true
       symbol: "@"
+
     ffa:
       enabled: false
+
     tab:
       enabled: true
       ColorNickname: true
       UseMoney: true
+
     updater:
       enabled: false
       #Меняйте только в том случае, если знаете что делаете.

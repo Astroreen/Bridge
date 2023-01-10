@@ -26,6 +26,11 @@ public class FFAKitManager implements Listener {
 
     public static void setup(final @NotNull ConfigurationFile config) {
         FFAKitManager.config = config;
+        try {
+            config.reload();
+        } catch (IOException e) {
+            LOG.warn("Could not reload FFA kits.yml config! " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -53,22 +58,6 @@ public class FFAKitManager implements Listener {
         return new FFAKitItem(config).create(kit, slot, item);
     }
 
-
-    /**
-     * Loads item from your data.
-     *
-     * @param kit  kit to load from
-     * @param slot which item to load
-     * @return {@link FFAKitItem} or null if not exist
-     */
-    public static @Nullable FFAKitItem loadItem(final @NotNull String kit, final int slot) {
-        try {
-            if (FFAKitItem.isCreated(config, kit, slot)) return new FFAKitItem(config).load(kit, slot);
-        } catch (ObjectNotFoundException e) {
-            LOG.error("There was exception with FFA item in kit: " + kit + ", in slot: " + slot, e);
-        }
-        return null;
-    }
 
     /**
      * Applies kit to player and set all items
@@ -144,9 +133,11 @@ public class FFAKitManager implements Listener {
      */
     public static void saveAll(final @NotNull List<FFAKitItem> items) throws IOException {
         for (final FFAKitItem item : items) {
-            config.set(String.format("%s.%s.item", item.getKitName(), item.getSlotIndex()), new ItemStack(item.toItem()).serialize());
+            final String kit = item.getKitName();
+            final int slot = item.getSlotIndex();
+            config.set(String.format("%s.%s.item", kit, slot), item.toItem().serialize());
             if (item.isIAItem())
-                config.set(String.format("%s.%s.itemsAdder", item.getKitName(), item.getSlotIndex()), item.getIAItemID());
+                config.set(String.format("%s.%s.itemsAdder", kit, slot), item.getIAItemID());
         }
         config.save();
     }
@@ -181,7 +172,10 @@ public class FFAKitManager implements Listener {
         final ConfigurationSection section = config.getConfigurationSection(String.format("%s.helmet.item", kit));
         if (section == null) return null;
         final String id = config.getString(String.format("%s.helmet.itemsAdder", kit), "none");
-        if (IAManager.isIDValid(id)) return CustomStack.getInstance(id).getItemStack();
+        if (IAManager.isActive() && IAManager.isIDValid(id)) {
+            final CustomStack custom = CustomStack.getInstance(id);
+            if(custom != null) return custom.getItemStack();
+        }
         return ItemStack.deserialize(section.getValues(true));
     }
 
@@ -196,7 +190,10 @@ public class FFAKitManager implements Listener {
         final ConfigurationSection section = config.getConfigurationSection(String.format("%s.chestplate.item", kit));
         if (section == null) return null;
         final String id = config.getString(String.format("%s.chestplate.itemsAdder", kit), "none");
-        if (IAManager.isIDValid(id)) return CustomStack.getInstance(id).getItemStack();
+        if (IAManager.isActive() && IAManager.isIDValid(id)) {
+            final CustomStack custom = CustomStack.getInstance(id);
+            if(custom != null) return custom.getItemStack();
+        }
         return ItemStack.deserialize(section.getValues(true));
     }
 
@@ -211,7 +208,10 @@ public class FFAKitManager implements Listener {
         final ConfigurationSection section = config.getConfigurationSection(String.format("%s.leggings.item", kit));
         if (section == null) return null;
         final String id = config.getString(String.format("%s.leggings.itemsAdder", kit), "none");
-        if (IAManager.isIDValid(id)) return CustomStack.getInstance(id).getItemStack();
+        if (IAManager.isActive() && IAManager.isIDValid(id)) {
+            final CustomStack custom = CustomStack.getInstance(id);
+            if(custom != null) return custom.getItemStack();
+        }
         return ItemStack.deserialize(section.getValues(true));
     }
 
@@ -226,7 +226,10 @@ public class FFAKitManager implements Listener {
         final ConfigurationSection section = config.getConfigurationSection(String.format("%s.boots.item", kit));
         if (section == null) return null;
         final String id = config.getString(String.format("%s.boots.itemsAdder", kit), "none");
-        if (IAManager.isIDValid(id)) return CustomStack.getInstance(id).getItemStack();
+        if (IAManager.isActive() && IAManager.isIDValid(id)) {
+            final CustomStack custom = CustomStack.getInstance(id);
+            if(custom != null) return custom.getItemStack();
+        }
         return ItemStack.deserialize(section.getValues(true));
     }
 
@@ -238,9 +241,11 @@ public class FFAKitManager implements Listener {
     public static void setHelmet(final @NotNull String kit, final @NotNull ItemStack item) {
         if (!isKitCreated(kit)) return;
         config.set(String.format("%s.helmet.item", kit), item.serialize());
-        final CustomStack customItem = CustomStack.byItemStack(item);
-        if (customItem != null) config.set(String.format("%s.helmet.itemsAdder", kit), customItem.getId());
-        else config.set(String.format("%s.helmet.itemsAdder", kit), "none");
+        if(IAManager.isActive()){
+            final CustomStack customItem = CustomStack.byItemStack(item);
+            if (customItem != null) config.set(String.format("%s.helmet.itemsAdder", kit), customItem.getId());
+            else config.set(String.format("%s.boots.itemsAdder", kit), "none");
+        } else config.set(String.format("%s.helmet.itemsAdder", kit), "none");
     }
 
     /**
@@ -251,9 +256,11 @@ public class FFAKitManager implements Listener {
     public static void setChestplate(final @NotNull String kit, final @NotNull ItemStack item) {
         if (!isKitCreated(kit)) return;
         config.set(String.format("%s.chestplate.item", kit), item.serialize());
-        final CustomStack customItem = CustomStack.byItemStack(item);
-        if (customItem != null) config.set(String.format("%s.chestplate.itemsAdder", kit), customItem.getId());
-        else config.set(String.format("%s.chestplate.itemsAdder", kit), "none");
+        if(IAManager.isActive()){
+            final CustomStack customItem = CustomStack.byItemStack(item);
+            if (customItem != null) config.set(String.format("%s.chestplate.itemsAdder", kit), customItem.getId());
+            else config.set(String.format("%s.boots.itemsAdder", kit), "none");
+        } else config.set(String.format("%s.chestplate.itemsAdder", kit), "none");
     }
 
     /**
@@ -264,9 +271,11 @@ public class FFAKitManager implements Listener {
     public static void setLeggings(final @NotNull String kit, final @NotNull ItemStack item) {
         if (!isKitCreated(kit)) return;
         config.set(String.format("%s.leggings.item", kit), item.serialize());
-        final CustomStack customItem = CustomStack.byItemStack(item);
-        if (customItem != null) config.set(String.format("%s.leggings.itemsAdder", kit), customItem.getId());
-        else config.set(String.format("%s.leggings.itemsAdder", kit), "none");
+        if(IAManager.isActive()) {
+            final CustomStack customItem = CustomStack.byItemStack(item);
+            if (customItem != null) config.set(String.format("%s.leggings.itemsAdder", kit), customItem.getId());
+            else config.set(String.format("%s.boots.itemsAdder", kit), "none");
+        } else config.set(String.format("%s.leggings.itemsAdder", kit), "none");
     }
 
     /**
@@ -277,9 +286,11 @@ public class FFAKitManager implements Listener {
     public static void setBoots(final @NotNull String kit, final @NotNull ItemStack item) {
         if (!isKitCreated(kit)) return;
         config.set(String.format("%s.boots.item", kit), item.serialize());
-        final CustomStack customItem = CustomStack.byItemStack(item);
-        if (customItem != null) config.set(String.format("%s.boots.itemsAdder", kit), customItem.getId());
-        else config.set(String.format("%s.boots.itemsAdder", kit), "none");
+        if(IAManager.isActive()) {
+            final CustomStack customItem = CustomStack.byItemStack(item);
+            if (customItem != null) config.set(String.format("%s.boots.itemsAdder", kit), customItem.getId());
+            else config.set(String.format("%s.boots.itemsAdder", kit), "none");
+        } else config.set(String.format("%s.boots.itemsAdder", kit), "none");
     }
 
     /**
@@ -292,14 +303,4 @@ public class FFAKitManager implements Listener {
         return config.getConfigurationSection(kit) != null;
     }
 
-    /**
-     * Check if slot is available (empty).
-     *
-     * @param kit  the kit name
-     * @param slot the slot index to check
-     * @return true, if slot not exist
-     */
-    public static boolean isSlotAvailable(final @NotNull String kit, final int slot) {
-        return config.getConfigurationSection(String.format("%s.%s", kit, slot)) == null;
-    }
 }

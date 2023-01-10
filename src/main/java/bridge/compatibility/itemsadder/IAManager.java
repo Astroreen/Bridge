@@ -22,7 +22,7 @@ public class IAManager implements Listener {
 
 
     @EventHandler
-    public void onItemsAdderLoadDataEvent(@NotNull ItemsAdderLoadDataEvent event){
+    public void onItemsAdderLoadDataEvent(final @NotNull ItemsAdderLoadDataEvent event){
         if(event.getCause().equals(ItemsAdderLoadDataEvent.Cause.FIRST_LOAD)) isActive = true;
         else if (event.getCause().equals(ItemsAdderLoadDataEvent.Cause.RELOAD)) reload();
     }
@@ -43,8 +43,8 @@ public class IAManager implements Listener {
     }
 
     public static boolean isItemExist(final @NotNull String id){
-        if(isActive()) return false;
-        if(isIDValid(id)) return CustomStack.getInstance("your_item") != null;
+        if(!isActive()) return false;
+        if(isIDValid(id)) return CustomStack.getInstance(id) != null;
         else return false;
     }
 

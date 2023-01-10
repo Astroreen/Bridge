@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'bridge'
-version = '5.5'
+version = '5.6'
 
 test {
     useJUnitPlatform()
@@ -95,7 +95,7 @@ java {
 
 tasks.withType(JavaCompile).configureEach {
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        options.release = targetJavaVersion
+        options.release.set(targetJavaVersion)
     }
 }
 

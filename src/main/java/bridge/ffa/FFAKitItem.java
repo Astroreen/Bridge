@@ -132,35 +132,6 @@ public class FFAKitItem extends ItemStack {
         config.save();
     }
 
-    /**
-     * Clone this item to another kit and slot.
-     *
-     * @param kit  the kit name
-     * @param slot the slot index
-     * @return new cloned item
-     * @throws ObjectNotFoundException when passed item base was not created yet.
-     */
-    public FFAKitItem clone(final @NotNull String kit, final int slot) throws ObjectNotFoundException {
-        if (!this.isCreated()) throw new ObjectNotFoundException("FFAKitItem object is not created yet!");
-        if (this.isIAItem()) {
-            final String id = this.getIAItemID();
-            if (id == null) return create(kit, slot, this);
-            final CustomStack custom = IAManager.getItem(id);
-            if (custom != null) return create(kit, slot, custom);
-        }
-        return create(kit, slot, this);
-    }
-
-
-    /**
-     * Set this item as ItemsAdder's item.
-     *
-     * @param id item's id
-     */
-    public void replaceWithIAItem(final @NotNull String id) {
-        if (!IAManager.isIDValid(id)) return;
-        replaceWithIAItem(CustomStack.getInstance(id));
-    }
 
     /**
      * Set this item as ItemsAdder's item.
@@ -212,7 +183,7 @@ public class FFAKitItem extends ItemStack {
 
     /**
      * Returns this class as ItemStack.
-     * Same as {@link #getItem()} ()}
+     * Same as {@link #getItem()}
      *
      * @return minecraft item
      */
