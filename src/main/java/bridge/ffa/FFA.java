@@ -57,7 +57,7 @@ public class FFA implements Module, Listener {
     public boolean start(final @NotNull Bridge plugin) {
         FFA.plugin = plugin;
         //register this class as listener
-        ListenerManager.register("FFA", this);
+        ListenerManager.register(getName(), this);
 
         final String dir = "/ffa/";
         if (!FileUtils.createDirectory(dir)) {
@@ -99,7 +99,7 @@ public class FFA implements Module, Listener {
             kits.reload();
             config.reload();
         } catch (IOException e) {
-            LOG.warn("Could not reload FFA configs! " + e.getMessage(), e);
+            LOG.warn("Could not reload " + getName() + " configs! " + e.getMessage(), e);
         }
         FFAKitManager.setup(kits);
         FFAArenaManager.setup(plugin, config);

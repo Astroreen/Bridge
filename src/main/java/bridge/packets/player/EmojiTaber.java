@@ -63,7 +63,7 @@ public class EmojiTaber implements Module, Listener {
             return false;
         }
         EmojiTaber.manager = ProtocolLibrary.getProtocolManager();
-        ListenerManager.register("EmojiTaber", this);
+        ListenerManager.register(getName(), this);
         this.reload();
         for (int i = 0; i <= 80; i++) uuids.add(UUID.randomUUID());
         EmojiTaber.isActive = true;

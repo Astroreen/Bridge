@@ -1,6 +1,7 @@
 package bridge.modules;
 
 import bridge.Bridge;
+import bridge.exceptions.HookException;
 import org.jetbrains.annotations.NotNull;
 
 public interface Module {
@@ -8,7 +9,7 @@ public interface Module {
     /**
      * Start module
      */
-    boolean start(final @NotNull Bridge plugin);
+    boolean start(final @NotNull Bridge plugin) throws HookException;
 
     /**
      * Reload module
@@ -33,4 +34,13 @@ public interface Module {
      * @return true if it is
      */
     boolean active();
+
+    /**
+     * Get name of the module.
+     *
+     * @return name of module
+     */
+    default String getName() {
+        return getClass().getName();
+    }
 }

@@ -132,7 +132,7 @@ public class TABManager implements TabEvent, Module {
     @Override
     public boolean isConditionsMet() {
         if (!Compatibility.getHooked().contains(CompatiblePlugin.TAB)) {
-            LOG.error("Can't start module 'TAB'. Is this plugin exist?");
+            LOG.error("Can't start module '" + getName() + "'. Is this plugin exist?");
             return false;
         }
         return true;
@@ -141,6 +141,11 @@ public class TABManager implements TabEvent, Module {
     @Override
     public boolean active() {
         return isModuleEnabled;
+    }
+
+    @Override
+    public String getName() {
+        return "TAB";
     }
 
     public static @Nullable Currency getStars() {

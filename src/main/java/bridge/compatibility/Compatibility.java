@@ -13,6 +13,7 @@ import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -87,6 +88,17 @@ public class Compatibility implements Listener {
     public void onPluginEnable(final @NotNull PluginEnableEvent event) {
         hook(event.getPlugin());
     }
+    @EventHandler(ignoreCancelled = true)
+    public void onPluginDisable(final @NotNull PluginDisableEvent event) {
+        for (CompatiblePlugin plugin : CompatiblePlugin.values()) {
+            if(event.getPlugin().getName().equals(plugin.name)) {
+                if(event.getPlugin().isEnabled() && Compatibility.getHooked().contains(plugin))
+                    integrators.get(plugin).close();
+                integrators.remove(plugin);
+                break;
+            }
+        }
+    }
 
     private void hook(final @NotNull Plugin hookedPlugin) {
         CompatiblePlugin compatible = null;
@@ -100,22 +112,16 @@ public class Compatibility implements Listener {
         if(compatible == null) return;
 
         // don't want to hook twice
-        if (hooked.contains(compatible)) {
-            return;
-        }
+        if (hooked.contains(compatible)) return;
 
         // don't want to hook into disabled plugins
-        if (!hookedPlugin.isEnabled()) {
-            return;
-        }
+        if (!hookedPlugin.isEnabled()) return;
 
         final String name = hookedPlugin.getName();
         final Integrator integrator = integrators.get(compatible);
 
         // this plugin is not an integration
-        if (integrator == null) {
-            return;
-        }
+        if (integrator == null) return;
 
         // hook into the plugin if it's enabled in the config
         if (Bridge.getInstance().getPluginConfig().getBoolean("hook." + name.toLowerCase(Locale.ROOT))) {
@@ -132,7 +138,7 @@ public class Compatibility implements Listener {
                         exception.getMessage());
                 LOG.warn(message, exception);
                 LOG.warn("Bridge will work correctly, except for that single integration. "
-                        + "You can turn it off by setting 'options." + name.toLowerCase(Locale.ROOT)
+                        + "You can turn it off by setting 'hook." + name.toLowerCase(Locale.ROOT)
                         + "' to false in config.yml file.");
             } catch (final RuntimeException | LinkageError exception) {
                 final String message = String.format("There was an unexpected error while hooking into %s %s (Bridge %s, Spigot %s)! %s",

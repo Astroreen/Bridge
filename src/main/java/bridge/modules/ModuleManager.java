@@ -2,19 +2,18 @@ package bridge.modules;
 
 import bridge.Bridge;
 import bridge.compatibility.tab.TABManager;
+import bridge.exceptions.HookException;
 import bridge.ffa.FFA;
 import bridge.listeners.PlayerToggleSneakEventListener;
 import bridge.packets.player.EmojiTaber;
 import bridge.packets.player.MentionTaber;
 import lombok.CustomLog;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @CustomLog(topic = "ModuleManager")
 public class ModuleManager {
@@ -55,8 +54,31 @@ public class ModuleManager {
     }
 
     private static boolean start(final @NotNull Bridge plugin, final @NotNull Module module) {
-        if (!module.active() && module.isConditionsMet()) return module.start(plugin);
-        else return module.active();
+        if (!module.active() && module.isConditionsMet()) {
+            // log important information in case of an error
+            try {
+                return module.start(plugin);
+            } catch (final HookException exception) {
+                final String message = String.format("Could not hook into %s module! %s",
+                        module.getName(),
+                        exception.getMessage());
+                LOG.warn(message, exception);
+                LOG.warn("Bridge will work correctly, except for that single integration. "
+                        + "You can turn it off by setting 'settings.modules." + module.getName().toLowerCase(Locale.ROOT)
+                        + "' to false in config.yml file.");
+            } catch (final RuntimeException | LinkageError exception) {
+                final String message = String.format("There was an unexpected error while hooking into %s module (Bridge %s, Spigot %s)! %s",
+                        module.getName(),
+                        Bridge.getInstance().getDescription().getVersion(),
+                        Bukkit.getVersion(),
+                        exception.getMessage());
+                LOG.error(message, exception);
+                LOG.warn("Bridge will work correctly, except for that single integration. "
+                        + "You can turn it off by setting 'settings.modules." + module.getName().toLowerCase(Locale.ROOT)
+                        + "' to false in config.yml file.");
+            }
+        }
+        return module.active();
     }
 
     public static void reload(final @NotNull Bridge plugin) {

@@ -47,7 +47,7 @@ public class MentionTaber implements Module, Listener {
         MentionTaber.plugin = plugin;
         manager = ProtocolLibrary.getProtocolManager();
         reload();
-        ListenerManager.register("MentionTaber", this);
+        ListenerManager.register(getName(), this);
         isActive = true;
         return true;
     }

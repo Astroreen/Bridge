@@ -33,7 +33,7 @@ public class PlayerToggleSneakEventListener implements Module, Listener {
     @Override
     public boolean start(final @NotNull Bridge plugin) {
         PlayerToggleSneakEventListener.plugin = plugin;
-        ListenerManager.register("Fly-Shift", this);
+        ListenerManager.register(getName(), this);
         reload();
         isActive = true;
         return true;
@@ -47,12 +47,12 @@ public class PlayerToggleSneakEventListener implements Module, Listener {
     public void reload() {
         final String settings = plugin.getPluginConfig().getString("settings.modules.shift-fly.armor");
         if(settings == null) {
-            LOG.error("Wasn't able to get armor from config.yml for module 'shift-fly'. Ignoring.");
+            LOG.error("Wasn't able to get armor from config.yml for module '\" + getName() + \"'. Ignoring.");
             return;
         }
         final String[] armor = settings.replaceAll("\\s+", "").split(",", 4);
         if(armor.length != 4) {
-            LOG.error("No armor there specified for module 'shift-fly'. Ignoring.");
+            LOG.error("No armor there specified for module '" + getName() + "'. Ignoring.");
             return;
         }
         if(Compatibility.getHooked().contains(CompatiblePlugin.ITEMSADDER)){
@@ -177,5 +177,10 @@ public class PlayerToggleSneakEventListener implements Module, Listener {
     @Override
     public boolean active() {
         return isActive;
+    }
+
+    @Override
+    public String getName() {
+        return "ShiftFly";
     }
 }
