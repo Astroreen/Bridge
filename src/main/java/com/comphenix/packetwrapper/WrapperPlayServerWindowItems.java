@@ -1,79 +1,84 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*    */ package com.comphenix.packetwrapper;
+/*    */ 
+/*    */ import com.comphenix.protocol.PacketType;
+/*    */ import com.comphenix.protocol.events.PacketContainer;
+/*    */ import java.util.List;
+/*    */ import org.bukkit.inventory.ItemStack;
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ public class WrapperPlayServerWindowItems
+/*    */   extends AbstractPacket
+/*    */ {
+/* 29 */   public static final PacketType TYPE = PacketType.Play.Server.WINDOW_ITEMS;
+/*    */   
+/*    */   public WrapperPlayServerWindowItems() {
+/* 32 */     super(new PacketContainer(TYPE), TYPE);
+/* 33 */     this.handle.getModifier().writeDefaults();
+/*    */   }
+/*    */   
+/*    */   public WrapperPlayServerWindowItems(PacketContainer packet) {
+/* 37 */     super(packet, TYPE);
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public int getWindowId() {
+/* 49 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setWindowId(int value) {
+/* 58 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public List<ItemStack> getSlotData() {
+/* 67 */     return (List<ItemStack>)this.handle.getItemListModifier().read(0);
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setSlotData(List<ItemStack> value) {
+/* 76 */     this.handle.getItemListModifier().write(0, value);
+/*    */   }
+/*    */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerWindowItems.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import java.util.List;
-
-import org.bukkit.inventory.ItemStack;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-
-public class WrapperPlayServerWindowItems extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Server.WINDOW_ITEMS;
-
-	public WrapperPlayServerWindowItems() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerWindowItems(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve Window ID.
-	 * <p>
-	 * Notes: the id of window which items are being sent for. 0 for player
-	 * inventory.
-	 * 
-	 * @return The current Window ID
-	 */
-	public int getWindowId() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set Window ID.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setWindowId(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-	/**
-	 * Retrieve Slot data.
-	 * 
-	 * @return The current Slot data
-	 */
-	public List<ItemStack> getSlotData() {
-		return handle.getItemListModifier().read(0);
-	}
-
-	/**
-	 * Set Slot data.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setSlotData(List<ItemStack> value) {
-		handle.getItemListModifier().write(0, value);
-	}
-
-}

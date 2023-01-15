@@ -3,9 +3,10 @@ api-version: 1.19
 version: '${version}'
 main: bridge.Bridge
 prefix: ""
+website: "www.anicloud.ru"
 authors:
   - Astroreen
-description: Make your live much more interesting
+description: Makes your live much more interesting
 softdepend:
   - PlaceholderAPI
   - TAB
@@ -14,6 +15,9 @@ softdepend:
   - ItemsAdder
   - FastAsyncWorldEdit
   - ProtocolLib
+#Load plugin before for properly working mechanics
+loadbefore:
+  - ItemsAdder
 commands:
   bridge:
     description: General bridge command

@@ -1,72 +1,77 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*    */ package com.comphenix.packetwrapper;
+/*    */ 
+/*    */ import com.comphenix.protocol.PacketType;
+/*    */ import com.comphenix.protocol.events.PacketContainer;
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ public class WrapperPlayServerCollect
+/*    */   extends AbstractPacket
+/*    */ {
+/* 25 */   public static final PacketType TYPE = PacketType.Play.Server.COLLECT;
+/*    */   
+/*    */   public WrapperPlayServerCollect() {
+/* 28 */     super(new PacketContainer(TYPE), TYPE);
+/* 29 */     this.handle.getModifier().writeDefaults();
+/*    */   }
+/*    */   
+/*    */   public WrapperPlayServerCollect(PacketContainer packet) {
+/* 33 */     super(packet, TYPE);
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public int getCollectedEntityId() {
+/* 42 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setCollectedEntityId(int value) {
+/* 51 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public int getCollectorEntityId() {
+/* 60 */     return ((Integer)this.handle.getIntegers().read(1)).intValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setCollectorEntityId(int value) {
+/* 69 */     this.handle.getIntegers().write(1, Integer.valueOf(value));
+/*    */   }
+/*    */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerCollect.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-
-public class WrapperPlayServerCollect extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Server.COLLECT;
-
-	public WrapperPlayServerCollect() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerCollect(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve Collected Entity ID.
-	 * 
-	 * @return The current Collected Entity ID
-	 */
-	public int getCollectedEntityId() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set Collected Entity ID.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setCollectedEntityId(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-	/**
-	 * Retrieve Collector Entity ID.
-	 * 
-	 * @return The current Collector Entity ID
-	 */
-	public int getCollectorEntityId() {
-		return handle.getIntegers().read(1);
-	}
-
-	/**
-	 * Set Collector Entity ID.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setCollectorEntityId(int value) {
-		handle.getIntegers().write(1, value);
-	}
-
-}

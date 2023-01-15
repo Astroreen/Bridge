@@ -1,156 +1,161 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*     */ package com.comphenix.packetwrapper;
+/*     */ 
+/*     */ import com.comphenix.protocol.PacketType;
+/*     */ import com.comphenix.protocol.events.PacketContainer;
+/*     */ import com.comphenix.protocol.wrappers.EnumWrappers;
+/*     */ import org.bukkit.Sound;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class WrapperPlayServerNamedSoundEffect
+/*     */   extends AbstractPacket
+/*     */ {
+/*  28 */   public static final PacketType TYPE = PacketType.Play.Server.NAMED_SOUND_EFFECT;
+/*     */ 
+/*     */   
+/*     */   public WrapperPlayServerNamedSoundEffect() {
+/*  32 */     super(new PacketContainer(TYPE), TYPE);
+/*  33 */     this.handle.getModifier().writeDefaults();
+/*     */   }
+/*     */   
+/*     */   public WrapperPlayServerNamedSoundEffect(PacketContainer packet) {
+/*  37 */     super(packet, TYPE);
+/*     */   }
+/*     */   
+/*     */   public Sound getSoundEffect() {
+/*  41 */     return (Sound)this.handle.getSoundEffects().read(0);
+/*     */   }
+/*     */   
+/*     */   public void setSoundEffect(Sound value) {
+/*  45 */     this.handle.getSoundEffects().write(0, value);
+/*     */   }
+/*     */   
+/*     */   public EnumWrappers.SoundCategory getSoundCategory() {
+/*  49 */     return (EnumWrappers.SoundCategory)this.handle.getSoundCategories().read(0);
+/*     */   }
+/*     */   
+/*     */   public void setSoundCategory(EnumWrappers.SoundCategory value) {
+/*  53 */     this.handle.getSoundCategories().write(0, value);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getEffectPositionX() {
+/*  64 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setEffectPositionX(int value) {
+/*  73 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getEffectPositionY() {
+/*  84 */     return ((Integer)this.handle.getIntegers().read(1)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setEffectPositionY(int value) {
+/*  93 */     this.handle.getIntegers().write(1, Integer.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getEffectPositionZ() {
+/* 104 */     return ((Integer)this.handle.getIntegers().read(2)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setEffectPositionZ(int value) {
+/* 113 */     this.handle.getIntegers().write(2, Integer.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getVolume() {
+/* 124 */     return ((Float)this.handle.getFloat().read(0)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setVolume(float value) {
+/* 133 */     this.handle.getFloat().write(0, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getPitch() {
+/* 144 */     return ((Float)this.handle.getFloat().read(1)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setPitch(float value) {
+/* 153 */     this.handle.getFloat().write(1, Float.valueOf(value));
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerNamedSoundEffect.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import org.bukkit.Sound;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.EnumWrappers.SoundCategory;
-
-public class WrapperPlayServerNamedSoundEffect extends AbstractPacket {
-	public static final PacketType TYPE =
-			PacketType.Play.Server.NAMED_SOUND_EFFECT;
-
-	public WrapperPlayServerNamedSoundEffect() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerNamedSoundEffect(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	public Sound getSoundEffect() {
-		return handle.getSoundEffects().read(0);
-	}
-
-	public void setSoundEffect(Sound value) {
-		handle.getSoundEffects().write(0, value);
-	}
-
-	public SoundCategory getSoundCategory() {
-		return handle.getSoundCategories().read(0);
-	}
-
-	public void setSoundCategory(SoundCategory value) {
-		handle.getSoundCategories().write(0, value);
-	}
-
-	/**
-	 * Retrieve Effect position X.
-	 * <p>
-	 * Notes: effect X multiplied by 8
-	 * 
-	 * @return The current Effect position X
-	 */
-	public int getEffectPositionX() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set Effect position X.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setEffectPositionX(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-	/**
-	 * Retrieve Effect position Y.
-	 * <p>
-	 * Notes: effect Y multiplied by 8
-	 * 
-	 * @return The current Effect position Y
-	 */
-	public int getEffectPositionY() {
-		return handle.getIntegers().read(1);
-	}
-
-	/**
-	 * Set Effect position Y.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setEffectPositionY(int value) {
-		handle.getIntegers().write(1, value);
-	}
-
-	/**
-	 * Retrieve Effect position Z.
-	 * <p>
-	 * Notes: effect Z multiplied by 8
-	 * 
-	 * @return The current Effect position Z
-	 */
-	public int getEffectPositionZ() {
-		return handle.getIntegers().read(2);
-	}
-
-	/**
-	 * Set Effect position Z.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setEffectPositionZ(int value) {
-		handle.getIntegers().write(2, value);
-	}
-
-	/**
-	 * Retrieve Volume.
-	 * <p>
-	 * Notes: 1 is 100%, can be more
-	 * 
-	 * @return The current Volume
-	 */
-	public float getVolume() {
-		return handle.getFloat().read(0);
-	}
-
-	/**
-	 * Set Volume.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setVolume(float value) {
-		handle.getFloat().write(0, value);
-	}
-
-	/**
-	 * Retrieve Pitch.
-	 * <p>
-	 * Notes: 63 is 100%, can be more
-	 * 
-	 * @return The current Pitch
-	 */
-	public float getPitch() {
-		return handle.getFloat().read(1);
-	}
-
-	/**
-	 * Set Pitch.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setPitch(float value) {
-		handle.getFloat().write(1, value);
-	}
-
-}

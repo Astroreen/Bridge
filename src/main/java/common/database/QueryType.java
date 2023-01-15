@@ -1,4 +1,4 @@
-package bridge.database;
+package common.database;
 
 import java.util.function.Function;
 

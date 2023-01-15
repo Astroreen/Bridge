@@ -4,10 +4,10 @@ import bridge.Bridge;
 import bridge.compatibility.Compatibility;
 import bridge.compatibility.CompatiblePlugin;
 import bridge.config.ConfigurationFile;
-import bridge.database.Connector;
-import bridge.database.QueryType;
-import bridge.database.Saver;
-import bridge.database.UpdateType;
+import common.database.Connector;
+import common.database.QueryType;
+import common.database.Saver;
+import common.database.UpdateType;
 import bridge.utils.ColorCodes;
 import lombok.CustomLog;
 import me.neznamy.tab.api.TabAPI;
@@ -87,7 +87,7 @@ public class NicknameManager {
                         ? (UnlimitedNametagManager) TabAPI.getInstance().getTeamManager() : null;
         final TabPlayer player = TabAPI.getInstance().getPlayer(uuid);
         if (nameTagManager == null) return;
-        if(gradient == null) {
+        if (gradient == null) {
             applyColor(p, getDefaultNickColor(), false);
             return;
         }
@@ -108,12 +108,12 @@ public class NicknameManager {
             @Override
             public void run() {
                 final String ColorName = getColorName(gradient);
-                if(ColorName == null) return;
+                if (ColorName == null) return;
                 final String texthex = getTextHex(ColorName);
                 final Integer cost = getColorCost(ColorName);
-                if(cost == null) return;
+                if (cost == null) return;
                 final Integer stars = getPlayerStars(uuid);
-                if(stars == null) return;
+                if (stars == null) return;
                 LoadedPlayers.put(uuid, new PlayerColor(ColorName, gradient.toLowerCase(), texthex, cost, stars));
             }
         }.runTaskAsynchronously(plugin);
@@ -305,14 +305,14 @@ public class NicknameManager {
         if (LoadedPlayers.containsKey(uuid)) return LoadedPlayers.get(uuid);
         else {
             final String gradient = getPlayerColor(uuid);
-            if(gradient == null) return null;
+            if (gradient == null) return null;
             final String ColorName = getColorName(gradient);
-            if(ColorName == null) return null;
+            if (ColorName == null) return null;
             final String textcolor = getTextHex(ColorName);
             final Integer cost = getColorCost(ColorName);
-            if(cost == null) return null;
+            if (cost == null) return null;
             final Integer stars = getPlayerStars(uuid);
-            if(stars == null) return null;
+            if (stars == null) return null;
             PlayerColor answer = new PlayerColor(ColorName, gradient, textcolor, cost, stars);
             LoadedPlayers.put(uuid, answer);
             return answer;
@@ -358,8 +358,7 @@ public class NicknameManager {
     public @Nullable String getPlayerColor(@NotNull final UUID uuid) {
         if (LoadedPlayers.containsKey(uuid)) return LoadedPlayers.get(uuid).gradient();
         else {
-            final ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString());
-            try {
+            try(final ResultSet rs = con.querySQL(QueryType.SELECT_COLOR, uuid.toString())) {
                 if (rs.next()) return rs.getString("color");
             } catch (SQLException e) {
                 LOG.error("There was an exception with SQL", e);
@@ -371,8 +370,7 @@ public class NicknameManager {
 
     private @Nullable Integer getPlayerStars(@NotNull final UUID uuid) {
         if (LoadedPlayers.containsKey(uuid)) return LoadedPlayers.get(uuid).stars();
-        final ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
-        try {
+        try(final ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString())) {
             if (rs.next()) return rs.getInt("stars");
         } catch (SQLException e) {
             LOG.error("There was an exception with SQL", e);
@@ -400,14 +398,13 @@ public class NicknameManager {
             defaultNickColor = "#CFCFCF>#CFCFCF";
             LOG.error("Wrong default nickcolor in color-config!");
         }
-        LOG.debug("Default nickcolor is: " + defaultNickColor);
-        if (ColorCodes.isHexValid(text)) {
-            defaultTextColor = text;
-            LOG.debug("Default textcolor is: " + text);
-        } else {
+
+        if (ColorCodes.isHexValid(text)) defaultTextColor = text;
+        else {
             defaultTextColor = "#545454";
             LOG.error("Wrong default textcolor in color-config. Using default #545454.");
         }
+        LOG.debug("Default nick color is: " + defaultNickColor + ", default text color: " + defaultTextColor);
 
         LoadedColors.clear();
         LoadedPlayers.clear();
@@ -425,6 +422,8 @@ public class NicknameManager {
                 final StringBuilder builder = new StringBuilder();
                 temp.put("default",
                         Collections.singletonList(new PlayerColor("default", getDefaultNickColor(), getDefaultTextColor(), 0, 0)));
+
+                builder.append("default");
                 for (String group : getGroups()) {
                     List<PlayerColor> list = new ArrayList<>();
                     for (String ColorName : getGroupColors(group)) {
@@ -434,14 +433,13 @@ public class NicknameManager {
                         final Integer cost = getColorCost(group, ColorName);
                         if (texthex == null || gradient == null || cost == null) continue;
                         list.add(new PlayerColor(ColorName, gradient, texthex, cost, 0));
-                        builder.append(ColorName).append(", ");
+                        builder.append(", ").append(ColorName);
                     }
                     if (list.isEmpty()) continue;
                     temp.put(group, list);
                 }
-                builder.append("default");
                 LoadedColors.putAll(temp);
-                LOG.debug("Colors added to the memory: " + builder + ".");
+                LOG.debug("Colors added to the memory: " + builder.toString().split(",").length + ".");
             }
         }.runTaskAsynchronously(plugin);
         return true;
@@ -471,7 +469,10 @@ public class NicknameManager {
     public static String getDefaultTextColor() {
         return defaultTextColor;
     }
-    public ConfigurationFile getConfig() {return ColorConfig;}
+
+    public ConfigurationFile getConfig() {
+        return ColorConfig;
+    }
 
     @Contract(pure = true)
     public boolean isGradient(@NotNull String color) {

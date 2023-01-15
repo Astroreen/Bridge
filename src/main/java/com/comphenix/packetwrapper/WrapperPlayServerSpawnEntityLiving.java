@@ -1,319 +1,321 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*     */ package com.comphenix.packetwrapper;
+/*     */ 
+/*     */ import com.comphenix.protocol.PacketType;
+/*     */ import com.comphenix.protocol.ProtocolLibrary;
+/*     */ import com.comphenix.protocol.events.PacketContainer;
+/*     */ import com.comphenix.protocol.events.PacketEvent;
+/*     */ import com.comphenix.protocol.injector.PacketConstructor;
+/*     */ import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+/*     */ import java.util.UUID;
+/*     */ import org.bukkit.World;
+/*     */ import org.bukkit.entity.Entity;
+/*     */ import org.bukkit.entity.EntityType;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class WrapperPlayServerSpawnEntityLiving
+/*     */   extends AbstractPacket
+/*     */ {
+/*  35 */   public static final PacketType TYPE = PacketType.Play.Server.SPAWN_ENTITY_LIVING;
+/*     */   
+/*     */   private static PacketConstructor entityConstructor;
+/*     */ 
+/*     */   
+/*     */   public WrapperPlayServerSpawnEntityLiving() {
+/*  41 */     super(new PacketContainer(TYPE), TYPE);
+/*  42 */     this.handle.getModifier().writeDefaults();
+/*     */   }
+/*     */   
+/*     */   public WrapperPlayServerSpawnEntityLiving(PacketContainer packet) {
+/*  46 */     super(packet, TYPE);
+/*     */   }
+/*     */   
+/*     */   public WrapperPlayServerSpawnEntityLiving(Entity entity) {
+/*  50 */     super(fromEntity(entity), TYPE);
+/*     */   }
+/*     */ 
+/*     */   
+/*     */   private static PacketContainer fromEntity(Entity entity) {
+/*  55 */     if (entityConstructor == null)
+/*     */     {
+/*     */       
+/*  58 */       entityConstructor = ProtocolLibrary.getProtocolManager().createPacketConstructor(TYPE, new Object[] { entity }); } 
+/*  59 */     return entityConstructor.createPacket(new Object[] { entity });
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getEntityID() {
+/*  68 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public Entity getEntity(World world) {
+/*  78 */     return (Entity)this.handle.getEntityModifier(world).read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public Entity getEntity(PacketEvent event) {
+/*  88 */     return getEntity(event.getPlayer().getWorld());
+/*     */   }
+/*     */   
+/*     */   public UUID getUniqueId() {
+/*  92 */     return (UUID)this.handle.getUUIDs().read(0);
+/*     */   }
+/*     */   
+/*     */   public void setUniqueId(UUID value) {
+/*  96 */     this.handle.getUUIDs().write(0, value);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setEntityID(int value) {
+/* 105 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public EntityType getType() {
+/* 115 */     return EntityType.fromId(((Integer)this.handle.getIntegers().read(1)).intValue());
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setType(EntityType value) {
+/* 125 */     this.handle.getIntegers().write(1, Integer.valueOf(value.getTypeId()));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getX() {
+/* 136 */     return ((Double)this.handle.getDoubles().read(0)).doubleValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setX(double value) {
+/* 145 */     this.handle.getDoubles().write(0, Double.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getY() {
+/* 156 */     return ((Double)this.handle.getDoubles().read(1)).doubleValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setY(double value) {
+/* 165 */     this.handle.getDoubles().write(1, Double.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getZ() {
+/* 176 */     return ((Double)this.handle.getDoubles().read(2)).doubleValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setZ(double value) {
+/* 185 */     this.handle.getDoubles().write(2, Double.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getYaw() {
+/* 194 */     return ((Byte)this.handle.getBytes().read(0)).byteValue() * 360.0F / 256.0F;
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setYaw(float value) {
+/* 203 */     this.handle.getBytes().write(0, Byte.valueOf((byte)(int)(value * 256.0F / 360.0F)));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getPitch() {
+/* 212 */     return ((Byte)this.handle.getBytes().read(1)).byteValue() * 360.0F / 256.0F;
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setPitch(float value) {
+/* 221 */     this.handle.getBytes().write(1, Byte.valueOf((byte)(int)(value * 256.0F / 360.0F)));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getHeadPitch() {
+/* 230 */     return ((Byte)this.handle.getBytes().read(2)).byteValue() * 360.0F / 256.0F;
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setHeadPitch(float value) {
+/* 239 */     this.handle.getBytes().write(2, Byte.valueOf((byte)(int)(value * 256.0F / 360.0F)));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getVelocityX() {
+/* 248 */     return ((Integer)this.handle.getIntegers().read(2)).intValue() / 8000.0D;
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setVelocityX(double value) {
+/* 257 */     this.handle.getIntegers().write(2, Integer.valueOf((int)(value * 8000.0D)));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getVelocityY() {
+/* 266 */     return ((Integer)this.handle.getIntegers().read(3)).intValue() / 8000.0D;
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setVelocityY(double value) {
+/* 275 */     this.handle.getIntegers().write(3, Integer.valueOf((int)(value * 8000.0D)));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getVelocityZ() {
+/* 284 */     return ((Integer)this.handle.getIntegers().read(4)).intValue() / 8000.0D;
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setVelocityZ(double value) {
+/* 293 */     this.handle.getIntegers().write(4, Integer.valueOf((int)(value * 8000.0D)));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public WrappedDataWatcher getMetadata() {
+/* 304 */     return (WrappedDataWatcher)this.handle.getDataWatcherModifier().read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setMetadata(WrappedDataWatcher value) {
+/* 313 */     this.handle.getDataWatcherModifier().write(0, value);
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerSpawnEntityLiving.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import java.util.UUID;
-
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-
-import com.comphenix.packetwrapper.util.Removed;
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.injector.PacketConstructor;
-import com.comphenix.protocol.utility.MinecraftVersion;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-
-public class WrapperPlayServerSpawnEntityLiving extends AbstractPacket {
-	public static final PacketType TYPE =
-			PacketType.Play.Server.SPAWN_ENTITY_LIVING;
-
-	private static PacketConstructor entityConstructor;
-
-	public WrapperPlayServerSpawnEntityLiving() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerSpawnEntityLiving(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	public WrapperPlayServerSpawnEntityLiving(Entity entity) {
-		super(fromEntity(entity), TYPE);
-	}
-
-	// Useful constructor
-	private static PacketContainer fromEntity(Entity entity) {
-		if (entityConstructor == null)
-			entityConstructor =
-					ProtocolLibrary.getProtocolManager()
-							.createPacketConstructor(TYPE, entity);
-		return entityConstructor.createPacket(entity);
-	}
-
-	/**
-	 * Retrieve entity ID.
-	 * 
-	 * @return The current EID
-	 */
-	public int getEntityID() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Retrieve the entity that will be spawned.
-	 * 
-	 * @param world - the current world of the entity.
-	 * @return The spawned entity.
-	 */
-	public Entity getEntity(World world) {
-		return handle.getEntityModifier(world).read(0);
-	}
-
-	/**
-	 * Retrieve the entity that will be spawned.
-	 * 
-	 * @param event - the packet event.
-	 * @return The spawned entity.
-	 */
-	public Entity getEntity(PacketEvent event) {
-		return getEntity(event.getPlayer().getWorld());
-	}
-
-	public UUID getUniqueId() {
-		return handle.getUUIDs().read(0);
-	}
-
-	public void setUniqueId(UUID value) {
-		handle.getUUIDs().write(0, value);
-	}
-
-	/**
-	 * Set entity ID.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setEntityID(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-	/**
-	 * Retrieve the type of mob.
-	 * 
-	 * @return The current Type
-	 */
-	@SuppressWarnings("deprecation")
-	public EntityType getType() {
-		return EntityType.fromId(handle.getIntegers().read(1));
-	}
-
-	/**
-	 * Set the type of mob.
-	 * 
-	 * @param value - new value.
-	 */
-	@SuppressWarnings("deprecation")
-	public void setType(EntityType value) {
-		handle.getIntegers().write(1, (int) value.getTypeId());
-	}
-
-	/**
-	 * Retrieve the x position of the object.
-	 * <p>
-	 * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-	 * 
-	 * @return The current X
-	 */
-	public double getX() {
-		return handle.getDoubles().read(0);
-	}
-
-	/**
-	 * Set the x position of the object.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setX(double value) {
-		handle.getDoubles().write(0, value);
-	}
-
-	/**
-	 * Retrieve the y position of the object.
-	 * <p>
-	 * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-	 * 
-	 * @return The current y
-	 */
-	public double getY() {
-		return handle.getDoubles().read(1);
-	}
-
-	/**
-	 * Set the y position of the object.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setY(double value) {
-		handle.getDoubles().write(1, value);
-	}
-
-	/**
-	 * Retrieve the z position of the object.
-	 * <p>
-	 * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-	 * 
-	 * @return The current z
-	 */
-	public double getZ() {
-		return handle.getDoubles().read(2);
-	}
-
-	/**
-	 * Set the z position of the object.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setZ(double value) {
-		handle.getDoubles().write(2, value);
-	}
-
-	/**
-	 * Retrieve the yaw.
-	 * 
-	 * @return The current Yaw
-	 */
-	public float getYaw() {
-		return (handle.getBytes().read(0) * 360.F) / 256.0F;
-	}
-
-	/**
-	 * Set the yaw of the spawned mob.
-	 * 
-	 * @param value - new yaw.
-	 */
-	public void setYaw(float value) {
-		handle.getBytes().write(0, (byte) (value * 256.0F / 360.0F));
-	}
-
-	/**
-	 * Retrieve the pitch.
-	 * 
-	 * @return The current pitch
-	 */
-	public float getPitch() {
-		return (handle.getBytes().read(1) * 360.F) / 256.0F;
-	}
-
-	/**
-	 * Set the pitch of the spawned mob.
-	 * 
-	 * @param value - new pitch.
-	 */
-	public void setPitch(float value) {
-		handle.getBytes().write(1, (byte) (value * 256.0F / 360.0F));
-	}
-
-	/**
-	 * Retrieve the yaw of the mob's head.
-	 * 
-	 * @return The current yaw.
-	 */
-	public float getHeadPitch() {
-		return (handle.getBytes().read(2) * 360.F) / 256.0F;
-	}
-
-	/**
-	 * Set the yaw of the mob's head.
-	 * 
-	 * @param value - new yaw.
-	 */
-	public void setHeadPitch(float value) {
-		handle.getBytes().write(2, (byte) (value * 256.0F / 360.0F));
-	}
-
-	/**
-	 * Retrieve the velocity in the x axis.
-	 * 
-	 * @return The current velocity X
-	 */
-	public double getVelocityX() {
-		return handle.getIntegers().read(2) / 8000.0D;
-	}
-
-	/**
-	 * Set the velocity in the x axis.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setVelocityX(double value) {
-		handle.getIntegers().write(2, (int) (value * 8000.0D));
-	}
-
-	/**
-	 * Retrieve the velocity in the y axis.
-	 * 
-	 * @return The current velocity y
-	 */
-	public double getVelocityY() {
-		return handle.getIntegers().read(3) / 8000.0D;
-	}
-
-	/**
-	 * Set the velocity in the y axis.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setVelocityY(double value) {
-		handle.getIntegers().write(3, (int) (value * 8000.0D));
-	}
-
-	/**
-	 * Retrieve the velocity in the z axis.
-	 * 
-	 * @return The current velocity z
-	 */
-	public double getVelocityZ() {
-		return handle.getIntegers().read(4) / 8000.0D;
-	}
-
-	/**
-	 * Set the velocity in the z axis.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setVelocityZ(double value) {
-		handle.getIntegers().write(4, (int) (value * 8000.0D));
-	}
-
-	/**
-	 * Retrieve the data watcher. This was removed in 1.15
-	 * <p>
-	 * Content varies by mob, see Entities.
-	 * 
-	 * @return The current Metadata
-	 */
-	@Removed
-	public WrappedDataWatcher getMetadata() {
-		return handle.getDataWatcherModifier().read(0);
-	}
-
-	/**
-	 * Set the data watcher. This was removed in 1.15.
-	 * 
-	 * @param value - new value.
-	 */
-	@Removed
-	public void setMetadata(WrappedDataWatcher value) {
-		handle.getDataWatcherModifier().write(0, value);
-	}
-}

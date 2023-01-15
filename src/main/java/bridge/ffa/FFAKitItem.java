@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
+@SuppressWarnings("deprecation")
 public class FFAKitItem extends ItemStack {
 
     private static ConfigurationFile config;
@@ -132,20 +133,6 @@ public class FFAKitItem extends ItemStack {
         config.save();
     }
 
-
-    /**
-     * Set this item as ItemsAdder's item.
-     *
-     * @param item {@link CustomStack} item
-     */
-    public void replaceWithIAItem(final @NotNull CustomStack item) {
-        this.itemsAdderID = item.getId();
-        final ItemStack i = item.getItemStack();
-        this.setType(i.getType());
-        this.setAmount(i.getAmount());
-        if (i.getType().isLegacy()) this.setData(i.getData());
-        if (i.hasItemMeta()) this.setItemMeta(i.getItemMeta());
-    }
 
     /**
      * Get index of slot similar to

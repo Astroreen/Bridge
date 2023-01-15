@@ -41,6 +41,7 @@ public interface Module {
      * @return name of module
      */
     default String getName() {
-        return getClass().getName();
+        final String[] name = getClass().getName().split("\\.");
+        return name[name.length - 1];
     }
 }

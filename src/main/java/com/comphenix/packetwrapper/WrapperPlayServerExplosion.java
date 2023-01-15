@@ -1,171 +1,176 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*     */ package com.comphenix.packetwrapper;
+/*     */ 
+/*     */ import com.comphenix.protocol.PacketType;
+/*     */ import com.comphenix.protocol.events.PacketContainer;
+/*     */ import com.comphenix.protocol.wrappers.BlockPosition;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class WrapperPlayServerExplosion
+/*     */   extends AbstractPacket
+/*     */ {
+/*  28 */   public static final PacketType TYPE = PacketType.Play.Server.EXPLOSION;
+/*     */   
+/*     */   public WrapperPlayServerExplosion() {
+/*  31 */     super(new PacketContainer(TYPE), TYPE);
+/*  32 */     this.handle.getModifier().writeDefaults();
+/*     */   }
+/*     */   
+/*     */   public WrapperPlayServerExplosion(PacketContainer packet) {
+/*  36 */     super(packet, TYPE);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getX() {
+/*  45 */     return ((Double)this.handle.getDoubles().read(0)).doubleValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setX(double value) {
+/*  54 */     this.handle.getDoubles().write(0, Double.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getY() {
+/*  63 */     return ((Double)this.handle.getDoubles().read(1)).doubleValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setY(double value) {
+/*  72 */     this.handle.getDoubles().write(1, Double.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public double getZ() {
+/*  81 */     return ((Double)this.handle.getDoubles().read(2)).doubleValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setZ(double value) {
+/*  90 */     this.handle.getDoubles().write(2, Double.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getRadius() {
+/* 101 */     return ((Float)this.handle.getFloat().read(0)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setRadius(float value) {
+/* 110 */     this.handle.getFloat().write(0, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public List<BlockPosition> getRecords() {
+/* 121 */     return (List<BlockPosition>)this.handle.getBlockPositionCollectionModifier().read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   @Deprecated
+/*     */   public List<BlockPosition> getRecors() {
+/* 135 */     return (List<BlockPosition>)this.handle.getBlockPositionCollectionModifier().read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setRecords(List<BlockPosition> value) {
+/* 144 */     this.handle.getBlockPositionCollectionModifier().write(0, value);
+/*     */   }
+/*     */   
+/*     */   public float getPlayerVelocityX() {
+/* 148 */     return ((Float)this.handle.getFloat().read(0)).floatValue();
+/*     */   }
+/*     */   
+/*     */   public void setPlayerVelocityX(float value) {
+/* 152 */     this.handle.getFloat().write(0, Float.valueOf(value));
+/*     */   }
+/*     */   
+/*     */   public float getPlayerVelocityY() {
+/* 156 */     return ((Float)this.handle.getFloat().read(1)).floatValue();
+/*     */   }
+/*     */   
+/*     */   public void setPlayerVelocityY(float value) {
+/* 160 */     this.handle.getFloat().write(1, Float.valueOf(value));
+/*     */   }
+/*     */   
+/*     */   public float getPlayerVelocityZ() {
+/* 164 */     return ((Float)this.handle.getFloat().read(2)).floatValue();
+/*     */   }
+/*     */   
+/*     */   public void setPlayerVelocityZ(float value) {
+/* 168 */     this.handle.getFloat().write(2, Float.valueOf(value));
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerExplosion.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import java.util.List;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.BlockPosition;
-
-public class WrapperPlayServerExplosion extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Server.EXPLOSION;
-
-	public WrapperPlayServerExplosion() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerExplosion(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve X.
-	 * 
-	 * @return The current X
-	 */
-	public double getX() {
-		return handle.getDoubles().read(0);
-	}
-
-	/**
-	 * Set X.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setX(double value) {
-		handle.getDoubles().write(0, value);
-	}
-
-	/**
-	 * Retrieve Y.
-	 * 
-	 * @return The current Y
-	 */
-	public double getY() {
-		return handle.getDoubles().read(1);
-	}
-
-	/**
-	 * Set Y.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setY(double value) {
-		handle.getDoubles().write(1, value);
-	}
-
-	/**
-	 * Retrieve Z.
-	 * 
-	 * @return The current Z
-	 */
-	public double getZ() {
-		return handle.getDoubles().read(2);
-	}
-
-	/**
-	 * Set Z.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setZ(double value) {
-		handle.getDoubles().write(2, value);
-	}
-
-	/**
-	 * Retrieve Radius.
-	 * <p>
-	 * Notes: currently unused in the client
-	 * 
-	 * @return The current Radius
-	 */
-	public float getRadius() {
-		return handle.getFloat().read(0);
-	}
-
-	/**
-	 * Set Radius.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setRadius(float value) {
-		handle.getFloat().write(0, value);
-	}
-
-	/**
-	 * Retrieve Record count.
-	 * <p>
-	 * Notes: this is the count, not the size. The size is 3 times this value.
-	 *
-	 * @return The current Record count
-	 */
-	public List<BlockPosition> getRecords() {
-		return handle.getBlockPositionCollectionModifier().read(0);
-	}
-
-	/**
-	 * Retrieve Record count.
-	 * <p>
-	 * Notes: this is the count, not the size. The size is 3 times this value.
-	 * 
-	 * @return The current Record count
-	 * @deprecated Misspelled.
-	 * @see #getRecords()
-	 */
-	@Deprecated
-	public List<BlockPosition> getRecors() {
-		return handle.getBlockPositionCollectionModifier().read(0);
-	}
-
-	/**
-	 * Set Record count.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setRecords(List<BlockPosition> value) {
-		handle.getBlockPositionCollectionModifier().write(0, value);
-	}
-
-	public float getPlayerVelocityX() {
-		return handle.getFloat().read(1);
-	}
-
-	public void setPlayerVelocityX(float value) {
-		handle.getFloat().write(1, value);
-	}
-
-	public float getPlayerVelocityY() {
-		return handle.getFloat().read(2);
-	}
-
-	public void setPlayerVelocityY(float value) {
-		handle.getFloat().write(2, value);
-	}
-
-	public float getPlayerVelocityZ() {
-		return handle.getFloat().read(3);
-	}
-
-	public void setPlayerVelocityZ(float value) {
-		handle.getFloat().write(3, value);
-	}
-
-}

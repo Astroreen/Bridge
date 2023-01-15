@@ -1,122 +1,127 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*     */ package com.comphenix.packetwrapper;
+/*     */ 
+/*     */ import com.comphenix.protocol.PacketType;
+/*     */ import com.comphenix.protocol.events.PacketContainer;
+/*     */ import com.comphenix.protocol.events.PacketEvent;
+/*     */ import com.comphenix.protocol.wrappers.BlockPosition;
+/*     */ import org.bukkit.World;
+/*     */ import org.bukkit.entity.Entity;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class WrapperPlayServerBlockBreakAnimation
+/*     */   extends AbstractPacket
+/*     */ {
+/*  30 */   public static final PacketType TYPE = PacketType.Play.Server.BLOCK_BREAK_ANIMATION;
+/*     */ 
+/*     */   
+/*     */   public WrapperPlayServerBlockBreakAnimation() {
+/*  34 */     super(new PacketContainer(TYPE), TYPE);
+/*  35 */     this.handle.getModifier().writeDefaults();
+/*     */   }
+/*     */   
+/*     */   public WrapperPlayServerBlockBreakAnimation(PacketContainer packet) {
+/*  39 */     super(packet, TYPE);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getEntityID() {
+/*  50 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setEntityID(int value) {
+/*  59 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public Entity getEntity(World world) {
+/*  69 */     return (Entity)this.handle.getEntityModifier(world).read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public Entity getEntity(PacketEvent event) {
+/*  79 */     return getEntity(event.getPlayer().getWorld());
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public BlockPosition getLocation() {
+/*  90 */     return (BlockPosition)this.handle.getBlockPositionModifier().read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setLocation(BlockPosition value) {
+/*  99 */     this.handle.getBlockPositionModifier().write(0, value);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getDestroyStage() {
+/* 110 */     return ((Integer)this.handle.getIntegers().read(1)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setDestroyStage(int value) {
+/* 119 */     this.handle.getIntegers().write(1, Integer.valueOf(value));
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerBlockBreakAnimation.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import org.bukkit.World;
-import org.bukkit.entity.Entity;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.BlockPosition;
-
-public class WrapperPlayServerBlockBreakAnimation extends AbstractPacket {
-	public static final PacketType TYPE =
-			PacketType.Play.Server.BLOCK_BREAK_ANIMATION;
-
-	public WrapperPlayServerBlockBreakAnimation() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerBlockBreakAnimation(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve Entity ID.
-	 * <p>
-	 * Notes: entity's ID
-	 * 
-	 * @return The current Entity ID
-	 */
-	public int getEntityID() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set Entity ID.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setEntityID(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-	/**
-	 * Retrieve the entity of the painting that will be spawned.
-	 * 
-	 * @param world - the current world of the entity.
-	 * @return The spawned entity.
-	 */
-	public Entity getEntity(World world) {
-		return handle.getEntityModifier(world).read(0);
-	}
-
-	/**
-	 * Retrieve the entity of the painting that will be spawned.
-	 * 
-	 * @param event - the packet event.
-	 * @return The spawned entity.
-	 */
-	public Entity getEntity(PacketEvent event) {
-		return getEntity(event.getPlayer().getWorld());
-	}
-
-	/**
-	 * Retrieve Location.
-	 * <p>
-	 * Notes: block Position
-	 * 
-	 * @return The current Location
-	 */
-	public BlockPosition getLocation() {
-		return handle.getBlockPositionModifier().read(0);
-	}
-
-	/**
-	 * Set Location.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setLocation(BlockPosition value) {
-		handle.getBlockPositionModifier().write(0, value);
-	}
-
-	/**
-	 * Retrieve Destroy Stage.
-	 * <p>
-	 * Notes: 0 - 9
-	 * 
-	 * @return The current Destroy Stage
-	 */
-	public int getDestroyStage() {
-		return handle.getIntegers().read(1);
-	}
-
-	/**
-	 * Set Destroy Stage.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setDestroyStage(int value) {
-		handle.getIntegers().write(1, value);
-	}
-
-}

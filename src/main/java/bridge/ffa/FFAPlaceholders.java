@@ -1,8 +1,8 @@
 package bridge.ffa;
 
 import bridge.Bridge;
-import bridge.database.Connector;
-import bridge.database.QueryType;
+import common.database.Connector;
+import common.database.QueryType;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

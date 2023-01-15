@@ -1,131 +1,137 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*     */ package com.comphenix.packetwrapper;
+/*     */ 
+/*     */ import com.comphenix.protocol.PacketType;
+/*     */ import com.comphenix.protocol.events.PacketContainer;
+/*     */ import com.comphenix.protocol.wrappers.EnumWrappers;
+/*     */ import com.comphenix.protocol.wrappers.WrappedChatComponent;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class WrapperPlayServerTitle
+/*     */   extends AbstractPacket
+/*     */ {
+/*  27 */   public static final PacketType TYPE = PacketType.Play.Server.TITLE;
+/*     */   
+/*     */   public WrapperPlayServerTitle() {
+/*  30 */     super(new PacketContainer(TYPE), TYPE);
+/*  31 */     this.handle.getModifier().writeDefaults();
+/*     */   }
+/*     */   
+/*     */   public WrapperPlayServerTitle(PacketContainer packet) {
+/*  35 */     super(packet, TYPE);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public EnumWrappers.TitleAction getAction() {
+/*  44 */     return (EnumWrappers.TitleAction)this.handle.getTitleActions().read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setAction(EnumWrappers.TitleAction value) {
+/*  53 */     this.handle.getTitleActions().write(0, value);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public WrappedChatComponent getTitle() {
+/*  64 */     return (WrappedChatComponent)this.handle.getChatComponents().read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setTitle(WrappedChatComponent value) {
+/*  73 */     this.handle.getChatComponents().write(0, value);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getFadeIn() {
+/*  84 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setFadeIn(int value) {
+/*  93 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getStay() {
+/* 102 */     return ((Integer)this.handle.getIntegers().read(1)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setStay(int value) {
+/* 111 */     this.handle.getIntegers().write(1, Integer.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getFadeOut() {
+/* 120 */     return ((Integer)this.handle.getIntegers().read(2)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setFadeOut(int value) {
+/* 129 */     this.handle.getIntegers().write(2, Integer.valueOf(value));
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerTitle.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.EnumWrappers.TitleAction;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
-
-public class WrapperPlayServerTitle extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Server.TITLE;
-
-	public WrapperPlayServerTitle() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerTitle(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve Action.
-	 * 
-	 * @return The current Action
-	 */
-	public TitleAction getAction() {
-		return handle.getTitleActions().read(0);
-	}
-
-	/**
-	 * Set Action.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setAction(TitleAction value) {
-		handle.getTitleActions().write(0, value);
-	}
-
-	/**
-	 * Retrieve 0 (TITLE).
-	 * <p>
-	 * Notes: chat
-	 * 
-	 * @return The current 0 (TITLE)
-	 */
-	public WrappedChatComponent getTitle() {
-		return handle.getChatComponents().read(0);
-	}
-
-	/**
-	 * Set 0 (TITLE).
-	 * 
-	 * @param value - new value.
-	 */
-	public void setTitle(WrappedChatComponent value) {
-		handle.getChatComponents().write(0, value);
-	}
-
-	/**
-	 * Retrieve 2 (TIMES).
-	 * <p>
-	 * Notes: int
-	 * 
-	 * @return The current 2 (TIMES)
-	 */
-	public int getFadeIn() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set 2 (TIMES).
-	 * 
-	 * @param value - new value.
-	 */
-	public void setFadeIn(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-	/**
-	 * Retrieve Stay.
-	 * 
-	 * @return The current Stay
-	 */
-	public int getStay() {
-		return handle.getIntegers().read(1);
-	}
-
-	/**
-	 * Set Stay.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setStay(int value) {
-		handle.getIntegers().write(1, value);
-	}
-
-	/**
-	 * Retrieve Fade Out.
-	 * 
-	 * @return The current Fade Out
-	 */
-	public int getFadeOut() {
-		return handle.getIntegers().read(2);
-	}
-
-	/**
-	 * Set Fade Out.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setFadeOut(int value) {
-		handle.getIntegers().write(2, value);
-	}
-}

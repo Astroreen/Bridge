@@ -6,6 +6,7 @@ import bridge.config.ConfigurationFile;
 import bridge.listeners.ListenerManager;
 import bridge.modules.Module;
 import bridge.modules.permissions.PermissionManager;
+import bridge.utils.ProtocolLibUtils;
 import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -17,7 +18,6 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -33,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,12 +45,7 @@ public class EmojiTaber implements Module, Listener {
     private static String permission;
     private final static HashMap<String, List<Emoji>> fakePlayers = new HashMap<>();
     private final static Set<UUID> joined = new HashSet<>(1);
-    private final static Set<UUID> uuids = new HashSet<>();
-    //skin by name/word: https://ru.namemc.com/
-    //search for uuid: https://minecraftuuid.com/
-    //https://sessionserver.mojang.com/session/minecraft/profile/{Trimmed uuid}?unsigned=false
-    private final static String texture = "ewogICJ0aW1lc3RhbXAiIDogMTY3MTQ3OTc5OTM5NCwKICAicHJvZmlsZUlkIiA6ICI3NDZmZTllY2EyNWM0ZWNlYjAxYTFjNDQxY2ZiZTAzZiIsCiAgInByb2ZpbGVOYW1lIiA6ICJVU0VSX1ZBUEVWNCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yYjc4Zjg2ZDU3YWY0NWUwNjg0MjdjZTc1MGRkYmE3ZjNmZmJkYjJmZTE4MTNmNDE2OTRhODdjZjlhZWZlNzI2IgogICAgfQogIH0KfQ==";
-    private final static String signature = "YLuRmmLiuWpXUcRTvhRDez+D6L1XwCSedtq8l46b7pwfNGjcGVAOrCvtjAl2vE1lyR+p8bB04zueULG8ucTt7gatCER/dMyrKmEz0QGRrplhBZtBYB2i+UsdM3iTZWaz6iLK7GpUneh17au2chOZtmQnq6aeG4y/vKV4QjsutWk7X53vBvvtWZotLzWESaIHBil46+pB1u2pJrqMCAcE3wXyzyeeAom4t+txz4U8PJ1CM2d6TBz03JvPn6++WOiYqqLHTwOet8wWTNVJwHrpeR/0ij5as2YYQVeO/ZpmhAjvSXvbtPinvaC2jkhxR1CkzFeFKob9SezVkCGC5129gfa9bDicAHYUMdJgdJHvrOFr4uL3npcgkovTrPn6xVQ6FkvNwBmvpgotKyKKKsuNjvPhiECv6e0vHJeVXaOYTDqWAnB2I0rfVt8RWI+5TOvLPb7qXfd5hx7enI79klDiRRcFda9yl5doutq5UKJUY7cyOdoj7XEyRBjan43/+zHGdjWJc6h/k60PK4PkPFoc1p9XGFOWScxhSy1J0ELOruPLIRP2EZQIHUy2CF2JfyNY5ise9NkYRr3toQ/HxVLqcu6VNGadVlw0hLdrmHD5/RQAmX1RhdXpipEm/ANCIq1JK7YAjSuEFd+jWGXyx205bg/rsvinCV5Bjd7YMxWnGHA=";
+
 
     @Override
     public boolean start(final @NotNull Bridge plugin) {
@@ -65,12 +59,11 @@ public class EmojiTaber implements Module, Listener {
         EmojiTaber.manager = ProtocolLibrary.getProtocolManager();
         ListenerManager.register(getName(), this);
         this.reload();
-        for (int i = 0; i <= 80; i++) uuids.add(UUID.randomUUID());
         EmojiTaber.isActive = true;
         return true;
     }
 
-    @Override
+    @Override @SuppressWarnings("deprecation")
     public void reload() {
         try {
             config.reload();
@@ -125,23 +118,24 @@ public class EmojiTaber implements Module, Listener {
         if (joined.contains(player.getUniqueId())) return;
         joined.add(player.getUniqueId());
 
-        sendNPCPackets(player, EnumWrappers.PlayerInfoAction.ADD_PLAYER);
         new BukkitRunnable() {
             @Override
             public void run() {
                 //sending full tab of fake players with no name
-                fullTabPacket().forEach(packet -> {
+                ProtocolLibUtils.fullTabPacket(10).forEach(packet -> {
                     try {
                         manager.sendServerPacket(player, packet);
-                    } catch (InvocationTargetException e) {
+                    } catch (Exception e) {
                         LOG.error("There was error after trying to send ADD_PLAYER packets to player " + player.getName(), e);
                     }
                 });
             }
         }.runTaskAsynchronously(plugin);
+        sendNPCPackets(player, EnumWrappers.PlayerInfoAction.ADD_PLAYER);
         joined.remove(player.getUniqueId());
     }
 
+    @SuppressWarnings("deprecation")
     private static void sendNPCPackets(final Player player, final @NotNull EnumWrappers.PlayerInfoAction action) {
         if (fakePlayers.isEmpty()) return;
         final PermissionManager perms = new PermissionManager();
@@ -163,24 +157,30 @@ public class EmojiTaber implements Module, Listener {
             final String name = emoji.name().length() < 16 ? emoji.name() : emoji.name().substring(0, 16);
             final UUID uuid = emoji.uuid();
             final GameProfile profile = new GameProfile(uuid, name);
-            profile.getProperties().put("textures", new Property("textures", texture, signature));
+            profile.getProperties().put("textures", ProtocolLibUtils.getUnknownProperty());
             final WrappedGameProfile prof = WrappedGameProfile.fromHandle(profile);
             data.add(new PlayerInfoData(prof, 10, EnumWrappers.NativeGameMode.SPECTATOR, WrappedChatComponent.fromText(name)));
         }
         if(l.size() != 0) LOG.warn("Found " + l.size() + " emoji which are more that 16 characters: " + l.toString().substring(1, l.toString().length() - 1));
 
-        //split list into chunks
-        final List<List<PlayerInfoData>> temp = Lists.partition(data.stream().toList(), 10);
         final List<PacketContainer> packets = new ArrayList<>();
-        //preparing packet containers
-        for (final @NotNull List<PlayerInfoData> list : temp) {
-            //creating packet
-            final PacketContainer container = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
-            final WrapperPlayServerPlayerInfo info = new WrapperPlayServerPlayerInfo(container);
-            //setting data;
-            info.setAction(action);
-            info.setData(list);
-            packets.add(container);
+        if(action.equals(EnumWrappers.PlayerInfoAction.REMOVE_PLAYER))
+            packets.addAll(ProtocolLibUtils.removePlayerInfoData(data.stream().toList(), 10));
+        else {
+            //split list into chunks
+            final List<List<PlayerInfoData>> temp = Lists.partition(data.stream().toList(), 10);
+
+            //preparing packet containers
+            for (final @NotNull List<PlayerInfoData> list : temp) {
+                //creating packet
+                final PacketContainer container = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
+                final WrapperPlayServerPlayerInfo info = new WrapperPlayServerPlayerInfo(container);
+
+                //setting data;
+                info.setData(list);
+                info.setAction(action);
+                packets.add(container);
+            }
         }
 
         //sending packets asynchronously
@@ -190,7 +190,7 @@ public class EmojiTaber implements Module, Listener {
                 for (final @NotNull PacketContainer packet : packets) {
                     try {
                         manager.sendServerPacket(player, packet);
-                    } catch (InvocationTargetException e) {
+                    } catch (Exception e) {
                         LOG.error("There was error after trying to send " + action + " packets to player " + player.getName(), e);
                     }
                 }
@@ -198,30 +198,6 @@ public class EmojiTaber implements Module, Listener {
         }.runTaskAsynchronously(plugin);
 
 
-    }
-
-    private static @NotNull List<PacketContainer> fullTabPacket() {
-        //creating packet
-        final List<PlayerInfoData> data = new ArrayList<>();
-        for (final @NotNull UUID uuid : uuids) {
-            final GameProfile profile = new GameProfile(uuid, " ");
-            profile.getProperties().put("textures", new Property("textures", texture, signature));
-            final WrappedGameProfile prof = WrappedGameProfile.fromHandle(profile);
-            data.add(new PlayerInfoData(prof, 10, EnumWrappers.NativeGameMode.SPECTATOR, WrappedChatComponent.fromText(" ")));
-        }
-        //split list into chunks with 20 items in it
-        final List<List<PlayerInfoData>> temp = Lists.partition(data, 10);
-        final List<PacketContainer> packets = new ArrayList<>();
-        for (final @NotNull List<PlayerInfoData> list : temp) {
-            //creating packet
-            final PacketContainer con = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
-            final WrapperPlayServerPlayerInfo info = new WrapperPlayServerPlayerInfo(con);
-            info.setAction(EnumWrappers.PlayerInfoAction.ADD_PLAYER);
-            //setting data;
-            info.setData(list);
-            packets.add(con);
-        }
-        return packets;
     }
 
 

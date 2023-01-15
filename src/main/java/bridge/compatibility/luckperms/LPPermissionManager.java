@@ -1,6 +1,5 @@
 package bridge.compatibility.luckperms;
 
-import bridge.modules.permissions.Permission;
 import bridge.modules.permissions.Perms;
 import bridge.utils.PlayerConverter;
 import lombok.CustomLog;
@@ -32,15 +31,7 @@ public class LPPermissionManager implements Perms {
     }
 
     @Override
-    public boolean havePermission(final @NotNull Player player, final @NotNull Permission permission){
-        User user = LuckPerms.getUserManager().getUser(player.getUniqueId());
-        if(user != null)
-            return user.getCachedData().getPermissionData().checkPermission(permission.perm).asBoolean();
-        else return false;
-    }
-
-    @Override
-    public boolean havePermission(@NotNull UUID uuid, @NotNull String permission) {
+    public boolean havePermission(final @NotNull UUID uuid, final @NotNull String permission) {
         Player player = PlayerConverter.getPlayer(uuid);
         if(player != null) havePermission(player, permission);
         try {
@@ -53,25 +44,12 @@ public class LPPermissionManager implements Perms {
     }
 
     @Override
-    public boolean havePermission(final @NotNull UUID uuid, final @NotNull Permission permission) {
-        Player player = PlayerConverter.getPlayer(uuid);
-        if(player != null) havePermission(player, permission);
-        try {
-            User user = LuckPerms.getUserManager().loadUser(uuid).get();
-            return user.getCachedData().getPermissionData().checkPermission(permission.perm).asBoolean();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("There was an exception checking player permissions", e);
-            return false;
-        }
-    }
-
-    @Override
-    public void addPermission(final @NotNull UUID uuid, final @NotNull Permission permission, final boolean value) {
+    public void addPermission(final @NotNull UUID uuid, final @NotNull String permission, final boolean value) {
         LuckPerms.getUserManager().modifyUser(uuid, user -> user.data().add(convert(permission, value)));
     }
 
-    public static @NotNull Node convert(final @NotNull Permission perm, final boolean value){
-        return Node.builder(perm.perm).value(value).build();
+    public static @NotNull Node convert(final @NotNull String perm, final boolean value){
+        return Node.builder(perm).value(value).build();
     }
 
     public static LPPermissionManager getInstance() {return instance;}

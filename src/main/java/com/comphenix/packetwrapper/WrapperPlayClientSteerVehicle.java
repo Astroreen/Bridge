@@ -1,92 +1,97 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*    */ package com.comphenix.packetwrapper;
+/*    */ 
+/*    */ import com.comphenix.protocol.PacketType;
+/*    */ import com.comphenix.protocol.events.PacketContainer;
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ public class WrapperPlayClientSteerVehicle
+/*    */   extends AbstractPacket
+/*    */ {
+/* 25 */   public static final PacketType TYPE = PacketType.Play.Client.STEER_VEHICLE;
+/*    */   
+/*    */   public WrapperPlayClientSteerVehicle() {
+/* 28 */     super(new PacketContainer(TYPE), TYPE);
+/* 29 */     this.handle.getModifier().writeDefaults();
+/*    */   }
+/*    */   
+/*    */   public WrapperPlayClientSteerVehicle(PacketContainer packet) {
+/* 33 */     super(packet, TYPE);
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public float getSideways() {
+/* 44 */     return ((Float)this.handle.getFloat().read(0)).floatValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setSideways(float value) {
+/* 53 */     this.handle.getFloat().write(0, Float.valueOf(value));
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public float getForward() {
+/* 64 */     return ((Float)this.handle.getFloat().read(1)).floatValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setForward(float value) {
+/* 73 */     this.handle.getFloat().write(1, Float.valueOf(value));
+/*    */   }
+/*    */   
+/*    */   public boolean isJump() {
+/* 77 */     return ((Boolean)this.handle.getBooleans().read(0)).booleanValue();
+/*    */   }
+/*    */   
+/*    */   public void setJump(boolean value) {
+/* 81 */     this.handle.getBooleans().write(0, Boolean.valueOf(value));
+/*    */   }
+/*    */   
+/*    */   public boolean isUnmount() {
+/* 85 */     return ((Boolean)this.handle.getBooleans().read(1)).booleanValue();
+/*    */   }
+/*    */   
+/*    */   public void setUnmount(boolean value) {
+/* 89 */     this.handle.getBooleans().write(1, Boolean.valueOf(value));
+/*    */   }
+/*    */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayClientSteerVehicle.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-
-public class WrapperPlayClientSteerVehicle extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Client.STEER_VEHICLE;
-
-	public WrapperPlayClientSteerVehicle() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayClientSteerVehicle(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve Sideways.
-	 * <p>
-	 * Notes: positive to the left of the player
-	 * 
-	 * @return The current Sideways
-	 */
-	public float getSideways() {
-		return handle.getFloat().read(0);
-	}
-
-	/**
-	 * Set Sideways.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setSideways(float value) {
-		handle.getFloat().write(0, value);
-	}
-
-	/**
-	 * Retrieve Forward.
-	 * <p>
-	 * Notes: positive forward
-	 * 
-	 * @return The current Forward
-	 */
-	public float getForward() {
-		return handle.getFloat().read(1);
-	}
-
-	/**
-	 * Set Forward.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setForward(float value) {
-		handle.getFloat().write(1, value);
-	}
-
-	public boolean isJump() {
-		return handle.getBooleans().read(0);
-	}
-
-	public void setJump(boolean value) {
-		handle.getBooleans().write(0, value);
-	}
-
-	public boolean isUnmount() {
-		return handle.getBooleans().read(1);
-	}
-
-	public void setUnmount(boolean value) {
-		handle.getBooleans().write(1, value);
-	}
-
-}

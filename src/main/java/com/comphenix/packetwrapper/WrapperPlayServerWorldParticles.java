@@ -1,238 +1,244 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*     */ package com.comphenix.packetwrapper;
+/*     */ 
+/*     */ import com.comphenix.protocol.PacketType;
+/*     */ import com.comphenix.protocol.events.PacketContainer;
+/*     */ import com.comphenix.protocol.wrappers.WrappedParticle;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class WrapperPlayServerWorldParticles
+/*     */   extends AbstractPacket
+/*     */ {
+/*  26 */   public static final PacketType TYPE = PacketType.Play.Server.WORLD_PARTICLES;
+/*     */ 
+/*     */   
+/*     */   public WrapperPlayServerWorldParticles() {
+/*  30 */     super(new PacketContainer(TYPE), TYPE);
+/*  31 */     this.handle.getModifier().writeDefaults();
+/*     */   }
+/*     */   
+/*     */   public WrapperPlayServerWorldParticles(PacketContainer packet) {
+/*  35 */     super(packet, TYPE);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public WrappedParticle getParticle() {
+/*  44 */     return (WrappedParticle)this.handle.getNewParticles().read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setParticleType(WrappedParticle value) {
+/*  53 */     this.handle.getNewParticles().write(0, value);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getX() {
+/*  64 */     return ((Float)this.handle.getFloat().read(0)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setX(float value) {
+/*  73 */     this.handle.getFloat().write(0, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getY() {
+/*  84 */     return ((Float)this.handle.getFloat().read(1)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setY(float value) {
+/*  93 */     this.handle.getFloat().write(1, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getZ() {
+/* 104 */     return ((Float)this.handle.getFloat().read(2)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setZ(float value) {
+/* 113 */     this.handle.getFloat().write(2, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getOffsetX() {
+/* 125 */     return ((Float)this.handle.getFloat().read(3)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setOffsetX(float value) {
+/* 134 */     this.handle.getFloat().write(3, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getOffsetY() {
+/* 146 */     return ((Float)this.handle.getFloat().read(4)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setOffsetY(float value) {
+/* 155 */     this.handle.getFloat().write(4, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getOffsetZ() {
+/* 167 */     return ((Float)this.handle.getFloat().read(5)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setOffsetZ(float value) {
+/* 176 */     this.handle.getFloat().write(5, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public float getParticleData() {
+/* 187 */     return ((Float)this.handle.getFloat().read(6)).floatValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setParticleData(float value) {
+/* 196 */     this.handle.getFloat().write(6, Float.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public int getNumberOfParticles() {
+/* 207 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setNumberOfParticles(int value) {
+/* 216 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public boolean getLongDistance() {
+/* 227 */     return ((Boolean)this.handle.getBooleans().read(0)).booleanValue();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setLongDistance(boolean value) {
+/* 236 */     this.handle.getBooleans().write(0, Boolean.valueOf(value));
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerWorldParticles.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.WrappedParticle;
-
-public class WrapperPlayServerWorldParticles extends AbstractPacket {
-	public static final PacketType TYPE =
-			PacketType.Play.Server.WORLD_PARTICLES;
-
-	public WrapperPlayServerWorldParticles() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerWorldParticles(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve the particle.
-	 * 
-	 * @return The current particle
-	 */
-	public WrappedParticle getParticle() {
-		return handle.getNewParticles().read(0);
-	}
-
-	/**
-	 * Set the particle.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setParticleType(WrappedParticle value) {
-		handle.getNewParticles().write(0, value);
-	}
-
-	/**
-	 * Retrieve X.
-	 * <p>
-	 * Notes: x position of the particle
-	 * 
-	 * @return The current X
-	 */
-	public double getX() {
-		return handle.getDoubles().read(0);
-	}
-
-	/**
-	 * Set X.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setX(double value) {
-		handle.getDoubles().write(0, value);
-	}
-
-	/**
-	 * Retrieve Y.
-	 * <p>
-	 * Notes: y position of the particle
-	 * 
-	 * @return The current Y
-	 */
-	public double getY() {
-		return handle.getDoubles().read(1);
-	}
-
-	/**
-	 * Set Y.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setY(double value) {
-		handle.getDoubles().write(1, value);
-	}
-
-	/**
-	 * Retrieve Z.
-	 * <p>
-	 * Notes: z position of the particle
-	 * 
-	 * @return The current Z
-	 */
-	public double getZ() {
-		return handle.getDoubles().read(2);
-	}
-
-	/**
-	 * Set Z.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setZ(double value) {
-		handle.getDoubles().write(2, value);
-	}
-
-	/**
-	 * Retrieve Offset X.
-	 * <p>
-	 * Notes: this is added to the X position after being multiplied by
-	 * random.nextGaussian()
-	 * 
-	 * @return The current Offset X
-	 */
-	public float getOffsetX() {
-		return handle.getFloat().read(0);
-	}
-
-	/**
-	 * Set Offset X.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setOffsetX(float value) {
-		handle.getFloat().write(0, value);
-	}
-
-	/**
-	 * Retrieve Offset Y.
-	 * <p>
-	 * Notes: this is added to the Y position after being multiplied by
-	 * random.nextGaussian()
-	 * 
-	 * @return The current Offset Y
-	 */
-	public float getOffsetY() {
-		return handle.getFloat().read(1);
-	}
-
-	/**
-	 * Set Offset Y.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setOffsetY(float value) {
-		handle.getFloat().write(1, value);
-	}
-
-	/**
-	 * Retrieve Offset Z.
-	 * <p>
-	 * Notes: this is added to the Z position after being multiplied by
-	 * random.nextGaussian()
-	 * 
-	 * @return The current Offset Z
-	 */
-	public float getOffsetZ() {
-		return handle.getFloat().read(2);
-	}
-
-	/**
-	 * Set Offset Z.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setOffsetZ(float value) {
-		handle.getFloat().write(2, value);
-	}
-
-	/**
-	 * Retrieve Particle data.
-	 * <p>
-	 * Notes: the data of each particle
-	 * 
-	 * @return The current Particle data
-	 */
-	public float getParticleData() {
-		return handle.getFloat().read(3);
-	}
-
-	/**
-	 * Set Particle data.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setParticleData(float value) {
-		handle.getFloat().write(3, value);
-	}
-
-	/**
-	 * Retrieve Number of particles.
-	 * <p>
-	 * Notes: the number of particles to create
-	 * 
-	 * @return The current Number of particles
-	 */
-	public int getNumberOfParticles() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set Number of particles.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setNumberOfParticles(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-	/**
-	 * Retrieve Long Distance.
-	 * <p>
-	 * Notes: if true, particle distance increases from 256 to 65536.
-	 * 
-	 * @return The current Long Distance
-	 */
-	public boolean getLongDistance() {
-		return handle.getBooleans().read(0);
-	}
-
-	/**
-	 * Set Long Distance.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setLongDistance(boolean value) {
-		handle.getBooleans().write(0, value);
-	}
-}

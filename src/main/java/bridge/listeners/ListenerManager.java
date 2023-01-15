@@ -45,7 +45,7 @@ public class ListenerManager {
         Bukkit.getPluginManager().registerEvents(listener, plugin);
         if(registered.containsKey(name) || registered.containsValue(listener)) return;
         registered.put(name, listener);
-        LOG.debug("Listener '" + name + "' was registered.");
+        //LOG.debug("Listener '" + name + "' was registered.");
     }
 
     public static @NotNull List<Listener> getListeners() {

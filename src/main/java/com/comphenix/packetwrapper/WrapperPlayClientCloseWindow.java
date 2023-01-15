@@ -1,56 +1,61 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*    */ package com.comphenix.packetwrapper;
+/*    */ 
+/*    */ import com.comphenix.protocol.PacketType;
+/*    */ import com.comphenix.protocol.events.PacketContainer;
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ public class WrapperPlayClientCloseWindow
+/*    */   extends AbstractPacket
+/*    */ {
+/* 25 */   public static final PacketType TYPE = PacketType.Play.Client.CLOSE_WINDOW;
+/*    */   
+/*    */   public WrapperPlayClientCloseWindow() {
+/* 28 */     super(new PacketContainer(TYPE), TYPE);
+/* 29 */     this.handle.getModifier().writeDefaults();
+/*    */   }
+/*    */   
+/*    */   public WrapperPlayClientCloseWindow(PacketContainer packet) {
+/* 33 */     super(packet, TYPE);
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public int getWindowId() {
+/* 44 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setWindowId(int value) {
+/* 53 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*    */   }
+/*    */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayClientCloseWindow.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-
-public class WrapperPlayClientCloseWindow extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Client.CLOSE_WINDOW;
-
-	public WrapperPlayClientCloseWindow() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayClientCloseWindow(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve Window id.
-	 * <p>
-	 * Notes: this is the id of the window that was closed. 0 for inventory.
-	 * 
-	 * @return The current Window id
-	 */
-	public int getWindowId() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set Window id.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setWindowId(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-}

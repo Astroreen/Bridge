@@ -1,4 +1,4 @@
-package bridge.database;
+package common.database;
 
 import bridge.Bridge;
 import lombok.CustomLog;

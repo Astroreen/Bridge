@@ -1,96 +1,101 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*    */ package com.comphenix.packetwrapper;
+/*    */ 
+/*    */ import com.comphenix.protocol.PacketType;
+/*    */ import com.comphenix.protocol.events.PacketContainer;
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ public class WrapperPlayServerUpdateHealth
+/*    */   extends AbstractPacket
+/*    */ {
+/* 25 */   public static final PacketType TYPE = PacketType.Play.Server.UPDATE_HEALTH;
+/*    */   
+/*    */   public WrapperPlayServerUpdateHealth() {
+/* 28 */     super(new PacketContainer(TYPE), TYPE);
+/* 29 */     this.handle.getModifier().writeDefaults();
+/*    */   }
+/*    */   
+/*    */   public WrapperPlayServerUpdateHealth(PacketContainer packet) {
+/* 33 */     super(packet, TYPE);
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public float getHealth() {
+/* 44 */     return ((Float)this.handle.getFloat().read(0)).floatValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setHealth(float value) {
+/* 53 */     this.handle.getFloat().write(0, Float.valueOf(value));
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public int getFood() {
+/* 64 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setFood(int value) {
+/* 73 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public float getFoodSaturation() {
+/* 84 */     return ((Float)this.handle.getFloat().read(1)).floatValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setFoodSaturation(float value) {
+/* 93 */     this.handle.getFloat().write(1, Float.valueOf(value));
+/*    */   }
+/*    */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerUpdateHealth.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-
-public class WrapperPlayServerUpdateHealth extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Server.UPDATE_HEALTH;
-
-	public WrapperPlayServerUpdateHealth() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerUpdateHealth(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve Health.
-	 * <p>
-	 * Notes: 0 or less = dead, 20 = full HP
-	 * 
-	 * @return The current Health
-	 */
-	public float getHealth() {
-		return handle.getFloat().read(0);
-	}
-
-	/**
-	 * Set Health.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setHealth(float value) {
-		handle.getFloat().write(0, value);
-	}
-
-	/**
-	 * Retrieve Food.
-	 * <p>
-	 * Notes: 0 - 20
-	 * 
-	 * @return The current Food
-	 */
-	public int getFood() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set Food.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setFood(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-	/**
-	 * Retrieve Food Saturation.
-	 * <p>
-	 * Notes: seems to vary from 0.0 to 5.0 in integer increments
-	 * 
-	 * @return The current Food Saturation
-	 */
-	public float getFoodSaturation() {
-		return handle.getFloat().read(1);
-	}
-
-	/**
-	 * Set Food Saturation.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setFoodSaturation(float value) {
-		handle.getFloat().write(1, value);
-	}
-
-}

@@ -1,92 +1,97 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*    */ package com.comphenix.packetwrapper;
+/*    */ 
+/*    */ import com.comphenix.protocol.PacketType;
+/*    */ import com.comphenix.protocol.events.PacketContainer;
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ public class WrapperPlayServerExperience
+/*    */   extends AbstractPacket
+/*    */ {
+/* 25 */   public static final PacketType TYPE = PacketType.Play.Server.EXPERIENCE;
+/*    */   
+/*    */   public WrapperPlayServerExperience() {
+/* 28 */     super(new PacketContainer(TYPE), TYPE);
+/* 29 */     this.handle.getModifier().writeDefaults();
+/*    */   }
+/*    */   
+/*    */   public WrapperPlayServerExperience(PacketContainer packet) {
+/* 33 */     super(packet, TYPE);
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public float getExperienceBar() {
+/* 44 */     return ((Float)this.handle.getFloat().read(0)).floatValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setExperienceBar(float value) {
+/* 53 */     this.handle.getFloat().write(0, Float.valueOf(value));
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public int getLevel() {
+/* 62 */     return ((Integer)this.handle.getIntegers().read(1)).intValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setLevel(int value) {
+/* 71 */     this.handle.getIntegers().write(1, Integer.valueOf(value));
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public int getTotalExperience() {
+/* 80 */     return ((Integer)this.handle.getIntegers().read(0)).intValue();
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   public void setTotalExperience(int value) {
+/* 89 */     this.handle.getIntegers().write(0, Integer.valueOf(value));
+/*    */   }
+/*    */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerExperience.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-
-public class WrapperPlayServerExperience extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Server.EXPERIENCE;
-
-	public WrapperPlayServerExperience() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerExperience(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve Experience bar.
-	 * <p>
-	 * Notes: between 0 and 1
-	 * 
-	 * @return The current Experience bar
-	 */
-	public float getExperienceBar() {
-		return handle.getFloat().read(0);
-	}
-
-	/**
-	 * Set Experience bar.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setExperienceBar(float value) {
-		handle.getFloat().write(0, value);
-	}
-
-	/**
-	 * Retrieve Level.
-	 * 
-	 * @return The current Level
-	 */
-	public int getLevel() {
-		return handle.getIntegers().read(1);
-	}
-
-	/**
-	 * Set Level.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setLevel(int value) {
-		handle.getIntegers().write(1, value);
-	}
-
-	/**
-	 * Retrieve Total Experience.
-	 * 
-	 * @return The current Total Experience
-	 */
-	public int getTotalExperience() {
-		return handle.getIntegers().read(0);
-	}
-
-	/**
-	 * Set Total Experience.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setTotalExperience(int value) {
-		handle.getIntegers().write(0, value);
-	}
-
-}

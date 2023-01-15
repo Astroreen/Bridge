@@ -8,9 +8,9 @@ import bridge.compatibility.itemsadder.IAManager;
 import bridge.compatibility.tab.NicknameManager;
 import bridge.compatibility.tab.TABManager;
 import bridge.config.Config;
-import bridge.database.Connector;
-import bridge.database.Saver;
-import bridge.database.UpdateType;
+import common.database.Connector;
+import common.database.Saver;
+import common.database.UpdateType;
 import bridge.ffa.FFAArenaManager;
 import bridge.ffa.FFAKitItem;
 import bridge.ffa.FFAKitManager;
@@ -18,7 +18,7 @@ import bridge.modules.Currency;
 import bridge.modules.Module;
 import bridge.modules.ModuleManager;
 import bridge.modules.logger.DebugHandlerConfig;
-import bridge.modules.permissions.Permission;
+import common.Permission;
 import bridge.modules.permissions.PermissionManager;
 import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
@@ -898,13 +898,13 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
         }
     }
 
-    private boolean noPermission(@NotNull CommandSender sender, @NotNull Permission perm) {
+    private boolean noPermission(@NotNull CommandSender sender, @NotNull String perm) {
         if (sender instanceof Player player) {
             if (!permManager.havePermission(player, perm)) {
                 sendMessage(sender, MessageType.NO_PERMISSION);
                 return true;
             }
-        } else if (!sender.hasPermission(perm.perm)) {
+        } else if (!sender.hasPermission(perm)) {
             sendMessage(sender, MessageType.NO_PERMISSION);
             return true;
         }

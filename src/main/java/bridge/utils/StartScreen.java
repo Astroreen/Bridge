@@ -30,7 +30,7 @@ public class StartScreen {
         log(Component.text("  oxKNWWWNX0kxkO0X        X0Okxk0XNWWWNKxo  ").color(TextColor.fromHexString("#436d9e")).append(Component.text("        \\/                \\/_____/      \\/ ").color(TextColor.fromHexString("#CFCFCF"))));
         log(Component.text("  oxKWMMWNKkxk0N            N0kxkKNWMMWKxo   ").color(TextColor.fromHexString("#3f6090")).append(Component.text("Made by " + authors + ".").color(TextColor.fromHexString("#b6fc03"))));
         log(Component.text("  oxKWMWXOkk0X                X0kkOXWMWKxo   ").color(TextColor.fromHexString("#3a5382")).append(Component.text("Current version: " + version).color(TextColor.fromHexString("#b6fc03"))));
-        log(Component.text("  odk0K0kdoON                  NOodk0K0kdo").color(TextColor.fromHexString("#354674")));
+        log(Component.text("  odk0K0kdoON                  NOodk0K0kdo   ").color(TextColor.fromHexString("#354674")).append(Component.text("Server version: " + NMS.getRawVersion() ).color(TextColor.fromHexString("#b6fc03"))));
         log(Component.text("  kxxddddox0                    0xoddddxxk").color(TextColor.fromHexString("#2f3a66")));
         log(Component.text("  NNNXXXXXN                      NXXXXXNNN").color(TextColor.fromHexString("#2a2e58")));
         log(Component.text(""));

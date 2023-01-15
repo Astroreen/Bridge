@@ -1,10 +1,10 @@
 package bridge.compatibility.tab;
 
 import bridge.Bridge;
-import bridge.database.Connector;
-import bridge.database.QueryType;
-import bridge.database.Saver;
-import bridge.database.UpdateType;
+import common.database.Connector;
+import common.database.QueryType;
+import common.database.Saver;
+import common.database.UpdateType;
 import bridge.modules.Currency;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
@@ -34,8 +34,8 @@ public class Stars extends Currency {
             NicknameManager.PlayerColor info = manager.getPlayerInfo(uuid);
             if (info != null) return info.stars();
         }
-        ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString());
-        try {
+
+        try (final ResultSet rs = con.querySQL(QueryType.SELECT_STARS, uuid.toString())) {
             if (rs.next()) return rs.getInt("stars");
             return rs.getInt("stars");
         } catch (SQLException e) {

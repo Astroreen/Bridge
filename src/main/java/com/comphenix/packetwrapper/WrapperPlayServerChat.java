@@ -1,104 +1,110 @@
-/**
- * PacketWrapper - ProtocolLib wrappers for Minecraft packets
- * Copyright (C) dmulloy2 <http://dmulloy2.net>
- * Copyright (C) Kristian S. Strangeland
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*     */ package com.comphenix.packetwrapper;
+/*     */ 
+/*     */ import com.comphenix.protocol.PacketType;
+/*     */ import com.comphenix.protocol.events.PacketContainer;
+/*     */ import com.comphenix.protocol.wrappers.EnumWrappers;
+/*     */ import com.comphenix.protocol.wrappers.WrappedChatComponent;
+/*     */ import java.util.Arrays;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class WrapperPlayServerChat
+/*     */   extends AbstractPacket
+/*     */ {
+/*  30 */   public static final PacketType TYPE = PacketType.Play.Server.CHAT;
+/*     */   
+/*     */   public WrapperPlayServerChat() {
+/*  33 */     super(new PacketContainer(TYPE), TYPE);
+/*  34 */     this.handle.getModifier().writeDefaults();
+/*     */   }
+/*     */   
+/*     */   public WrapperPlayServerChat(PacketContainer packet) {
+/*  38 */     super(packet, TYPE);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public WrappedChatComponent getMessage() {
+/*  49 */     return (WrappedChatComponent)this.handle.getChatComponents().read(0);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public void setMessage(WrappedChatComponent value) {
+/*  58 */     this.handle.getChatComponents().write(0, value);
+/*     */   }
+/*     */   
+/*     */   public EnumWrappers.ChatType getChatType() {
+/*  62 */     return (EnumWrappers.ChatType)this.handle.getChatTypes().read(0);
+/*     */   }
+/*     */   
+/*     */   public void setChatType(EnumWrappers.ChatType type) {
+/*  66 */     this.handle.getChatTypes().write(0, type);
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   @Deprecated
+/*     */   public byte getPosition() {
+/*  80 */     Byte position = (Byte)this.handle.getBytes().readSafely(0);
+/*  81 */     if (position != null) {
+/*  82 */       return position.byteValue();
+/*     */     }
+/*  84 */     return getChatType().getId();
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   @Deprecated
+/*     */   public void setPosition(byte value) {
+/*  96 */     this.handle.getBytes().writeSafely(0, Byte.valueOf(value));
+/*     */     
+/*  98 */     if (EnumWrappers.getChatTypeClass() != null)
+/*     */     {
+/* 100 */       Arrays.<EnumWrappers.ChatType>stream(EnumWrappers.ChatType.values()).filter(t -> (t.getId() == value)).findAny()
+/* 101 */         .ifPresent(t -> this.handle.getChatTypes().writeSafely(0, t));
+/*     */     }
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\GitHub Projects\Anicloud\Bridge\libs\PacketWrapper.jar!\com\comphenix\packetwrapper\WrapperPlayServerChat.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
  */
-package com.comphenix.packetwrapper;
-
-import java.util.Arrays;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.EnumWrappers.ChatType;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
-
-public class WrapperPlayServerChat extends AbstractPacket {
-	public static final PacketType TYPE = PacketType.Play.Server.CHAT;
-
-	public WrapperPlayServerChat() {
-		super(new PacketContainer(TYPE), TYPE);
-		handle.getModifier().writeDefaults();
-	}
-
-	public WrapperPlayServerChat(PacketContainer packet) {
-		super(packet, TYPE);
-	}
-
-	/**
-	 * Retrieve the chat message.
-	 * <p>
-	 * Limited to 32767 bytes
-	 * 
-	 * @return The current message
-	 */
-	public WrappedChatComponent getMessage() {
-		return handle.getChatComponents().read(0);
-	}
-
-	/**
-	 * Set the message.
-	 * 
-	 * @param value - new value.
-	 */
-	public void setMessage(WrappedChatComponent value) {
-		handle.getChatComponents().write(0, value);
-	}
-
-	public ChatType getChatType() {
-		return handle.getChatTypes().read(0);
-	}
-
-	public void setChatType(ChatType type) {
-		handle.getChatTypes().write(0, type);
-	}
-
-	/**
-	 * Retrieve Position.
-	 * <p>
-	 * Notes: 0 - Chat (chat box) ,1 - System Message (chat box), 2 - Above
-	 * action bar
-	 * 
-	 * @return The current Position
-	 * @deprecated Magic values replaced by enum
-	 */
-	@Deprecated
-	public byte getPosition() {
-		Byte position = handle.getBytes().readSafely(0);
-		if (position != null) {
-			return position;
-		} else {
-			return getChatType().getId();
-		}
-	}
-
-	/**
-	 * Set Position.
-	 * 
-	 * @param value - new value.
-	 * @deprecated Magic values replaced by enum
-	 */
-	@Deprecated
-	public void setPosition(byte value) {
-		handle.getBytes().writeSafely(0, value);
-
-		if (EnumWrappers.getChatTypeClass() != null)
-		{
-			Arrays.stream(ChatType.values()).filter(t -> t.getId() == value).findAny()
-			      .ifPresent(t -> handle.getChatTypes().writeSafely(0, t));
-		}
-	}
-}
