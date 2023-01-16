@@ -82,9 +82,9 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     }
                     handleNickName(sender, args);
                 }
-                case "server/ffa" -> {
+                case "ffa" -> {
                     if (noPermission(sender, Permission.COMMAND_FFA)) return true;
-                    final Module module = ModuleManager.getModule("server/ffa");
+                    final Module module = ModuleManager.getModule("ffa");
                     if (module == null || !module.active()) {
                         sendMessage(sender, MessageType.MODULE_STATE, "FFA", Config.getMessage(MessageType.DISABLED));
                         return true;
@@ -103,13 +103,13 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     public Optional<List<String>> simpleTabComplete(final @NotNull CommandSender sender, final @NotNull Command command,
                                                     final @NotNull String alias, final String @NotNull ... args) {
         if (args.length == 1) {
-            return Optional.of(Arrays.asList("language", "version", "reload", "debug", "server/ffa", "nickname"));
+            return Optional.of(Arrays.asList("language", "version", "reload", "debug", "ffa", "nickname"));
         }
         return switch (args[0].toLowerCase(Locale.ROOT)) {
             case "language" -> completeLanguage(args);
             case "debug" -> completeDebug(args);
             case "nickname" -> completeNickname(args);
-            case "server/ffa" -> completeFFA(args);
+            case "ffa" -> completeFFA(args);
             default -> Optional.empty();
         };
     }

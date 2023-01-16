@@ -4,6 +4,7 @@ import bridge.Bridge;
 import bridge.config.ConfigurationFile;
 import bridge.event.ProjectileHeadshotEvent;
 import bridge.exceptions.HookException;
+import bridge.listeners.ListenerManager;
 import common.Module;
 import common.Permission;
 import lombok.CustomLog;
@@ -46,12 +47,13 @@ public class HeadshotModule implements Module, Listener {
         HeadshotModule.plugin = plugin;
         //setup configuration file
         try {
-            config = ConfigurationFile.create(new File("headshot-config.yml"), plugin, "server/headshot-config.yml");
+            config = ConfigurationFile.create(new File(plugin.getDataFolder(),"headshot-config.yml"), plugin, "server/headshot-config.yml");
         } catch (InvalidConfigurationException | FileNotFoundException e) {
             LOG.error("Wasn't able to create 'headshot-config.yml' file!", e);
             return false;
         }
         reload();
+        ListenerManager.register("Headshot", this);
         isActive = true;
 
         return true;
@@ -88,6 +90,7 @@ public class HeadshotModule implements Module, Listener {
         //is shooter instance of player
         boolean isPlayer = pr.getShooter() instanceof Player;
 
+        //check permission for damage multiplying
         if (isPlayer) {
             final Player p = (Player) pr.getShooter();
 
@@ -102,16 +105,18 @@ public class HeadshotModule implements Module, Listener {
                 0.3 + zOffset,
                 particleAmount, speed,
                 target instanceof Player player ? player : null);
-        //check permission for damage multiplying
+
         if (isPlayer) {
             final Player p = (Player) pr.getShooter();
 
             if (sound != null)
                 p.playSound(p.getLocation(), sound, soundVolume, soundPitch);
+            LOG.debug("┌Headshot! Player: " + p.getName());
         }
 
         //multiply damage
         double dmg = event.getDamage() * hitMultiplier;
+        LOG.debug("└Original damage was " + event.getDamage() + ", with multiplier: " + dmg);
         //set damage
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
             target.setNoDamageTicks(0);
@@ -122,9 +127,10 @@ public class HeadshotModule implements Module, Listener {
 
     private void particle(final @NotNull Particle particle, final @NotNull Location loc,
                          final double x, final double y, final double z, final int count,
-                         final double speed, final Player pl) {
+                         final double speed, final Player pl)
+    {
         for (final Player p : Bukkit.getOnlinePlayers()) {
-            if (pl.equals(p))
+            if (p.equals(pl))
                 continue;
             p.spawnParticle(particle, loc, count, x, y, z, speed);
         }

@@ -36,7 +36,7 @@ public class Config {
 
         final File root = plugin.getDataFolder();
         try {
-            Config.messages = ConfigurationFile.create(new File(root, "server/messages.yml"), plugin, "server/messages.yml");
+            Config.messages = ConfigurationFile.create(new File(root, "messages.yml"), plugin, "server/messages.yml");
             Config.internal = ConfigAccessor.create(plugin, "server/messages-internal.yml");
         } catch (final InvalidConfigurationException | FileNotFoundException e) {
             LOG.warn(e.getMessage(), e);

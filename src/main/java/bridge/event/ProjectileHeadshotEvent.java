@@ -39,6 +39,7 @@ public class ProjectileHeadshotEvent extends Event implements Cancellable {
     @Override
     public void setCancelled(boolean cancel) {
         this.isCancelled = cancel;
+        event.setCancelled(cancel);
     }
 
     @Override
