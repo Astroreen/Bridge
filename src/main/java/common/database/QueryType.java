@@ -26,7 +26,7 @@ public enum QueryType {
     /**
      * Select playerID and color from nickname table.
      */
-    LOAD_ALL_NICKNAME_COLORS(prefix -> "SELECT playerID,color FROM " + prefix + "nickname"),
+    LOAD_ALL_NICKNAME_COLORS(prefix -> "SELECT playerID, color FROM " + prefix + "nickname"),
 
     /**
      * Select kill and death count. playerID

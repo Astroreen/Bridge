@@ -79,7 +79,8 @@ public class Compatibility implements Listener {
     public static void disable() {
         if (instance != null) {
             for (final CompatiblePlugin hooked : getHooked()) {
-                instance.integrators.get(hooked).close();
+                final Integrator integrator= instance.integrators.get(hooked);
+                if(integrator != null) integrator.close();
             }
         }
     }
@@ -92,8 +93,10 @@ public class Compatibility implements Listener {
     public void onPluginDisable(final @NotNull PluginDisableEvent event) {
         for (CompatiblePlugin plugin : CompatiblePlugin.values()) {
             if(event.getPlugin().getName().equals(plugin.name)) {
-                if(event.getPlugin().isEnabled() && Compatibility.getHooked().contains(plugin))
-                    integrators.get(plugin).close();
+                if(event.getPlugin().isEnabled() && Compatibility.getHooked().contains(plugin)) {
+                    final Integrator integrator= instance.integrators.get(plugin);
+                    if(integrator != null) integrator.close();
+                }
                 integrators.remove(plugin);
                 break;
             }

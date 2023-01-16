@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'bridge'
-version = '5.7.01'
+version = '5.7.03'
 
 test {
     useJUnitPlatform()
@@ -13,7 +13,7 @@ repositories {
     mavenCentral()
     maven {
         name = 'papermc-repo'
-        url = uri('https://repo.papermc.io/repository/maven-public/')
+        url = "https://repo.papermc.io/repository/maven-public/"
     }
     maven {
         name = 'sonatype'

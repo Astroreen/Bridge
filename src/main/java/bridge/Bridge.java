@@ -4,17 +4,16 @@ import bridge.commands.BridgeCommand;
 import bridge.compatibility.Compatibility;
 import bridge.config.Config;
 import bridge.config.ConfigurationFile;
-import common.database.AsyncSaver;
+import bridge.database.AsyncSaver;
 import common.database.Database;
 import common.database.MySQL;
 import common.database.SQLite;
 import bridge.listeners.ListenerManager;
-import bridge.modules.ModuleManager;
-import bridge.modules.logger.BRLogger;
-import bridge.modules.logger.DebugHandlerConfig;
-import bridge.modules.messenger.Action;
-import bridge.modules.messenger.Messenger;
-import bridge.modules.permissions.PermissionManager;
+import common.logger.BRLogger;
+import bridge.pluginmodule.logger.DebugHandlerConfig;
+import common.messanger.Action;
+import bridge.pluginmodule.messenger.Messenger;
+import bridge.pluginmodule.permissions.PermissionManager;
 import bridge.utils.StartScreen;
 import lombok.Getter;
 import me.clip.placeholderapi.libs.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -72,7 +71,7 @@ public final class Bridge extends JavaPlugin {
         instance = this;
         log = BRLogger.create(this);
         try {
-            config = ConfigurationFile.create(new File(getDataFolder(), "config.yml"), this, "config.yml");
+            config = ConfigurationFile.create(new File(getDataFolder(), "config.yml"), this, "server/config.yml");
         } catch (InvalidConfigurationException | FileNotFoundException e) {
             getLogger().log(Level.SEVERE, "Could not load the config.yml file!", e);
             return;

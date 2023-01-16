@@ -1,6 +1,6 @@
 package bridge.config;
 
-import bridge.modules.config.ConfigurationFileImpl;
+import bridge.pluginmodule.config.ConfigurationFileImpl;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.Plugin;

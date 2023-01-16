@@ -36,6 +36,9 @@ public interface Permission {
         /// KIT ///
     FFA_KIT_CREATE = "bridge.ffa.kit.create",
     /// DEATHS/KILLS ///
-    FFA_MANAGE_INFO = "bridge.ffa.manage.info"
+    FFA_MANAGE_INFO = "bridge.ffa.manage.info",
+
+    /// HEADSHOT ///
+    HEADSHOT_MAKE_HEADSHOT = "bridge.headshot"
     ;
 }

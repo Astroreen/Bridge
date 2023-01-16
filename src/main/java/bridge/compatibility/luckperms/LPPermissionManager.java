@@ -1,6 +1,6 @@
 package bridge.compatibility.luckperms;
 
-import bridge.modules.permissions.Perms;
+import bridge.pluginmodule.permissions.Perms;
 import bridge.utils.PlayerConverter;
 import lombok.CustomLog;
 import net.luckperms.api.LuckPerms;

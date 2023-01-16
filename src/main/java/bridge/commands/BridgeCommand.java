@@ -5,21 +5,21 @@ import bridge.MessageType;
 import bridge.compatibility.Compatibility;
 import bridge.compatibility.CompatiblePlugin;
 import bridge.compatibility.itemsadder.IAManager;
-import bridge.compatibility.tab.NicknameManager;
+import bridge.module.nickname.NicknameManager;
 import bridge.compatibility.tab.TABManager;
 import bridge.config.Config;
 import common.database.Connector;
 import common.database.Saver;
 import common.database.UpdateType;
-import bridge.ffa.FFAArenaManager;
-import bridge.ffa.FFAKitItem;
-import bridge.ffa.FFAKitManager;
-import bridge.modules.Currency;
-import bridge.modules.Module;
-import bridge.modules.ModuleManager;
-import bridge.modules.logger.DebugHandlerConfig;
+import bridge.module.ffa.FFAArenaManager;
+import bridge.module.ffa.FFAKitItem;
+import bridge.module.ffa.FFAKitManager;
+import common.Currency;
+import common.Module;
+import bridge.ModuleManager;
+import bridge.pluginmodule.logger.DebugHandlerConfig;
 import common.Permission;
-import bridge.modules.permissions.PermissionManager;
+import bridge.pluginmodule.permissions.PermissionManager;
 import bridge.utils.ColorCodes;
 import bridge.utils.PlayerConverter;
 import bridge.utils.WorldUtils;
@@ -82,9 +82,9 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     }
                     handleNickName(sender, args);
                 }
-                case "ffa" -> {
+                case "server/ffa" -> {
                     if (noPermission(sender, Permission.COMMAND_FFA)) return true;
-                    final Module module = ModuleManager.getModule("ffa");
+                    final Module module = ModuleManager.getModule("server/ffa");
                     if (module == null || !module.active()) {
                         sendMessage(sender, MessageType.MODULE_STATE, "FFA", Config.getMessage(MessageType.DISABLED));
                         return true;
@@ -103,13 +103,13 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
     public Optional<List<String>> simpleTabComplete(final @NotNull CommandSender sender, final @NotNull Command command,
                                                     final @NotNull String alias, final String @NotNull ... args) {
         if (args.length == 1) {
-            return Optional.of(Arrays.asList("language", "version", "reload", "debug", "ffa", "nickname"));
+            return Optional.of(Arrays.asList("language", "version", "reload", "debug", "server/ffa", "nickname"));
         }
         return switch (args[0].toLowerCase(Locale.ROOT)) {
             case "language" -> completeLanguage(args);
             case "debug" -> completeDebug(args);
             case "nickname" -> completeNickname(args);
-            case "ffa" -> completeFFA(args);
+            case "server/ffa" -> completeFFA(args);
             default -> Optional.empty();
         };
     }

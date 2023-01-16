@@ -3,7 +3,7 @@ package bridge.packets.player;
 import bridge.Bridge;
 import bridge.compatibility.protocollib.ProtocolLibManager;
 import bridge.listeners.ListenerManager;
-import bridge.modules.Module;
+import common.Module;
 import bridge.utils.ProtocolLibUtils;
 import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
 import com.comphenix.protocol.PacketType;
@@ -145,8 +145,6 @@ public class MentionTaber implements Module, Listener {
         //creating packet
         final PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.PLAYER_INFO);
         final WrapperPlayServerPlayerInfo info = new WrapperPlayServerPlayerInfo(packet);
-        /*packet.getPlayerInfoActions().write(0, EnumSet.of(action));
-        packet.getPlayerInfoDataLists().write(1, Collections.singletonList(data));*/
 
         //setting data;
         info.setData(new ArrayList<>(Collections.singleton(data)));

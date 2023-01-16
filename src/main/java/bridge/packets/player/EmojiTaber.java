@@ -4,8 +4,8 @@ import bridge.Bridge;
 import bridge.compatibility.protocollib.ProtocolLibManager;
 import bridge.config.ConfigurationFile;
 import bridge.listeners.ListenerManager;
-import bridge.modules.Module;
-import bridge.modules.permissions.PermissionManager;
+import common.Module;
+import bridge.pluginmodule.permissions.PermissionManager;
 import bridge.utils.ProtocolLibUtils;
 import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
 import com.comphenix.protocol.PacketType;
@@ -51,7 +51,7 @@ public class EmojiTaber implements Module, Listener {
     public boolean start(final @NotNull Bridge plugin) {
         EmojiTaber.plugin = plugin;
         try {
-            EmojiTaber.config = ConfigurationFile.create(new File(plugin.getDataFolder(), "emoji-list.yml"), plugin, "emoji-list.yml");
+            EmojiTaber.config = ConfigurationFile.create(new File(plugin.getDataFolder(), "emoji-list.yml"), plugin, "server/emoji-list.yml");
         } catch (InvalidConfigurationException | FileNotFoundException e) {
             LOG.error("Wasn't able to create 'emoji-list.yml' file!", e);
             return false;

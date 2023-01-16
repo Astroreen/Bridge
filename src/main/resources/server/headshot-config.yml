@@ -1,0 +1,44 @@
+sound:
+  enable: true
+  custom-sound: false
+  #Список звуков - https://www.digminecraft.com/lists/sound_list_pc.php
+  name: 'entity.experience_orb.pickup'
+  volume: 1.0
+  pitch: 0.1
+#Список частиц - https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html
+particle-settings:
+  particle: CRIT
+  amount: 1
+  xOffset: 0.0
+  yOffset: 0.0
+  zOffset: 0.0
+  speed: 0.3
+
+#Нужен перм bridge.headshot
+hit-multiplier: 1
+
+allowed-types:
+  - BLAZE
+  - CREEPER
+  - DROWNED
+  - ENDERMAN
+  - HUSK
+  - ILLUSIONER
+  - IRON_GOLEM
+  - PILLAGER
+  - PLAYER
+  - SKELETON
+  - SNOWMAN
+  - STRAY
+  - VEX
+  - VILLAGER
+  - VINDICATOR
+  - WANDERING_TRADER
+  - WITCH
+  - WITHER_SKELETON
+  - ZOMBIE
+  - ZOMBIE_VILLAGER
+  - EVOKER
+  - PIGLIN,
+  - PIGLIN_BRUTE,
+  - ZOMBIFIED_PIGLIN

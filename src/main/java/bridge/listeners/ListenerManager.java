@@ -21,8 +21,8 @@ public class ListenerManager {
     public static void setup(final @NotNull Bridge plugin) {
         ListenerManager.plugin = plugin;
         //default listeners
-        //TODO put here real default listeners or register them out of this class
         registered.put("GetServer", new GetServerEventListener());
+        registered.put("EntityDamageByEntity", new onEntityDamageByEntityEvent());
 
         new BukkitRunnable() {
             @Override
