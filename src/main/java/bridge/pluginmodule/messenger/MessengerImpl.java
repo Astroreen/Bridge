@@ -8,7 +8,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import common.messanger.Action;
 import common.messanger.Channel;
-import common.messanger.Sender;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,11 +22,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Messenger for writing a message both as
+ * MessengerImpl for writing a message both as
  * SocketManager and PluginMessage, and then
  *
  */
-public class Messenger implements PluginMessageListener, Listener {
+public class MessengerImpl implements PluginMessageListener, Listener, common.messanger.Messenger {
 
     private static Bridge plugin;
     private final LinkedHashMap<Action, String[]> queue;
@@ -40,8 +39,8 @@ public class Messenger implements PluginMessageListener, Listener {
      */
     private final int delay = 20;
 
-    public Messenger(final @NotNull Bridge plugin) {
-        Messenger.plugin = plugin;
+    public MessengerImpl(final @NotNull Bridge plugin) {
+        MessengerImpl.plugin = plugin;
         ListenerManager.register("Messenger", this);
         this.queue = new LinkedHashMap<>();
         final String ip = plugin.getPluginConfig().getString("settings.modules.updater.ip", "localhost");
@@ -51,12 +50,14 @@ public class Messenger implements PluginMessageListener, Listener {
         sender.start();
     }
 
+    @Override
     public void register() {
         for (Channel channel : Channel.values())
             register(channel);
         manager.register();
     }
 
+    @Override
     public void register(final @NotNull Channel channel) {
         if(isPluginMessagingEnabled()){
             plugin.getServer().getMessenger().registerOutgoingPluginChannel(plugin, channel.name);
@@ -65,12 +66,14 @@ public class Messenger implements PluginMessageListener, Listener {
         manager.register(channel);
     }
 
+    @Override
     public void unregister() {
         for (Channel channel : Channel.values())
             unregister(channel);
         manager.unregister();
     }
 
+    @Override
     public void unregister(final @NotNull Channel channel) {
         if(isPluginMessagingEnabled()){
             plugin.getServer().getMessenger().unregisterOutgoingPluginChannel(plugin, channel.name);
@@ -79,12 +82,21 @@ public class Messenger implements PluginMessageListener, Listener {
         manager.unregister(channel);
     }
 
-    public void stop() {
+    @Override
+    public void reload() {
+        final String ip = plugin.getPluginConfig().getString("settings.modules.updater.ip", "localhost");
+        final int port = plugin.getPluginConfig().getInt("settings.modules.updater.port", 3820);
+        manager.refresh(ip, port);
+    }
+
+    @Override
+    public void disable() {
         if (SocketManager.isServer()) {
             manager.stopServer();
         } else {
             manager.stopClient();
         }
+        sender.end();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -95,11 +107,11 @@ public class Messenger implements PluginMessageListener, Listener {
         }
     }
 
-    @Override
+    @Override @SuppressWarnings("UnstableApiUsage")
     public void onPluginMessageReceived(final @NotNull String c, final @NotNull Player player, final byte @NotNull [] msg) {
         //get channel
         Channel channel = null;
-        for (Channel chan : Channel.values()) {
+        for (final @NotNull Channel chan : Channel.values()) {
             if (c.equals(chan.name)) {
                 channel = chan;
                 break;
@@ -107,7 +119,7 @@ public class Messenger implements PluginMessageListener, Listener {
         }
         if (channel == null) return;
 
-        ByteArrayDataInput in = ByteStreams.newDataInput(msg);
+        final ByteArrayDataInput in = ByteStreams.newDataInput(msg);
         final String subchannel = in.readUTF();
 
         //get action
@@ -121,36 +133,25 @@ public class Messenger implements PluginMessageListener, Listener {
         if (action == null) return;
 
 
-        ConcurrentLinkedQueue<String> data = new ConcurrentLinkedQueue<>();
+        final ConcurrentLinkedQueue<String> data = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < action.lines; i++) data.add(in.readUTF());
         //handle data
         new ActionHandler(channel, action, data);
     }
 
-    /**
-     * Execute action at the earliest opportunity.
-     *
-     * @param action action that will be executed
-     * @param data   data, that will be put to packet
-     */
-    public void makeReservation(final @NotNull Action action, final String... data) {
+    @Override
+    public void reserve(final @NotNull Action action, final String... data) {
         if (ServerHavePeople()) {
-            UUID uuid = Iterables.getFirst(Bukkit.getOnlinePlayers(), null).getUniqueId();
+            final UUID uuid = Iterables.getFirst(Bukkit.getOnlinePlayers(), null).getUniqueId();
             send(uuid, action, data);
             //TODO delete from queue if answer came from SocketData
         } else queue.put(action, data);
     }
 
-    /**
-     * Send plugin message to exact player.
-     *
-     * @param uuid   uuid of the player
-     * @param action action that will be executed
-     * @param data   data that will be put to packet
-     */
+    @Override @SuppressWarnings("UnstableApiUsage")
     public void send(final @NotNull UUID uuid, final @NotNull Action action, final String... data) {
         if(!isPluginMessagingEnabled()) return;
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        final ByteArrayDataOutput out = ByteStreams.newDataOutput();
 
         //firstly, writing channel name based on action
         final String channel;
@@ -173,18 +174,6 @@ public class Messenger implements PluginMessageListener, Listener {
         final byte[] info = out.toByteArray();
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> sender.add(new AsyncSender.Record(uuid, channel, info)), delay);
     }
-
-    public void reload() {
-        final String ip = plugin.getPluginConfig().getString("settings.modules.updater.ip", "localhost");
-        final int port = plugin.getPluginConfig().getInt("settings.modules.updater.port", 3820);
-        manager.refresh(ip, port);
-    }
-
-    public Sender getSender() {
-        return sender;
-    }
-
-    public SocketManager getSocketManager() {return manager;}
 
     public static boolean ServerHavePeople(){
         return !Bukkit.getOnlinePlayers().isEmpty();

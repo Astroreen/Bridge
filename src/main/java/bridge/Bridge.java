@@ -5,6 +5,7 @@ import bridge.compatibility.Compatibility;
 import bridge.config.Config;
 import bridge.config.ConfigurationFile;
 import bridge.database.AsyncSaver;
+import bridge.pluginmodule.messenger.MessengerImpl;
 import common.database.Database;
 import common.database.MySQL;
 import common.database.SQLite;
@@ -12,7 +13,7 @@ import bridge.listeners.ListenerManager;
 import common.logger.BRLogger;
 import bridge.pluginmodule.logger.DebugHandlerConfig;
 import common.messanger.Action;
-import bridge.pluginmodule.messenger.Messenger;
+import common.messanger.Messenger;
 import bridge.pluginmodule.permissions.PermissionManager;
 import bridge.utils.StartScreen;
 import lombok.Getter;
@@ -127,10 +128,10 @@ public final class Bridge extends JavaPlugin {
 
         //registering plugin messenger
         if (config.getBoolean("settings.modules.updater.enabled", true)) {
-            messenger = new Messenger(this);
+            messenger = new MessengerImpl(this);
             messenger.register();
-            messenger.makeReservation(Action.GET_SERVER);
-            messenger.makeReservation(Action.GET_SERVERS);
+            messenger.reserve(Action.GET_SERVER);
+            messenger.reserve(Action.GET_SERVERS);
         } else messenger = null;
 
         // done
@@ -138,7 +139,7 @@ public final class Bridge extends JavaPlugin {
         log.info("Bridge successfully enabled!");
 
         //refreshing db connection
-        final long updateTime = config.getLong("mysql.updateTime", 30) * 1200;
+        final long updateTime = config.getLong("mysql.updateTime", 30) * 1200; //minutes
         final Runnable runnable = () -> {
             try {
                 database.getConnection().prepareStatement("SELECT 1").executeQuery().close();
@@ -157,8 +158,7 @@ public final class Bridge extends JavaPlugin {
         Compatibility.disable();
         if (messenger != null) {
             messenger.unregister();
-            messenger.getSender().end();
-            messenger.stop();
+            messenger.disable();
         }
 
         Bukkit.getScheduler().cancelTasks(this);
@@ -188,7 +188,7 @@ public final class Bridge extends JavaPlugin {
     /**
      * Returns the permission manager
      *
-     * @return {@link Messenger} instance
+     * @return {@link PermissionManager} instance
      */
     public PermissionManager getPermManager() {
         return perms;
