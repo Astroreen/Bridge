@@ -2,7 +2,7 @@ package bridge.pluginmodule.messenger;
 
 import bridge.Bridge;
 import bridge.event.ConnectingSocketEvent;
-import bridge.listeners.ListenerManager;
+import bridge.listener.ListenerManager;
 import common.messanger.Action;
 import common.messanger.Channel;
 import lombok.CustomLog;
@@ -135,7 +135,10 @@ public class SocketManager implements Listener {
         Socket socket = event.getSocket();
         if (socket == null) return;
         //later or now we will get this Socket's name, so Socket's ID isn't really matter.
-        ConnectedSockets.put(UNDEFINED_SOCKET + ConnectedSockets.size(), new SocketData(socket, startReadingThread(socket)));
+        ConnectedSockets.put(
+                UNDEFINED_SOCKET + ConnectedSockets.size(),
+                new SocketData(socket, startReadingThread(socket))
+        );
         send(socket, Channel.BRIDGE, Action.GET_SERVER);
         LOG.debug("Hey! A new socket joined our party! Cool.");
     }

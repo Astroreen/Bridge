@@ -3,6 +3,8 @@ package bridge.config;
 import bridge.Bridge;
 import bridge.MessageType;
 import bridge.utils.ColorCodes;
+import common.config.ConfigAccessor;
+import common.config.ConfigurationFile;
 import lombok.CustomLog;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.TextComponent;

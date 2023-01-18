@@ -15,7 +15,7 @@ import bridge.module.ffa.FFAArenaManager;
 import bridge.module.ffa.FFAKitItem;
 import bridge.module.ffa.FFAKitManager;
 import common.Currency;
-import common.Module;
+import common.IModule;
 import bridge.ModuleManager;
 import bridge.pluginmodule.logger.DebugHandlerConfig;
 import common.Permission;
@@ -73,19 +73,24 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     sendMessage(sender, MessageType.RELOADED);
                 }
                 case "nickname", "nick" -> {
+                    final IModule module = ModuleManager.NICKNAME.getModule();
                     if (!Compatibility.getHooked().contains(CompatiblePlugin.TAB))
-                        sendMessage(sender, MessageType.PLUGIN_DISABLED, "TAB");
-                    final Module module = ModuleManager.getModule("tab");
-                    if (module == null || !module.active()) {
-                        sendMessage(sender, MessageType.MODULE_STATE, "ColorNickname", Config.getMessage(MessageType.DISABLED));
+                        sendMessage(sender, MessageType.PLUGIN_DISABLED, module.getName());
+
+                    if (!ModuleManager.NICKNAME.isActive()) {
+                        sendMessage(
+                                sender,
+                                MessageType.MODULE_STATE,
+                                (module.getName() == null ? "color-nickname" : module.getName()),
+                                Config.getMessage(MessageType.DISABLED)
+                        );
                         return true;
                     }
                     handleNickName(sender, args);
                 }
                 case "ffa" -> {
                     if (noPermission(sender, Permission.COMMAND_FFA)) return true;
-                    final Module module = ModuleManager.getModule("ffa");
-                    if (module == null || !module.active()) {
+                    if (!ModuleManager.FFA.isActive()) {
                         sendMessage(sender, MessageType.MODULE_STATE, "FFA", Config.getMessage(MessageType.DISABLED));
                         return true;
                     }
@@ -677,7 +682,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                 if (uuid != null) {
                     Currency currency = TABManager.getStars();
                     if (currency == null) {
-                        sendMessage(sender, MessageType.MODULE_STATE, "UseMoney", Config.getMessage(MessageType.DISABLED));
+                        sendMessage(sender, MessageType.MODULE_STATE, ModuleManager.NICKNAME.getModule().getName(), Config.getMessage(MessageType.DISABLED));
                         return;
                     }
                     currency.setCurrency(uuid, Integer.parseInt(args[3]));

@@ -8,36 +8,37 @@ hook:
 
 settings:
   language: ru
-  modules:
 
-    shift-fly:
-      enabled: false
-      #Материал либо id предмета из itemsadder'а (пример: "DIAMOND_HELMET, LEATHER_CHESTPLATE, ...").
-      armor: "" #"Шлем, Нагрудник, Поножи, Ботинки".
+modules:
 
-    emoji-taber:
-      enabled: true
+  shift-fly:
+    enabled: false
+    #Материал либо id предмета из itemsadder'а (пример: "DIAMOND_HELMET, LEATHER_CHESTPLATE, ...").
+    armor: "" #"Шлем, Нагрудник, Поножи, Ботинки".
 
-    headshot-particles:
-      enabled: true
+  emoji-taber:
+    enabled: true
 
-    mention-taber:
-      enabled: true
-      symbol: "@"
+  headshot-particles:
+    enabled: true
 
-    ffa:
-      enabled: false
-    tab:
-      enabled: true
-      ColorNickname: true
-      UseMoney: true
+  mention-taber:
+    enabled: true
+    symbol: "@"
 
+  ffa:
+    enabled: false
 
-    updater:
-      enabled: false
-      #Меняйте только в том случае, если знаете что делаете.
-      ip: "127.0.0.1"
-      port: 3820
+  nickname:
+    enabled: true
+    color-nickname: true
+    money-to-change-nickname: true
+
+  updater:
+    enabled: false
+    #Меняйте только в том случае, если знаете что делаете.
+    ip: "127.0.0.1"
+    port: 3820
 
 #MySQL. Если данные для подключения вписаны неправильно,
 #то данные будут записываться в локальную базу данных.

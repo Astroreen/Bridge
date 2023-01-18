@@ -1,7 +1,7 @@
 package bridge.pluginmodule.messenger;
 
 import bridge.Bridge;
-import bridge.listeners.ListenerManager;
+import bridge.listener.ListenerManager;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
@@ -43,8 +43,8 @@ public class MessengerImpl implements PluginMessageListener, Listener, common.me
         MessengerImpl.plugin = plugin;
         ListenerManager.register("Messenger", this);
         this.queue = new LinkedHashMap<>();
-        final String ip = plugin.getPluginConfig().getString("settings.modules.updater.ip", "localhost");
-        final int port = plugin.getPluginConfig().getInt("settings.modules.updater.port", 3820);
+        final String ip = plugin.getPluginConfig().getString("modules.updater.ip", "localhost");
+        final int port = plugin.getPluginConfig().getInt("modules.updater.port", 3820);
         this.manager = new SocketManager(ip, port);
         sender = new AsyncSender();
         sender.start();
@@ -84,8 +84,8 @@ public class MessengerImpl implements PluginMessageListener, Listener, common.me
 
     @Override
     public void reload() {
-        final String ip = plugin.getPluginConfig().getString("settings.modules.updater.ip", "localhost");
-        final int port = plugin.getPluginConfig().getInt("settings.modules.updater.port", 3820);
+        final String ip = plugin.getPluginConfig().getString("modules.updater.ip", "localhost");
+        final int port = plugin.getPluginConfig().getInt("modules.updater.port", 3820);
         manager.refresh(ip, port);
     }
 

@@ -1,6 +1,6 @@
 package bridge.compatibility;
 
-import bridge.exceptions.HookException;
+import common.exceptions.HookException;
 
 /**
  * Integrator object performs integration with other plugins.

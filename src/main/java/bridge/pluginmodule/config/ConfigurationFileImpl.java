@@ -1,7 +1,7 @@
 package bridge.pluginmodule.config;
 
-import bridge.config.ConfigAccessor;
-import bridge.config.ConfigurationFile;
+import common.config.ConfigAccessor;
+import common.config.ConfigurationFile;
 import bridge.config.ConfigurationSectionDecorator;
 import lombok.CustomLog;
 import org.bukkit.configuration.ConfigurationSection;

@@ -1,4 +1,4 @@
-package bridge.exceptions;
+package common.exceptions;
 
 /**
  * Thrown when Object wasn't found

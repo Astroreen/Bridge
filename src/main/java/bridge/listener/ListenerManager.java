@@ -1,4 +1,4 @@
-package bridge.listeners;
+package bridge.listener;
 
 import bridge.Bridge;
 import lombok.CustomLog;
@@ -21,8 +21,8 @@ public class ListenerManager {
     public static void setup(final @NotNull Bridge plugin) {
         ListenerManager.plugin = plugin;
         //default listeners
-        registered.put("GetServer", new GetServerEventListener());
-        registered.put("EntityDamageByEntity", new onEntityDamageByEntityEvent());
+        register("GetServer", new GetServerEventListener());
+        register("EntityDamageByEntity", new onEntityDamageByEntityEvent());
 
         new BukkitRunnable() {
             @Override
@@ -30,10 +30,9 @@ public class ListenerManager {
                 // log which listeners have been registered
                 if (!registered.isEmpty()) {
                     final StringBuilder builder = new StringBuilder();
-                    for (final String name : registered.keySet()) {
-                        Bukkit.getPluginManager().registerEvents(registered.get(name), plugin);
+                    for (final String name : registered.keySet())
                         builder.append(name).append(", ");
-                    }
+
                     final String plugins = builder.substring(0, builder.length() - 2);
                     LOG.debug("Registered listeners on start: " + plugins + ".");
                 }
@@ -42,8 +41,8 @@ public class ListenerManager {
     }
 
     public static void register(final @NotNull String name, final @NotNull Listener listener) {
-        Bukkit.getPluginManager().registerEvents(listener, plugin);
         if(registered.containsKey(name) || registered.containsValue(listener)) return;
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
         registered.put(name, listener);
         //LOG.debug("Listener '" + name + "' was registered.");
     }

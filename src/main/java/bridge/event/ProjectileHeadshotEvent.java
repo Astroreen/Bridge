@@ -1,33 +1,41 @@
 package bridge.event;
 
+import com.google.common.base.Function;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectileHeadshotEvent extends Event implements Cancellable {
+import java.util.Map;
+
+public class ProjectileHeadshotEvent extends EntityDamageByEntityEvent implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
-    private boolean isCancelled;
-    private final EntityDamageByEntityEvent event;
+    private static boolean isCancelled;
 
-    public ProjectileHeadshotEvent (final @NotNull EntityDamageByEntityEvent event) {
-        this.event = event;
+    @SuppressWarnings("deprecation")
+    public ProjectileHeadshotEvent (
+            @NotNull final Entity damager,
+            @NotNull final Entity damagee,
+            @NotNull final DamageCause cause,
+            @NotNull final Map<DamageModifier, Double> modifiers,
+            @NotNull final Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions,
+            boolean critical
+    ) {
+        super(damager, damagee, cause, modifiers, modifierFunctions, critical);
         isCancelled = false;
     }
 
-    public @NotNull EntityDamageByEntityEvent getOriginalEvent() {return event;}
-
     /**
-     * Gets {@link Projectile} from original method using {@link #getOriginalEvent()}.
+     * Gets {@link Projectile}.
      *
      * @return projectile.
      * @throws IllegalStateException if event was fired but no projectile found.
      */
     public Projectile getProjectile() throws IllegalStateException {
-        if(getOriginalEvent().getDamager() instanceof Projectile projectile) return projectile;
+        if(getDamager() instanceof Projectile projectile) return projectile;
         else throw new IllegalStateException("ProjectileHeadshotEvent was fired, but theres no projectile found.");
     }
 
@@ -37,14 +45,9 @@ public class ProjectileHeadshotEvent extends Event implements Cancellable {
     }
 
     @Override
-    public void setCancelled(boolean cancel) {
-        this.isCancelled = cancel;
-        event.setCancelled(cancel);
-    }
+    public void setCancelled(boolean cancel) {isCancelled = cancel;}
 
     @Override
-    public @NotNull HandlerList getHandlers() {
-        return handlers;
-    }
-    public static HandlerList getHandlerList() {return handlers;}
+    public @NotNull HandlerList getHandlers() {return handlers;}
+    public static @NotNull HandlerList getHandlerList() {return handlers;}
 }

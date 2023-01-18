@@ -5,6 +5,7 @@ sound:
   name: 'entity.experience_orb.pickup'
   volume: 1.0
   pitch: 0.1
+
 #Список частиц - https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html
 particle-settings:
   particle: CRIT

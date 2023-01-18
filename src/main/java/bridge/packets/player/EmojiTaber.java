@@ -2,9 +2,9 @@ package bridge.packets.player;
 
 import bridge.Bridge;
 import bridge.compatibility.protocollib.ProtocolLibManager;
-import bridge.config.ConfigurationFile;
-import bridge.listeners.ListenerManager;
-import common.Module;
+import common.config.ConfigurationFile;
+import bridge.listener.ListenerManager;
+import common.IModule;
 import bridge.pluginmodule.permissions.PermissionManager;
 import bridge.utils.ProtocolLibUtils;
 import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
@@ -37,10 +37,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @CustomLog(topic = "EmojiTaber")
-public class EmojiTaber implements Module, Listener {
+public class EmojiTaber implements IModule, Listener {
     private static Bridge plugin;
     private static ConfigurationFile config;
-    private static boolean isActive;
     private static ProtocolManager manager;
     private static String permission;
     private final static HashMap<String, List<Emoji>> fakePlayers = new HashMap<>();
@@ -59,7 +58,6 @@ public class EmojiTaber implements Module, Listener {
         EmojiTaber.manager = ProtocolLibrary.getProtocolManager();
         ListenerManager.register(getName(), this);
         this.reload();
-        EmojiTaber.isActive = true;
         return true;
     }
 
@@ -203,17 +201,12 @@ public class EmojiTaber implements Module, Listener {
 
     @Override
     public void disable() {
-        isActive = false;
+        //Empty
     }
 
     @Override
     public boolean isConditionsMet() {
         return ProtocolLibManager.isActive();
-    }
-
-    @Override
-    public boolean active() {
-        return isActive;
     }
 
     record Emoji(String name, UUID uuid) {

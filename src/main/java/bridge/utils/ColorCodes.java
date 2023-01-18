@@ -1,6 +1,6 @@
 package bridge.utils;
 
-import bridge.config.ConfigurationFile;
+import common.config.ConfigurationFile;
 import lombok.CustomLog;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;

@@ -1,4 +1,4 @@
-package bridge.listeners;
+package bridge.listener;
 
 import bridge.Bridge;
 import bridge.event.GetServerEvent;
@@ -19,7 +19,7 @@ import java.util.List;
 public class GetServerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onGetServerEvent(@NotNull GetServerEvent event){
+    public void onGetServerEvent(final @NotNull GetServerEvent event){
         final String name = event.getServerName();
         LOG.debug("Got this server name from BungeeCord! Writing it in server.properties as \"server-name: " + name + "\"");
         Bridge plugin = Bridge.getInstance();

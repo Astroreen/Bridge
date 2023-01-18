@@ -1,6 +1,6 @@
 package bridge.pluginmodule.logger;
 
-import bridge.config.ConfigurationFile;
+import common.config.ConfigurationFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

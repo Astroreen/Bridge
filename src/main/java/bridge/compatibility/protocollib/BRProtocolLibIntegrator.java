@@ -1,7 +1,7 @@
 package bridge.compatibility.protocollib;
 
 import bridge.compatibility.Integrator;
-import bridge.exceptions.HookException;
+import common.exceptions.HookException;
 
 public class BRProtocolLibIntegrator implements Integrator {
     @Override

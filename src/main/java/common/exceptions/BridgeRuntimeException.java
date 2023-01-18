@@ -1,4 +1,4 @@
-package bridge.exceptions;
+package common.exceptions;
 
 public class BridgeRuntimeException extends Exception {
 

@@ -4,14 +4,14 @@ import bridge.Bridge;
 import bridge.compatibility.Compatibility;
 import bridge.compatibility.CompatiblePlugin;
 import bridge.compatibility.worldedit.WEManager;
-import bridge.config.ConfigurationFile;
+import bridge.listener.ListenerManager;
+import bridge.utils.FileUtils;
+import common.IModule;
+import common.config.ConfigurationFile;
 import common.database.Connector;
 import common.database.QueryType;
 import common.database.Saver;
 import common.database.UpdateType;
-import bridge.listeners.ListenerManager;
-import common.Module;
-import bridge.utils.FileUtils;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -50,12 +50,11 @@ import java.util.UUID;
  * @author Astroreen
  */
 @CustomLog(topic = "FFA")
-public class FFA implements Module, Listener {
+public class FFA implements IModule, Listener {
 
     private static Bridge plugin;
     private static ConfigurationFile config;
     private static ConfigurationFile kits;
-    private static boolean isActive = false;
     private static final List<UUID> exist = new ArrayList<>();
 
     @Override
@@ -94,7 +93,6 @@ public class FFA implements Module, Listener {
         FFAArenaManager.setup(plugin, config);
         new FFAPlaceholders().register();
         //fully working
-        isActive = true;
         return true;
     }
 
@@ -114,7 +112,6 @@ public class FFA implements Module, Listener {
     @Override
     public void disable() {
         FFAArenaManager.unloadAllArenas();
-        isActive = false;
     }
 
     @EventHandler
@@ -238,10 +235,5 @@ public class FFA implements Module, Listener {
     @Override
     public boolean isConditionsMet() {
         return true;
-    }
-
-    @Override
-    public boolean active() {
-        return isActive;
     }
 }

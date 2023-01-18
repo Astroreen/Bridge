@@ -1,13 +1,23 @@
 package common;
 
 import bridge.Bridge;
-import bridge.exceptions.HookException;
+import common.exceptions.HookException;
 import org.jetbrains.annotations.NotNull;
 
-public interface Module {
+/**
+ * Interface for modules.
+ * <br><br/>
+ * <i><b>Note:</b> use constructors for
+ * one time actions at the early start.</i>
+ */
+public interface IModule {
 
     /**
-     * Start module
+     * Start module. Can start multiple times,
+     * use constructors for one time actions
+     * at the early start.
+     *
+     * @throws HookException when you can't start method.
      */
     boolean start(final @NotNull Bridge plugin) throws HookException;
 
@@ -27,13 +37,6 @@ public interface Module {
      * @return true if all conditions met
      */
     boolean isConditionsMet();
-
-    /**
-     * Is module active right now.
-     *
-     * @return true if it is
-     */
-    boolean active();
 
     /**
      * Get name of the module.

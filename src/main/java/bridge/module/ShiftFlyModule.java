@@ -4,8 +4,8 @@ import bridge.Bridge;
 import bridge.compatibility.Compatibility;
 import bridge.compatibility.CompatiblePlugin;
 import bridge.compatibility.itemsadder.IAManager;
-import bridge.listeners.ListenerManager;
-import common.Module;
+import bridge.listener.ListenerManager;
+import common.IModule;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import lombok.CustomLog;
@@ -18,10 +18,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 
 @CustomLog
-public class ShiftFlyModule implements Module, Listener {
+public class ShiftFlyModule implements IModule, Listener {
 
     private static Bridge plugin;
-    private static boolean isActive;
     private static String helmet = null;
     private static boolean isHelmetIA = false;
     private static String chestplate = null;
@@ -36,7 +35,6 @@ public class ShiftFlyModule implements Module, Listener {
         ShiftFlyModule.plugin = plugin;
         ListenerManager.register(getName(), this);
         reload();
-        isActive = true;
         return true;
     }
     @EventHandler
@@ -46,7 +44,7 @@ public class ShiftFlyModule implements Module, Listener {
 
     @Override
     public void reload() {
-        final String settings = plugin.getPluginConfig().getString("settings.modules.shift-fly.armor");
+        final String settings = plugin.getPluginConfig().getString("modules.shift-fly.armor");
         if(settings == null) {
             LOG.error("Wasn't able to get armor from config.yml for module '\" + getName() + \"'. Ignoring.");
             return;
@@ -167,17 +165,12 @@ public class ShiftFlyModule implements Module, Listener {
 
     @Override
     public void disable() {
-        isActive = false;
+        //Empty
     }
 
     @Override
     public boolean isConditionsMet() {
         return true; //no conditions
-    }
-
-    @Override
-    public boolean active() {
-        return isActive;
     }
 
     @Override

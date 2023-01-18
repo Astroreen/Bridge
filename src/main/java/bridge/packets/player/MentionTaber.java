@@ -2,8 +2,8 @@ package bridge.packets.player;
 
 import bridge.Bridge;
 import bridge.compatibility.protocollib.ProtocolLibManager;
-import bridge.listeners.ListenerManager;
-import common.Module;
+import bridge.listener.ListenerManager;
+import common.IModule;
 import bridge.utils.ProtocolLibUtils;
 import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
 import com.comphenix.protocol.PacketType;
@@ -32,11 +32,10 @@ import java.util.HashMap;
 import java.util.UUID;
 
 @CustomLog(topic = "MentionTaber")
-public class MentionTaber implements Module, Listener {
+public class MentionTaber implements IModule, Listener {
     private static Bridge plugin;
     private static String prefix;
     private static ProtocolManager manager;
-    private static boolean isActive;
     private final static HashMap<UUID, UUID> uuids = new HashMap<>();
 
     @Override
@@ -45,7 +44,6 @@ public class MentionTaber implements Module, Listener {
         manager = ProtocolLibrary.getProtocolManager();
         reload();
         ListenerManager.register(getName(), this);
-        isActive = true;
         return true;
     }
 
@@ -154,16 +152,11 @@ public class MentionTaber implements Module, Listener {
 
     @Override
     public void disable() {
-        isActive = false;
+        //Empty
     }
 
     @Override
     public boolean isConditionsMet() {
         return ProtocolLibManager.isActive();
-    }
-
-    @Override
-    public boolean active() {
-        return isActive;
     }
 }

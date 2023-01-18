@@ -1,8 +1,8 @@
 package bridge.module.ffa;
 
 import bridge.compatibility.itemsadder.IAManager;
-import bridge.config.ConfigurationFile;
-import bridge.exceptions.ObjectNotFoundException;
+import common.config.ConfigurationFile;
+import common.exceptions.ObjectNotFoundException;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;

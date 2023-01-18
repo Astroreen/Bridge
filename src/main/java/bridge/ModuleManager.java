@@ -1,28 +1,45 @@
 package bridge;
 
 import bridge.compatibility.tab.BRTABModule;
-import bridge.exceptions.HookException;
+import common.exceptions.HookException;
 import bridge.module.HeadshotModule;
-import bridge.module.ffa.FFA;
 import bridge.module.ShiftFlyModule;
+import bridge.module.ffa.FFA;
 import bridge.packets.player.EmojiTaber;
 import bridge.packets.player.MentionTaber;
-import common.Module;
+import common.IModule;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 @CustomLog(topic = "ModuleManager")
-public class ModuleManager {
+public enum ModuleManager {
+
+    FFA("ffa", new FFA()),
+    NICKNAME("nickname", new BRTABModule()),
+    SHIFT_FLY("shift-fly", new ShiftFlyModule()),
+    EMOJI_TABER("emoji-taber", new EmojiTaber()),
+    MENTION_TABER("mention-taber", new MentionTaber()),
+    HEADSHOT("headshot-particles", new HeadshotModule()),
+
+    ;
+
+    private final String path;
+    private boolean active;
+    private final IModule module;
+
+    ModuleManager(final @NotNull String path,
+                  final @NotNull IModule module) {
+        this.path = "modules." + path + ".enabled";
+        this.module = module;
+        this.active = false;
+    }
 
     private static Bridge plugin;
-    private static final HashMap<String, Module> modules = new HashMap<>();
-    private static final String MODULE_PATH = "settings.modules.";
-    private static final String ENABLED = ".enabled";
+    private static final Set<ModuleManager> modules = new HashSet<>();
 
     /**
      * Load all modules to memory.
@@ -30,107 +47,116 @@ public class ModuleManager {
      *
      * @param plugin plugin
      */
-    public static void setup(final Bridge plugin) {
+    public static void setup(final @NotNull Bridge plugin) {
         ModuleManager.plugin = plugin;
-        final HashMap<String, Module> temp = new HashMap<>();
-        //first - path in config, second - module class
-        temp.put("ffa", new FFA());
-        temp.put("tab", new BRTABModule());
-        temp.put("emoji-taber", new EmojiTaber());
-        temp.put("mention-taber", new MentionTaber());
-        temp.put("shift-fly", new ShiftFlyModule());
-        temp.put("headshot-particles", new HeadshotModule());
-        temp.keySet().forEach(key -> {
-            if (!modules.containsKey(key)) modules.put(key, temp.get(key));
-        });
+        modules.addAll(Arrays.asList(ModuleManager.values()));
     }
 
+    /**
+     * Enable all modules than can be enabled.
+     */
     public static void start() {
-        if(modules.isEmpty()) return;
-        new ArrayList<>(modules.keySet()).forEach(path -> {
-            final boolean use = plugin.getPluginConfig().getBoolean(MODULE_PATH + path + ENABLED, false);
-            if (use) {
-                final Module module = modules.get(path);
-                if (!start(plugin, module)) modules.remove(path);
-            } else modules.remove(path);
+        if (modules.isEmpty()) return;
+        new ArrayList<>(modules).forEach(module -> {
+            if (plugin.getPluginConfig().getBoolean(getPath(module), false)) {
+                if (!start(plugin, module)) modules.remove(module);
+            } else modules.remove(module);
         });
     }
 
-    private static boolean start(final @NotNull Bridge plugin, final @NotNull Module module) {
-        if (!module.active() && module.isConditionsMet()) {
+    private static boolean start(final @NotNull Bridge plugin, final @NotNull ModuleManager module) {
+        final IModule iModule = module.getModule();
+        if (!module.isActive() && iModule.isConditionsMet()) {
             // log important information in case of an error
             try {
-                return module.start(plugin);
+                return module.setActive(iModule.start(plugin));
             } catch (final HookException exception) {
                 final String message = String.format("Could not hook into %s module! %s",
-                        module.getName(),
+                        iModule.getName(),
                         exception.getMessage());
                 LOG.warn(message, exception);
                 LOG.warn("Bridge will work correctly, except for that single module. "
-                        + "You can turn it off by setting 'settings.modules." + module.getName().toLowerCase(Locale.ROOT)
+                        + "You can turn it off by setting 'modules." + iModule.getName().toLowerCase(Locale.ROOT)
                         + "' to false in config.yml file.");
             } catch (final RuntimeException | LinkageError exception) {
                 final String message = String.format("There was an unexpected error while hooking into %s module (Bridge %s, Spigot %s)! %s",
-                        module.getName(),
+                        iModule.getName(),
                         Bridge.getInstance().getDescription().getVersion(),
                         Bukkit.getVersion(),
                         exception.getMessage());
                 LOG.error(message, exception);
                 LOG.warn("Bridge will work correctly, except for that single integration. "
-                        + "You can turn it off by setting 'settings.modules." + module.getName().toLowerCase(Locale.ROOT)
+                        + "You can turn it off by setting 'modules." + iModule.getName().toLowerCase(Locale.ROOT)
                         + "' to false in config.yml file.");
             }
         }
-        return module.active();
+        return module.isActive();
     }
 
     public static void reload(final @NotNull Bridge plugin) {
-        //load all modules again
+        // load all modules again
         setup(plugin);
-        if(modules.isEmpty()) return;
-        final Set<String> disabling = new HashSet<>();
-        modules.keySet().forEach(key -> {
-            final Module module = modules.get(key);
-            final boolean use = plugin.getPluginConfig().getBoolean(MODULE_PATH + key + ENABLED, false);
+        if (modules.isEmpty()) return;
+        // using set, to then delete modules, because
+        // you cant modify another set during `for` loop
+        final Set<ModuleManager> disabling = new HashSet<>();
+        modules.forEach(module -> {
+            final IModule iModule = module.getModule();
+            final boolean use = plugin.getPluginConfig().getBoolean(getPath(module), false);
             if (use) {
-                if (!module.active()) {
-                    if (module.isConditionsMet()) start(plugin, module);
-                    else disabling.add(key);
-                } else module.reload();
-            } else {
-                if (module.active()) module.disable();
-                disabling.add(key);
-            }
+                if (!module.isActive()) {
+                    if (iModule.isConditionsMet()) start(plugin, module);
+                    else disabling.add(module);
+                } else iModule.reload();
+            } else disable(module);
+
         });
+        // disabling modules
         disabling.forEach(modules::remove);
     }
 
     public static void disable() {
-        if(modules.isEmpty()) return;
-        for (String key : modules.keySet()) disable(modules.get(key));
+        if (modules.isEmpty()) return;
+        for (ModuleManager module : modules) disable(module);
     }
 
-    private static void disable(final @NotNull Module module) {
-        if (module.active()) module.disable();
+    private static void disable(final @NotNull ModuleManager module) {
+        if (module.isActive()) {
+            module.getModule().disable();
+            module.setActive(false);
+            modules.remove(module);
+        }
     }
+
+    private boolean setActive(final boolean active) {
+        this.active = active;
+        return this.active;
+    }
+
+    private static @NotNull String getPath(final @NotNull ModuleManager module) {return module.path;}
 
     /**
-     * Get Set of active module's names.
+     * Get module from {@link ModuleManager} enum.
      *
-     * @return {@link Set<String>} of names
-     */
-    @Contract(pure = true)
-    public static @NotNull Set<String> getActive() {
-        return modules.keySet();
-    }
-
-    /**
-     * Get module by name.
-     *
-     * @param name the module name
      * @return module or null if not exist.
      */
-    public static @Nullable Module getModule(final @NotNull String name) {
-        return modules.getOrDefault(name, null);
+    public @NotNull IModule getModule() {
+        return module;
+    }
+
+    public static @Nullable ModuleManager getModel(final @NotNull IModule iModule){
+        for(final @NotNull ModuleManager module : ModuleManager.values()){
+            if(module.getModule().equals(iModule)) return module;
+        }
+        return null;
+    }
+
+    /**
+     * Check if module active right now.
+     *
+     * @return true, if it does.
+     */
+    public boolean isActive() {
+        return active;
     }
 }

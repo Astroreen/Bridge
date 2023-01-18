@@ -1,4 +1,4 @@
-package bridge.config;
+package common.config;
 
 import bridge.pluginmodule.config.ConfigurationFileImpl;
 import org.bukkit.configuration.ConfigurationSection;

@@ -3,13 +3,13 @@ package bridge;
 import bridge.commands.BridgeCommand;
 import bridge.compatibility.Compatibility;
 import bridge.config.Config;
-import bridge.config.ConfigurationFile;
+import common.config.ConfigurationFile;
 import bridge.database.AsyncSaver;
 import bridge.pluginmodule.messenger.MessengerImpl;
 import common.database.Database;
 import common.database.MySQL;
 import common.database.SQLite;
-import bridge.listeners.ListenerManager;
+import bridge.listener.ListenerManager;
 import common.logger.BRLogger;
 import bridge.pluginmodule.logger.DebugHandlerConfig;
 import common.messanger.Action;
@@ -127,7 +127,7 @@ public final class Bridge extends JavaPlugin {
         new BridgeCommand();
 
         //registering plugin messenger
-        if (config.getBoolean("settings.modules.updater.enabled", true)) {
+        if (config.getBoolean("modules.updater.enabled", true)) {
             messenger = new MessengerImpl(this);
             messenger.register();
             messenger.reserve(Action.GET_SERVER);
@@ -153,7 +153,6 @@ public final class Bridge extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-
         ModuleManager.disable();
         Compatibility.disable();
         if (messenger != null) {
@@ -214,7 +213,7 @@ public final class Bridge extends JavaPlugin {
         Config.setup(this);
         DebugHandlerConfig.setup(config);
         //registering plugin messenger
-        if (messenger != null && config.getBoolean("settings.modules.updater.enabled", false))
+        if (messenger != null && config.getBoolean("modules.updater.enabled", false))
             messenger.reload();
         Compatibility.reload();
         ModuleManager.reload(this);

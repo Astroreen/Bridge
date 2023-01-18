@@ -8,27 +8,31 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import common.logger.BRLogger;
+import common.messanger.Messenger;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import velocity.commands.GuildCommand;
+import velocity.listener.ListenerManager;
+import velocity.pluginmodule.messenger.MessengerImpl;
 
 import java.nio.file.Path;
 
 @Plugin(authors = "Astroreen", id = "velocity", name = "Bridge",
         url = "www.anicloud.ru", description = "Makes your live much more interesting",
         //version to change
-        version = "5.7.03")
+        version = "5.7.04")
 public class BridgeVelocity {
 
+    private BRLogger log;
+    private Messenger messenger;
+    private final Path dir;
     @Getter
-    private static BridgeVelocity instance;
+    private final Logger logger;
     @Getter
     private final ProxyServer proxy;
     @Getter
-    private final Logger logger;
-    private BRLogger log;
-    private final Path dir;
+    private static BridgeVelocity instance;
 
     /**
      * Method where everything starts from.
@@ -42,6 +46,8 @@ public class BridgeVelocity {
         this.proxy = proxy;
         this.logger = logger;
         this.dir = dir;
+
+        //setup process
     }
 
     /**
@@ -59,6 +65,12 @@ public class BridgeVelocity {
         //registering logger
         this.log = BRLogger.create(logger);
 
+        //setup listener manager
+        ListenerManager.setup(proxy);
+
+        //creating messenger
+        this.messenger = new MessengerImpl(proxy);
+
         //registering commands
         new GuildCommand();
     }
@@ -68,5 +80,8 @@ public class BridgeVelocity {
      */
     @Subscribe
     public void onProxyShutdownEvent(final @NotNull ProxyShutdownEvent event){
+        messenger.disable();
     }
+
+
 }

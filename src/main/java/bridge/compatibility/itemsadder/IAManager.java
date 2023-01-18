@@ -1,6 +1,6 @@
 package bridge.compatibility.itemsadder;
 
-import bridge.listeners.ListenerManager;
+import bridge.listener.ListenerManager;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.ItemsAdderLoadDataEvent;
 import lombok.Getter;

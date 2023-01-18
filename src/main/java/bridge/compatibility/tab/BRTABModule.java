@@ -3,7 +3,7 @@ package bridge.compatibility.tab;
 import bridge.Bridge;
 import bridge.compatibility.Compatibility;
 import bridge.compatibility.CompatiblePlugin;
-import common.Module;
+import common.IModule;
 import bridge.module.nickname.NicknameManager;
 import bridge.module.nickname.Stars;
 import common.database.Connector;
@@ -23,19 +23,19 @@ import java.util.stream.Collectors;
 import static bridge.compatibility.tab.TABManager.*;
 
 @CustomLog
-public class BRTABModule implements Module {
+public class BRTABModule implements IModule {
 
     @Override
     public boolean start(final @NotNull Bridge plugin) {
         TABManager.plugin = plugin;
         final Connector con = new Connector();
 
-        isModuleEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.ColorNickname", true);
+        isModuleEnabled = plugin.getPluginConfig().getBoolean("modules.nickname.color-nickname", true);
         if (isModuleEnabled) {
             new NicknameManager(plugin);
             manager = NicknameManager.getInstance();
         }
-        isStarsEnabled = plugin.getPluginConfig().getBoolean("settings.modules.tab.UseMoney", true);
+        isStarsEnabled = plugin.getPluginConfig().getBoolean("modules.nickname.money-to-change-nickname", true);
         if (isStarsEnabled) stars = new Stars(manager, con);
         TabAPI.getInstance().getEventBus().register(this);
 
@@ -84,11 +84,6 @@ public class BRTABModule implements Module {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public boolean active() {
-        return isModuleEnabled;
     }
 
     @Override

@@ -1,12 +1,12 @@
 package bridge.module;
 
 import bridge.Bridge;
-import bridge.config.ConfigurationFile;
 import bridge.event.ProjectileHeadshotEvent;
-import bridge.exceptions.HookException;
-import bridge.listeners.ListenerManager;
-import common.Module;
+import bridge.listener.ListenerManager;
+import common.IModule;
 import common.Permission;
+import common.config.ConfigurationFile;
+import common.exceptions.HookException;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,7 +18,6 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -27,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @CustomLog
-public class HeadshotModule implements Module, Listener {
+public class HeadshotModule implements IModule, Listener {
 
     private static Bridge plugin;
     private static ConfigurationFile config;
@@ -40,11 +39,11 @@ public class HeadshotModule implements Module, Listener {
     private static int particleAmount = 1;
 
     private final static List<String> allowedTypes = new ArrayList<>();
-    private static boolean isActive;
 
     @Override
     public boolean start(final @NotNull Bridge plugin) throws HookException {
         HeadshotModule.plugin = plugin;
+        ListenerManager.register("Headshot",this);
         //setup configuration file
         try {
             config = ConfigurationFile.create(new File(plugin.getDataFolder(), "headshot-config.yml"), plugin, "server/headshot-config.yml");
@@ -53,9 +52,6 @@ public class HeadshotModule implements Module, Listener {
             return false;
         }
         reload();
-        ListenerManager.register("Headshot", this);
-        isActive = true;
-
         return true;
     }
 
@@ -79,13 +75,12 @@ public class HeadshotModule implements Module, Listener {
         speed = config.getDouble("particle-settings.speed", 0.3);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onHeadshot(final @NotNull ProjectileHeadshotEvent e) {
-        final EntityDamageByEntityEvent event = e.getOriginalEvent();
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onHeadshot(final @NotNull ProjectileHeadshotEvent event) {
         if (!(event.getEntity() instanceof final LivingEntity target) || !allowedTypes.contains(event.getEntity().getType().name()))
             return;
 
-        final Projectile pr = e.getProjectile();
+        final Projectile pr = event.getProjectile();
 
         //is shooter instance of player
         boolean isPlayer = pr.getShooter() instanceof Player;
@@ -96,6 +91,9 @@ public class HeadshotModule implements Module, Listener {
 
             if (!p.hasPermission(Permission.HEADSHOT_MAKE_HEADSHOT))
                 return;
+            //play sound if player
+            if (sound != null)
+                p.playSound(p.getLocation(), sound, soundVolume, soundPitch);
         }
         //start doing things
         //spawn particles
@@ -106,13 +104,9 @@ public class HeadshotModule implements Module, Listener {
                 particleAmount, speed,
                 target instanceof Player player ? player : null);
 
-        if (isPlayer) {
-            final Player p = (Player) pr.getShooter();
-
-            if (sound != null)
-                p.playSound(p.getLocation(), sound, soundVolume, soundPitch);
-            LOG.debug("Headshot! Player: " + p.getName());
-        }
+        LOG.debug("Headshot! Shooter: "
+                + (isPlayer ? ((Player) pr.getShooter()).getName() : pr.getType().name())
+                + ", Entity: " + (event.getEntity() instanceof Player player ? player.getName() : event.getEntity().getType().name()));
 
         //multiply damage
         double dmg = event.getDamage() * hitMultiplier;
@@ -125,7 +119,6 @@ public class HeadshotModule implements Module, Listener {
             target.setNoDamageTicks(0);
             target.damage(dmg, pr);
         });
-
     }
 
     private void particle(final @NotNull Particle particle, final @NotNull Location loc,
@@ -146,10 +139,5 @@ public class HeadshotModule implements Module, Listener {
     @Override
     public boolean isConditionsMet() {
         return true;
-    }
-
-    @Override
-    public boolean active() {
-        return isActive;
     }
 }
