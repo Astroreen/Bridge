@@ -10,35 +10,41 @@ settings:
   language: ru
 
 modules:
+  #Модуль полета при определенной броне.
+  # - Совместим с плагином ItemsAdder
+  shift-fly: false
+  # - Материал либо id предмета из itemsadder'а (пример: "DIAMOND_HELMET, LEATHER_CHESTPLATE, ...").
+  shift-fly-armor: "" #"Шлем, Нагрудник, Поножи, Ботинки".
 
-  shift-fly:
-    enabled: false
-    #Материал либо id предмета из itemsadder'а (пример: "DIAMOND_HELMET, LEATHER_CHESTPLATE, ...").
-    armor: "" #"Шлем, Нагрудник, Поножи, Ботинки".
+  #Emoji tab-complete
+  # - Для работы нужен плагин ProtocolLib
+  emoji-taber: true
 
-  emoji-taber:
-    enabled: true
+  #Модификация выстрела в голову
+  headshot-modification: true
 
-  headshot-particles:
-    enabled: true
+  #Tab-complete упоминаний игроков
+  # - Для работы нужен плагин ProtocolLib
+  #
+  # Примечание: если у игрока ник ровно 16 символов,
+  # то его упоминание будет недоступно!
+  mention-taber: true
+  mention-taber-symbol: "@"
 
-  mention-taber:
-    enabled: true
-    symbol: "@"
+  #Простой FFA режим
+  ffa: false
 
-  ffa:
-    enabled: false
+  #Модификация ников
+  # - Для работы нужен TAB плагин
+  nickname: true
+  color-nickname: true
+  money-to-change-nickname-color: true
 
-  nickname:
-    enabled: true
-    color-nickname: true
-    money-to-change-nickname: true
-
-  updater:
-    enabled: false
-    #Меняйте только в том случае, если знаете что делаете.
-    ip: "127.0.0.1"
-    port: 3820
+  #Модуль обновления файлов
+  updater: false
+  # - Меняйте только в том случае, если знаете что делаете.
+  updater-ip: "127.0.0.1"
+  updater-port: 3820
 
 #MySQL. Если данные для подключения вписаны неправильно,
 #то данные будут записываться в локальную базу данных.
@@ -53,3 +59,4 @@ mysql:
   password: ''
 
 debug: false
+config-version: ""

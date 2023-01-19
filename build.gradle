@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'bridge'
-version = '5.7.04'
+version = '5.7.05'
 
 test {
     useJUnitPlatform()
@@ -40,6 +40,8 @@ repositories {
     }
     //ProtocolLib
     maven { url "https://repo.dmulloy2.net/repository/public/" }
+    //Maven
+
     //maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     //maven { url = 'https://oss.sonatype.org/content/repositories/central' }
     mavenLocal()
@@ -86,6 +88,8 @@ dependencies {
     //FAWE
     compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.4.9')
     compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.4.9')
+    //Maven
+    compileOnly('org.apache.maven:maven-artifact:3.8.6') exclude (group: 'org.apache.commons', module: 'commons-lang3')
 }
 
 

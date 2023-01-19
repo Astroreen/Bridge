@@ -57,7 +57,7 @@ public class MentionTaber implements IModule, Listener {
                 manager.broadcastServerPacket(packet);
             }
 
-            final String symbol = plugin.getPluginConfig().getString("setting.modules.mention-taber.prefix", "@");
+            final String symbol = plugin.getPluginConfig().getString("modules.mention-taber-symbol", "@");
             if(symbol.length() > 1) {
                 LOG.error("Prefix cannot be more that one symbol. Using default '@' symbol.");
                 prefix = "@";

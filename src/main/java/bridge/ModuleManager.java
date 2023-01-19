@@ -15,6 +15,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * ModuleManager with modules represented as Enums.
+ */
 @CustomLog(topic = "ModuleManager")
 public enum ModuleManager {
 
@@ -23,7 +26,7 @@ public enum ModuleManager {
     SHIFT_FLY("shift-fly", new ShiftFlyModule()),
     EMOJI_TABER("emoji-taber", new EmojiTaber()),
     MENTION_TABER("mention-taber", new MentionTaber()),
-    HEADSHOT("headshot-particles", new HeadshotModule()),
+    HEADSHOT("headshot-modification", new HeadshotModule()),
 
     ;
 
@@ -33,7 +36,7 @@ public enum ModuleManager {
 
     ModuleManager(final @NotNull String path,
                   final @NotNull IModule module) {
-        this.path = "modules." + path + ".enabled";
+        this.path = "modules." + path; //config path
         this.module = module;
         this.active = false;
     }
@@ -133,7 +136,9 @@ public enum ModuleManager {
         return this.active;
     }
 
-    private static @NotNull String getPath(final @NotNull ModuleManager module) {return module.path;}
+    private static @NotNull String getPath(final @NotNull ModuleManager module) {
+        return module.path;
+    }
 
     /**
      * Get module from {@link ModuleManager} enum.
@@ -144,9 +149,15 @@ public enum ModuleManager {
         return module;
     }
 
-    public static @Nullable ModuleManager getModel(final @NotNull IModule iModule){
-        for(final @NotNull ModuleManager module : ModuleManager.values()){
-            if(module.getModule().equals(iModule)) return module;
+    /**
+     * Get {@linkplain ModuleManager Enum} representation of {@linkplain IModule module}.
+     *
+     * @param iModule module
+     * @return Enum representation of module or null
+     */
+    public static @Nullable ModuleManager getModel(final @NotNull IModule iModule) {
+        for (final @NotNull ModuleManager module : ModuleManager.values()) {
+            if (module.getModule().equals(iModule)) return module;
         }
         return null;
     }

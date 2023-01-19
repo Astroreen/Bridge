@@ -44,7 +44,7 @@ public class ShiftFlyModule implements IModule, Listener {
 
     @Override
     public void reload() {
-        final String settings = plugin.getPluginConfig().getString("modules.shift-fly.armor");
+        final String settings = plugin.getPluginConfig().getString("modules.shift-fly-armor");
         if(settings == null) {
             LOG.error("Wasn't able to get armor from config.yml for module '\" + getName() + \"'. Ignoring.");
             return;

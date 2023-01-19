@@ -43,10 +43,14 @@ public class HeadshotModule implements IModule, Listener {
     @Override
     public boolean start(final @NotNull Bridge plugin) throws HookException {
         HeadshotModule.plugin = plugin;
-        ListenerManager.register("Headshot",this);
+        ListenerManager.register("Headshot", this);
         //setup configuration file
         try {
-            config = ConfigurationFile.create(new File(plugin.getDataFolder(), "headshot-config.yml"), plugin, "server/headshot-config.yml");
+            config = ConfigurationFile.create(
+                    new File(plugin.getDataFolder(), "headshot-config.yml"),
+                    plugin,
+                    "server/headshot-config.yml"
+            );
         } catch (InvalidConfigurationException | FileNotFoundException e) {
             LOG.error("Wasn't able to create 'headshot-config.yml' file!", e);
             return false;
@@ -77,8 +81,8 @@ public class HeadshotModule implements IModule, Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onHeadshot(final @NotNull ProjectileHeadshotEvent event) {
-        if (!(event.getEntity() instanceof final LivingEntity target) || !allowedTypes.contains(event.getEntity().getType().name()))
-            return;
+        if (!(event.getEntity() instanceof final LivingEntity target)
+                || !allowedTypes.contains(event.getEntity().getType().name())) return;
 
         final Projectile pr = event.getProjectile();
 
@@ -106,13 +110,14 @@ public class HeadshotModule implements IModule, Listener {
 
         LOG.debug("Headshot! Shooter: "
                 + (isPlayer ? ((Player) pr.getShooter()).getName() : pr.getType().name())
-                + ", Entity: " + (event.getEntity() instanceof Player player ? player.getName() : event.getEntity().getType().name()));
+                + ", Entity: " + (event.getEntity() instanceof Player player ?
+                player.getName() : event.getEntity().getType().name()));
 
         //multiply damage
         double dmg = event.getDamage() * hitMultiplier;
 
-        if (event.getDamage() == dmg) LOG.debug("Damage was " + event.getDamage());
-        else LOG.debug("Original damage was " + event.getDamage() + ", with multiplier: " + dmg);
+        if (hitMultiplier == 1.0) LOG.debug("Damage was " + event.getDamage());
+        else LOG.debug("Original damage would be " + event.getDamage() + ", but with multiplier it is " + dmg + ".");
 
         //set damage
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {

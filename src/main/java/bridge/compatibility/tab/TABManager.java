@@ -67,7 +67,7 @@ public class TABManager implements TabEvent {
     protected static void reload() {
         con.refresh();
         if (!isModuleEnabled) return;
-        isStarsEnabled = plugin.getPluginConfig().getBoolean("modules.nickname.money-to-change-nickname", true);
+        isStarsEnabled = plugin.getPluginConfig().getBoolean("modules.money-to-change-nickname-color", true);
         manager.reload();
         new BukkitRunnable() {
             @Override

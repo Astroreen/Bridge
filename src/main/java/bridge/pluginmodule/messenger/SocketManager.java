@@ -129,7 +129,7 @@ public class SocketManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onConnectingSocketEvent(@NotNull ConnectingSocketEvent event) {
+    public void onConnectingSocketEvent(final @NotNull ConnectingSocketEvent event) {
         if (event.isCancelled()) return;
 
         Socket socket = event.getSocket();

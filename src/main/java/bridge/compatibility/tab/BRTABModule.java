@@ -30,12 +30,12 @@ public class BRTABModule implements IModule {
         TABManager.plugin = plugin;
         final Connector con = new Connector();
 
-        isModuleEnabled = plugin.getPluginConfig().getBoolean("modules.nickname.color-nickname", true);
+        isModuleEnabled = plugin.getPluginConfig().getBoolean("modules.color-nickname", true);
         if (isModuleEnabled) {
             new NicknameManager(plugin);
             manager = NicknameManager.getInstance();
         }
-        isStarsEnabled = plugin.getPluginConfig().getBoolean("modules.nickname.money-to-change-nickname", true);
+        isStarsEnabled = plugin.getPluginConfig().getBoolean("modules.money-to-change-nickname-color", true);
         if (isStarsEnabled) stars = new Stars(manager, con);
         TabAPI.getInstance().getEventBus().register(this);
 

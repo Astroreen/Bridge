@@ -127,7 +127,7 @@ public final class Bridge extends JavaPlugin {
         new BridgeCommand();
 
         //registering plugin messenger
-        if (config.getBoolean("modules.updater.enabled", true)) {
+        if (config.getBoolean("modules.updater", true)) {
             messenger = new MessengerImpl(this);
             messenger.register();
             messenger.reserve(Action.GET_SERVER);
@@ -213,7 +213,7 @@ public final class Bridge extends JavaPlugin {
         Config.setup(this);
         DebugHandlerConfig.setup(config);
         //registering plugin messenger
-        if (messenger != null && config.getBoolean("modules.updater.enabled", false))
+        if (messenger != null && config.getBoolean("modules.updater", false))
             messenger.reload();
         Compatibility.reload();
         ModuleManager.reload(this);

@@ -15,9 +15,15 @@ particle-settings:
   zOffset: 0.0
   speed: 0.3
 
-#Нужен перм bridge.headshot
+#Насколько приумножить урон для попадания в голову
+# - Для использования нужен перм bridge.headshot
 hit-multiplier: 1
 
+#Настроить мобов которые могут получать
+#урон в голову.
+#
+#Список энтити:
+#https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
 allowed-types:
   - BLAZE
   - CREEPER

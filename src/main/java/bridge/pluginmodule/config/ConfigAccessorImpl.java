@@ -55,7 +55,8 @@ public class ConfigAccessorImpl implements ConfigAccessor {
 
     private void checkValidParams(final File configurationFile, final Plugin plugin, final String resourceFile) {
         if (configurationFile == null && plugin == null && resourceFile == null) {
-            throw new IllegalArgumentException("The configurationsFile, plugin and resourceFile are null. Pass either a configurationFile or a plugin and a resourceFile.");
+            throw new IllegalArgumentException("The configurationsFile, plugin and resourceFile are null. "
+                    + "Pass either a configurationFile or a plugin and a resourceFile.");
         }
         if ((plugin != null) == (resourceFile == null)) {
             throw new IllegalArgumentException("Both the plugin and the resourceFile must be defined or null!");
