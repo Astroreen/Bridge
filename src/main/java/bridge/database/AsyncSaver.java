@@ -35,7 +35,7 @@ public class AsyncSaver extends Thread implements Listener, Saver {
      */
     public AsyncSaver() {
         super();
-        this.con = new Connector();
+        this.con = new Connector(Bridge.getInstance().getDB());
         this.queue = new ConcurrentLinkedQueue<>();
         this.running = true;
         Bukkit.getPluginManager().registerEvents(this, Bridge.getInstance());

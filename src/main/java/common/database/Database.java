@@ -1,6 +1,5 @@
 package common.database;
 
-import bridge.Bridge;
 import lombok.CustomLog;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -19,9 +18,8 @@ public abstract class Database {
     protected String prefix;
     protected Connection con;
 
-    protected Database(final @NotNull Bridge plugin) {
-        this.plugin = plugin;
-        this.prefix = plugin.getPluginConfig().getString("mysql.prefix", "");
+    protected Database(final @NotNull String prefix) {
+        this.prefix = prefix;
     }
 
     public Connection getConnection() {
@@ -70,4 +68,6 @@ public abstract class Database {
             LOG.error("There was an exception with SQL", e);
         }
     }
+
+    public String getPrefix() {return prefix;}
 }

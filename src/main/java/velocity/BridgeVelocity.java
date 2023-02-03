@@ -19,9 +19,7 @@ import velocity.pluginmodule.messenger.MessengerImpl;
 import java.nio.file.Path;
 
 @Plugin(authors = "Astroreen", id = "velocity", name = "Bridge",
-        url = "www.anicloud.ru", description = "Makes your live much more interesting",
-        //version to change
-        version = "5.7.06")
+        url = "www.anicloud.ru", description = "Makes your live much more interesting")
 public class BridgeVelocity {
 
     private BRLogger log;

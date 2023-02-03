@@ -1,7 +1,9 @@
-package common.database;
+package bridge.database;
 
 import bridge.Bridge;
+import common.database.Database;
 import lombok.CustomLog;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +18,7 @@ import java.sql.Statement;
  */
 @SuppressWarnings("PMD.CommentRequired")
 @CustomLog
-public class SQLite extends Database{
+public class SQLite extends Database {
 
     private final String dbLocation;
 
@@ -26,8 +28,8 @@ public class SQLite extends Database{
      * @param plugin     Plugin instance
      * @param dbLocation Location of the Database (Must end in .db)
      */
-    public SQLite(final Bridge plugin, final String dbLocation) {
-        super(plugin);
+    public SQLite(final @NotNull Bridge plugin, final @NotNull String dbLocation) {
+        super(plugin.getPluginConfig().getString("mysql.prefix", ""));
         this.dbLocation = dbLocation;
     }
     @Override

@@ -318,7 +318,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     return;
                 }
 
-                final Connector con = new Connector();
+                final Connector con = new Connector(Bridge.getInstance().getDB());
                 final int amount = Integer.parseInt(args[3]);
                 final MessageType type;
                 if(args[3].equalsIgnoreCase("set")) {
@@ -362,7 +362,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     return;
                 }
 
-                final Connector con = new Connector();
+                final Connector con = new Connector(Bridge.getInstance().getDB());
                 final int amount = Integer.parseInt(args[3]);
                 final MessageType type;
                 if(args[3].equalsIgnoreCase("set")) {

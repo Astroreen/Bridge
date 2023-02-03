@@ -1,7 +1,9 @@
-package common.database;
+package bridge.database;
 
 import bridge.Bridge;
+import common.database.Database;
 import lombok.CustomLog;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 
@@ -9,7 +11,7 @@ import java.sql.*;
  * Connects to and uses a MySQL database
  */
 @CustomLog
-public class MySQL extends Database{
+public class MySQL extends Database {
 
     private final String user;
     private final String database;
@@ -27,8 +29,13 @@ public class MySQL extends Database{
      * @param username Username
      * @param password Password
      */
-    public MySQL(final Bridge plugin, final String hostname, final String port, final String database, final String username, final String password) {
-        super(plugin);
+    public MySQL(final @NotNull Bridge plugin,
+                 final String hostname,
+                 final String port,
+                 final String database,
+                 final String username,
+                 final String password) {
+        super(plugin.getPluginConfig().getString("mysql.prefix", ""));
         this.hostname = hostname;
         this.port = port;
         this.database = database;

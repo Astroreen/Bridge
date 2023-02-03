@@ -28,7 +28,7 @@ public class BRTABModule implements IModule {
     @Override
     public boolean start(final @NotNull Bridge plugin) {
         TABManager.plugin = plugin;
-        final Connector con = new Connector();
+        final Connector con = new Connector(plugin.getDB());
 
         isModuleEnabled = plugin.getPluginConfig().getBoolean("modules.color-nickname", true);
         if (isModuleEnabled) {

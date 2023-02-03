@@ -2,9 +2,6 @@ plugins {
     id 'java'
 }
 
-group = 'bridge'
-version = '5.7.06'
-
 test {
     useJUnitPlatform()
 }

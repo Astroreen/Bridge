@@ -82,7 +82,7 @@ public class FFAModule implements IModule, Listener {
             return false;
         }
 
-        try (final ResultSet rs = new Connector().querySQL(QueryType.LOAD_ALL_FFA_UUIDS)) {
+        try (final ResultSet rs = new Connector(plugin.getDB()).querySQL(QueryType.LOAD_ALL_FFA_UUIDS)) {
             while (rs.next())
                 exist.add(UUID.fromString(rs.getString("playerID")));
         } catch (SQLException e) {
@@ -118,7 +118,7 @@ public class FFAModule implements IModule, Listener {
     public void onPlayerJoinEvent(@NotNull PlayerJoinEvent event) {
         final UUID uuid = event.getPlayer().getUniqueId();
         if (!exist.contains(uuid)) {
-            new Connector().updateSQL(UpdateType.ADD_FFA, uuid.toString());
+            new Connector(plugin.getDB()).updateSQL(UpdateType.ADD_FFA, uuid.toString());
             exist.add(uuid);
         }
     }

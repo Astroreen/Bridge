@@ -55,7 +55,7 @@ public class NicknameManager {
         } catch (final InvalidConfigurationException | FileNotFoundException e) {
             LOG.error("Could not load the color-config.yml file!", e);
         }
-        con = new Connector();
+        con = new Connector(plugin.getDB());
         saver = plugin.getSaver();
         LoadedColors = new HashMap<>();
         LoadedPlayers = new HashMap<>();

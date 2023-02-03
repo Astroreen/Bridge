@@ -20,10 +20,10 @@ public class FFAPlaceholders extends PlaceholderExpansion {
     private static final HashMap<UUID, Data> memory = new HashMap<>();
     private static final Runnable runnable = memory::clear;
     private static int task = -1;
-    private static Connector con = new Connector();
+    private static Connector con = new Connector(plugin.getDB());
 
     public static void reload() {
-        con = new Connector();
+        con = new Connector(plugin.getDB());
         memory.clear();
         //clear every 20 minutes
         if(task != -1) Bukkit.getScheduler().cancelTask(task);

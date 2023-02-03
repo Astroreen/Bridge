@@ -1,6 +1,5 @@
 package common.database;
 
-import bridge.Bridge;
 import lombok.CustomLog;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,11 +21,10 @@ public class Connector {
     /**
      * Opens a new connection to the database
      */
-    public Connector() {
-        final Bridge plugin = Bridge.getInstance();
-        prefix = plugin.getPluginConfig().getString("mysql.prefix", "");
-        database = plugin.getDB();
-        connection = database.getConnection();
+    public Connector(final @NotNull Database database) {
+        this.database = database;
+        this.prefix = database.getPrefix();
+        this.connection = database.getConnection();
         refresh();
     }
 
