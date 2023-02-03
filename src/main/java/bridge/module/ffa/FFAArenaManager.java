@@ -2,7 +2,7 @@ package bridge.module.ffa;
 
 import bridge.Bridge;
 import bridge.compatibility.worldedit.WEManager;
-import common.config.ConfigurationFile;
+import bridge.pluginmodule.config.ConfigurationFile;
 import bridge.utils.WorldUtils;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;

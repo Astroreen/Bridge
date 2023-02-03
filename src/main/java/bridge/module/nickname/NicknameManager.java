@@ -3,7 +3,7 @@ package bridge.module.nickname;
 import bridge.Bridge;
 import bridge.compatibility.Compatibility;
 import bridge.compatibility.CompatiblePlugin;
-import common.config.ConfigurationFile;
+import bridge.pluginmodule.config.ConfigurationFile;
 import common.database.Connector;
 import common.database.QueryType;
 import common.database.Saver;

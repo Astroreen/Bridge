@@ -1,6 +1,6 @@
 package bridge.pluginmodule.config;
 
-import bridge.pluginmodule.config.patcher.PatchException;
+import bridge.exception.PatchException;
 import bridge.pluginmodule.config.patcher.PatchTransformer;
 import bridge.pluginmodule.versioning.UpdateStrategy;
 import bridge.pluginmodule.versioning.Version;
@@ -22,7 +22,7 @@ public class Patcher {
     /**
      * The comment at the version entry in the config.
      */
-    private static final String VERSION_CONFIG_COMMENT = "Don't change this! The plugin's automatic config updater handles it.";
+    private static final String VERSION_CONFIG_COMMENT = "Не трогайте! Плагин автоматически будет обновлять этот файл.";
     /**
      * The path to the config's version in the config.
      */

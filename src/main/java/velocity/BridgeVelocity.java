@@ -21,7 +21,7 @@ import java.nio.file.Path;
 @Plugin(authors = "Astroreen", id = "velocity", name = "Bridge",
         url = "www.anicloud.ru", description = "Makes your live much more interesting",
         //version to change
-        version = "5.7.05")
+        version = "5.7.06")
 public class BridgeVelocity {
 
     private BRLogger log;

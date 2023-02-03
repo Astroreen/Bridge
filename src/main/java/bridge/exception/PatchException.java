@@ -1,4 +1,4 @@
-package bridge.pluginmodule.config.patcher;
+package bridge.exception;
 
 import java.io.Serial;
 

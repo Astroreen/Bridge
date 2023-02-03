@@ -1,5 +1,6 @@
 package bridge.pluginmodule.config.patcher;
 
+import bridge.exception.PatchException;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.Map;

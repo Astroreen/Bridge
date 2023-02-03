@@ -1,6 +1,5 @@
-package common.config;
+package bridge.pluginmodule.config;
 
-import bridge.pluginmodule.config.ConfigAccessorImpl;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;

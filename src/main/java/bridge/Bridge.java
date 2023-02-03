@@ -3,7 +3,7 @@ package bridge;
 import bridge.commands.BridgeCommand;
 import bridge.compatibility.Compatibility;
 import bridge.config.Config;
-import common.config.ConfigurationFile;
+import bridge.pluginmodule.config.ConfigurationFile;
 import bridge.database.AsyncSaver;
 import bridge.pluginmodule.messenger.MessengerImpl;
 import common.database.Database;

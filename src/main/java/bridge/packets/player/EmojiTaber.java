@@ -2,7 +2,7 @@ package bridge.packets.player;
 
 import bridge.Bridge;
 import bridge.compatibility.protocollib.ProtocolLibManager;
-import common.config.ConfigurationFile;
+import bridge.pluginmodule.config.ConfigurationFile;
 import bridge.listener.ListenerManager;
 import common.IModule;
 import bridge.pluginmodule.permissions.PermissionManager;

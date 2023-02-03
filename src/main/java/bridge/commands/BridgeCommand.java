@@ -91,7 +91,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                 case "ffa" -> {
                     if (noPermission(sender, Permission.COMMAND_FFA)) return true;
                     if (!ModuleManager.FFA.isActive()) {
-                        sendMessage(sender, MessageType.MODULE_STATE, "FFA", Config.getMessage(MessageType.DISABLED));
+                        sendMessage(sender, MessageType.MODULE_STATE, ModuleManager.FFA.getModule().getName(), Config.getMessage(MessageType.DISABLED));
                         return true;
                     }
                     handleFFA(sender, args);
@@ -144,7 +144,7 @@ public class BridgeCommand implements CommandExecutor, SimpleTabCompleter {
                     // bridge ffa arena unload <name>
                     if (noPermission(sender, Permission.FFA_ARENA_UNLOAD)) return;
                     final World world = WorldUtils.getWorld(args[3]);
-                    //check if world exists and it is FFA's world
+                    //check if world exists and it is FFAModule's world
                     if (world == null || !FFAArenaManager.getActiveFFAWorlds(false).contains(world)) {
                         sendMessage(sender, MessageType.UNKNOWN_ARGUMENT, args[3]);
                         return;

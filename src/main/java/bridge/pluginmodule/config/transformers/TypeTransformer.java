@@ -1,6 +1,6 @@
 package bridge.pluginmodule.config.transformers;
 
-import bridge.pluginmodule.config.patcher.PatchException;
+import bridge.exception.PatchException;
 import bridge.pluginmodule.config.patcher.PatchTransformer;
 import org.bukkit.configuration.ConfigurationSection;
 

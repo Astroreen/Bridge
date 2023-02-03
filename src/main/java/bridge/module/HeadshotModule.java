@@ -3,10 +3,9 @@ package bridge.module;
 import bridge.Bridge;
 import bridge.event.ProjectileHeadshotEvent;
 import bridge.listener.ListenerManager;
+import bridge.pluginmodule.config.ConfigurationFile;
 import common.IModule;
 import common.Permission;
-import common.config.ConfigurationFile;
-import common.exceptions.HookException;
 import lombok.CustomLog;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -41,7 +40,7 @@ public class HeadshotModule implements IModule, Listener {
     private final static List<String> allowedTypes = new ArrayList<>();
 
     @Override
-    public boolean start(final @NotNull Bridge plugin) throws HookException {
+    public boolean start(final @NotNull Bridge plugin) {
         HeadshotModule.plugin = plugin;
         ListenerManager.register("Headshot", this);
         //setup configuration file

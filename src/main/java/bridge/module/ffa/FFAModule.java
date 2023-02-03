@@ -7,7 +7,7 @@ import bridge.compatibility.worldedit.WEManager;
 import bridge.listener.ListenerManager;
 import bridge.utils.FileUtils;
 import common.IModule;
-import common.config.ConfigurationFile;
+import bridge.pluginmodule.config.ConfigurationFile;
 import common.database.Connector;
 import common.database.QueryType;
 import common.database.Saver;
@@ -49,8 +49,8 @@ import java.util.UUID;
  *
  * @author Astroreen
  */
-@CustomLog(topic = "FFA")
-public class FFA implements IModule, Listener {
+@CustomLog(topic = "FFAModule")
+public class FFAModule implements IModule, Listener {
 
     private static Bridge plugin;
     private static ConfigurationFile config;
@@ -59,7 +59,7 @@ public class FFA implements IModule, Listener {
 
     @Override
     public boolean start(final @NotNull Bridge plugin) {
-        FFA.plugin = plugin;
+        FFAModule.plugin = plugin;
         //register this class as listener
         ListenerManager.register(getName(), this);
 
@@ -75,8 +75,8 @@ public class FFA implements IModule, Listener {
         }
         final File root = new File(plugin.getDataFolder() + dir);
         try {
-            FFA.config = ConfigurationFile.create(new File(root, "ffa-config.yml"), plugin, "server/ffa/ffa-config.yml");
-            FFA.kits = ConfigurationFile.create(new File(root, "kits.yml"), plugin, "server/ffa/kits.yml");
+            FFAModule.config = ConfigurationFile.create(new File(root, "ffa-config.yml"), plugin, "server/ffa/ffa-config.yml");
+            FFAModule.kits = ConfigurationFile.create(new File(root, "kits.yml"), plugin, "server/ffa/kits.yml");
         } catch (InvalidConfigurationException | FileNotFoundException e) {
             LOG.error("Wasn't able to create 'ffa-config.yml' file!", e);
             return false;

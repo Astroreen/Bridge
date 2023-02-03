@@ -1,6 +1,5 @@
-package common.config;
+package bridge.pluginmodule.config;
 
-import bridge.pluginmodule.config.ConfigurationFileImpl;
 import bridge.pluginmodule.config.patcher.PatchTransformerRegisterer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;

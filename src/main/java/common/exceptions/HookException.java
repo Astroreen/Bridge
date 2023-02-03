@@ -30,7 +30,7 @@ public class HookException extends Exception {
      * Constructs a new exception related to a plugin
      * {@link Exception#Exception(Throwable)}
      *
-     * @param cause  the exceptions cause.
+     * @param cause  the exception cause.
      */
     public HookException(final Throwable cause) {
         super(cause);

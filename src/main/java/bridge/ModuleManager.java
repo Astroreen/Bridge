@@ -1,10 +1,10 @@
 package bridge;
 
 import bridge.compatibility.tab.BRTABModule;
-import common.exceptions.HookException;
+import bridge.module.BetterInvisibilityModule;
 import bridge.module.HeadshotModule;
 import bridge.module.ShiftFlyModule;
-import bridge.module.ffa.FFA;
+import bridge.module.ffa.FFAModule;
 import bridge.packets.player.EmojiTaber;
 import bridge.packets.player.MentionTaber;
 import common.IModule;
@@ -21,12 +21,13 @@ import java.util.*;
 @CustomLog(topic = "ModuleManager")
 public enum ModuleManager {
 
-    FFA("ffa", new FFA()),
+    FFA("ffa", new FFAModule()),
     NICKNAME("nickname", new BRTABModule()),
     SHIFT_FLY("shift-fly", new ShiftFlyModule()),
     EMOJI_TABER("emoji-taber", new EmojiTaber()),
     MENTION_TABER("mention-taber", new MentionTaber()),
     HEADSHOT("headshot-modification", new HeadshotModule()),
+    INVISIBILITY("better-invisibility", new BetterInvisibilityModule())
 
     ;
 
@@ -73,16 +74,8 @@ public enum ModuleManager {
             // log important information in case of an error
             try {
                 return module.setActive(iModule.start(plugin));
-            } catch (final HookException exception) {
-                final String message = String.format("Could not hook into %s module! %s",
-                        iModule.getName(),
-                        exception.getMessage());
-                LOG.warn(message, exception);
-                LOG.warn("Bridge will work correctly, except for that single module. "
-                        + "You can turn it off by setting 'modules." + iModule.getName().toLowerCase(Locale.ROOT)
-                        + "' to false in config.yml file.");
             } catch (final RuntimeException | LinkageError exception) {
-                final String message = String.format("There was an unexpected error while hooking into %s module (Bridge %s, Spigot %s)! %s",
+                final String message = String.format("There was an unexpected error while enabling '%s' module (Bridge %s, Spigot %s)! %s",
                         iModule.getName(),
                         Bridge.getInstance().getDescription().getVersion(),
                         Bukkit.getVersion(),
@@ -120,7 +113,7 @@ public enum ModuleManager {
 
     public static void disable() {
         if (modules.isEmpty()) return;
-        for (ModuleManager module : modules) disable(module);
+        for (ModuleManager module : new ArrayList<>(modules)) disable(module);
     }
 
     private static void disable(final @NotNull ModuleManager module) {

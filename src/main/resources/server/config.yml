@@ -34,6 +34,9 @@ modules:
   #Простой FFA режим
   ffa: false
 
+  #Улучшение зелья невидимости
+  better-invisibility: false
+
   #Модификация ников
   # - Для работы нужен TAB плагин
   nickname: true

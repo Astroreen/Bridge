@@ -1,7 +1,6 @@
 package common;
 
 import bridge.Bridge;
-import common.exceptions.HookException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,10 +15,8 @@ public interface IModule {
      * Start module. Can start multiple times,
      * use constructors for one time actions
      * at the early start.
-     *
-     * @throws HookException when you can't start method.
      */
-    boolean start(final @NotNull Bridge plugin) throws HookException;
+    boolean start(final @NotNull Bridge plugin);
 
     /**
      * Reload module

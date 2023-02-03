@@ -1,0 +1,74 @@
+#Повторно применить невидимость игрокам после того как:
+# - damage, получит урон.
+# - interaction, воспользуется предметом/рукой.
+# - hit, ударит кого-либо.
+# - ...-delay, через сколько тиков восстановить эффект. (20 ticks = 1 second)
+#
+#Этот функционал имеет больший приоритет чем в player-remove-invisibility-after
+reapply-player-invisibility-after:
+  damage: false
+  damage-delay: 20
+  interaction: false
+  interaction-delay: 20
+  hit: false
+  hit-delay: 20
+
+#Повторно применить невидимость мобам после того как:
+# - damage, получит урон.
+# - hit, ударит кого-либо.
+# - ...-delay, через сколько тиков восстановить эффект. (20 ticks = 1 second)
+#
+#Этот функционал имеет больший приоритет чем в mob-remove-invisibility-after
+reapply-mob-invisibility-after:
+  damage: false
+  damage-delay: 20
+  hit: false
+  hit-delay: 20
+
+#Нужно ли чтобы мобы забыли энтити если она находится в невидимости
+clear-threat-in-invis: false
+
+#Показывать ли эффекты от зелья невидимости
+hide-particles:
+  player: false
+  player-permission: "bridge.invisibility.show.particles"
+  mob: false
+
+#Убрать невидимость с игрока после того как:
+# - damage, получит урон.
+# - interaction, воспользуется предметом/рукой.
+# - hit, ударит кого-либо.
+#
+#Этот функционал имеет меньший приоритет чем в reapply-player-invisibility-after
+player-remove-invisibility-after:
+  damage: false
+  interaction: false
+  hit: false
+
+#Убрать невидимость с моба после того как:
+# - damage, моб получит урон.
+# - hit, моб ударит кого-то.
+#
+#Этот функционал имеет меньший приоритет чем в reapply-mob-invisibility-after
+mob-remove-invisibility-after:
+  damage: false
+  hit: false
+
+#Стандартный уровень невидимости,
+#начиная с которого моб перестанет видеть игроков.
+#
+# Если 0, мобы видят игроков, как обычно;
+# Если 1, мобы не будут видеть игроков с невидимостью I и выше;
+# Если 2, мобы не будут видеть игроков с невидимостью II и выше и т.д.;
+# Если меньше нуля, будут видеть всегда.
+default-blind-tier: 1
+
+#Настроить мобов которые не будут видеть игроков
+#при определенном уровне невидимости.
+#Руководствоваться правилами сверху.
+#
+#Список энтити:
+#https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
+blind-tier:
+  ZOMBIE: 1
+  BLAZE: 2
