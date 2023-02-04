@@ -379,7 +379,7 @@ public class SocketManager implements Listener {
                     ConcurrentLinkedQueue<String> data = new ConcurrentLinkedQueue<>();
                     for (int i = 0; i < action.lines; i++) data.add(reader.readLine());
                     //handle action
-                    new ActionHandler(channel, action, data);
+                    new ServerActionHandler(channel, action, data);
                 }
                 //closing InputStream if client or server stops working
                 in.close();

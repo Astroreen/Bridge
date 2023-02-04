@@ -2,6 +2,7 @@ package bridge;
 
 import bridge.compatibility.tab.BRTABModule;
 import bridge.module.BetterInvisibilityModule;
+import bridge.module.DaySleepModule;
 import bridge.module.HeadshotModule;
 import bridge.module.ShiftFlyModule;
 import bridge.module.ffa.FFAModule;
@@ -27,8 +28,8 @@ public enum ModuleManager {
     EMOJI_TABER("emoji-taber", new EmojiTaber()),
     MENTION_TABER("mention-taber", new MentionTaber()),
     HEADSHOT("headshot-modification", new HeadshotModule()),
-    INVISIBILITY("better-invisibility", new BetterInvisibilityModule())
-
+    INVISIBILITY("better-invisibility", new BetterInvisibilityModule()),
+    DAY_SLEEP("day-sleep", new DaySleepModule()),
     ;
 
     private final String path;

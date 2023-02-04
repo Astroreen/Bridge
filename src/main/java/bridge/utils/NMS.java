@@ -23,7 +23,7 @@ public class NMS {
     }
 
     public static boolean isYoungerThan(final @NotNull Version than){
-        return getVersion().weight > than.weight;
+        return getVersion().weight < than.weight;
     }
 
     public enum Version {

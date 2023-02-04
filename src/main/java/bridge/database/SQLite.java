@@ -21,6 +21,7 @@ import java.sql.Statement;
 public class SQLite extends Database {
 
     private final String dbLocation;
+    private final Bridge plugin;
 
     /**
      * Creates a new SQLite instance
@@ -30,6 +31,7 @@ public class SQLite extends Database {
      */
     public SQLite(final @NotNull Bridge plugin, final @NotNull String dbLocation) {
         super(plugin.getPluginConfig().getString("mysql.prefix", ""));
+        this.plugin = plugin;
         this.dbLocation = dbLocation;
     }
     @Override

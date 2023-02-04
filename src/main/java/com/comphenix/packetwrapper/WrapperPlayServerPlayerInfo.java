@@ -5,6 +5,7 @@
 
 package com.comphenix.packetwrapper;
 
+import bridge.utils.NMS;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers;
@@ -26,11 +27,13 @@ public class WrapperPlayServerPlayerInfo extends AbstractPacket {
     }
 
     public EnumWrappers.PlayerInfoAction getAction() {
-        return (EnumWrappers.PlayerInfoAction)this.handle.getPlayerInfoAction().read(0);
+        return (EnumWrappers.PlayerInfoAction) this.handle.getPlayerInfoAction().read(0);
     }
 
     public void setAction(EnumWrappers.PlayerInfoAction value) {
-        this.handle.getPlayerInfoActions().write(0, EnumSet.of(value));
+        if (NMS.isYoungerThan(NMS.Version.v1_19_3)) this.handle.getPlayerInfoAction().write(0, value);
+        else this.handle.getPlayerInfoActions().write(0, EnumSet.of(value));
+
     }
 
     public List<PlayerInfoData> getData() {

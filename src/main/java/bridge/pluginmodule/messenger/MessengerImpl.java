@@ -8,6 +8,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import common.messanger.Action;
 import common.messanger.Channel;
+import common.messanger.Messenger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * SocketManager and PluginMessage, and then
  *
  */
-public class MessengerImpl implements PluginMessageListener, Listener, common.messanger.Messenger {
+public class MessengerImpl implements PluginMessageListener, Listener, Messenger {
 
     private static Bridge plugin;
     private final LinkedHashMap<Action, String[]> queue;
@@ -136,7 +137,7 @@ public class MessengerImpl implements PluginMessageListener, Listener, common.me
         final ConcurrentLinkedQueue<String> data = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < action.lines; i++) data.add(in.readUTF());
         //handle data
-        new ActionHandler(channel, action, data);
+        new ServerActionHandler(channel, action, data);
     }
 
     @Override
