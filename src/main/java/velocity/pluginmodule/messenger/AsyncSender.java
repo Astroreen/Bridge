@@ -1,16 +1,17 @@
-package bridge.pluginmodule.messenger;
+package velocity.pluginmodule.messenger;
 
 import bridge.Bridge;
+import com.velocitypowered.api.proxy.Player;
 import common.messanger.Sender;
 import lombok.CustomLog;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
+import velocity.BridgeVelocity;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @CustomLog
-public class AsyncSender extends Thread implements Listener, Sender {
+public class AsyncSender extends Thread implements Sender {
+
     /**
      * The queue of records to be sent by plugin message.
      */
@@ -29,7 +30,8 @@ public class AsyncSender extends Thread implements Listener, Sender {
     public AsyncSender() {
         this.queue = new ConcurrentLinkedQueue<>();
         this.running = true;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+        BridgeVelocity.getInstance().getProxy()
+                .getEventManager().register(BridgeVelocity.getInstance(), this);
     }
 
     @Override
@@ -54,13 +56,13 @@ public class AsyncSender extends Thread implements Listener, Sender {
             }
             final Record rec = (Record) queue.poll();
             if (rec != null) {
-                final Player p = Bukkit.getPlayer(rec.uuid());
-                if (p == null) {
+                final Optional<Player> p = BridgeVelocity.getInstance().getProxy().getPlayer(rec.uuid());
+                if (p.isEmpty()) {
                     LOG.warn("Couldn't execute Messenger's action because player was null. Skipping it.");
                     queue.add(rec);
                     return;
                 }
-                p.sendPluginMessage(plugin, rec.channel(), rec.msg());
+                p.get().sendPluginMessage(rec::channel, rec.msg());
             }
         }
     }

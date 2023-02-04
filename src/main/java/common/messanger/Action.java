@@ -3,7 +3,6 @@ package common.messanger;
 public enum Action {
 
     //TODO make Forward action (this is bungeecord subchannel)
-    //TODO make Forward action for Sockets. (Channel, Action, From who, Action, data)
     /**
      * Send: nothing.
      * Get: nothing.

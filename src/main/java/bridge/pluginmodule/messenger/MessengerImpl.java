@@ -142,7 +142,7 @@ public class MessengerImpl implements PluginMessageListener, Listener, Messenger
 
     @Override
     public void reserve(final @NotNull Action action, final String... data) {
-        if (ServerHavePeople()) {
+        if (!Bukkit.getOnlinePlayers().isEmpty()) {
             final UUID uuid = Iterables.getFirst(Bukkit.getOnlinePlayers(), null).getUniqueId();
             send(uuid, action, data);
             //TODO delete from queue if answer came from SocketData
@@ -176,9 +176,6 @@ public class MessengerImpl implements PluginMessageListener, Listener, Messenger
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> sender.add(new AsyncSender.Record(uuid, channel, info)), delay);
     }
 
-    public static boolean ServerHavePeople(){
-        return !Bukkit.getOnlinePlayers().isEmpty();
-    }
-    //TODO make answering plugin on proxy side.
+    //TODO get answer from config
     private boolean isPluginMessagingEnabled() {return false;}
 }

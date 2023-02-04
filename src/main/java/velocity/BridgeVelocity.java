@@ -33,11 +33,13 @@ public class BridgeVelocity {
     private static BridgeVelocity instance;
 
     /**
-     * Method where everything starts from.
+     * Method where everything starts from. </br>
+     * Many Proxy parts are not enabled yet,
+     * so there is nothing to do much.
      *
-     * @param proxy this server
-     * @param logger   logger
-     * @param dir   path to directory
+     * @param proxy  this server
+     * @param logger logger
+     * @param dir    path to directory
      */
     @Inject
     public BridgeVelocity(final @NotNull ProxyServer proxy, final @NotNull Logger logger, final @NotNull @DataDirectory Path dir) {
@@ -74,10 +76,10 @@ public class BridgeVelocity {
     }
 
     /**
-     * Method for properly disabling parts of plugin.
+     * Method for properly disabling parts of the plugin.
      */
     @Subscribe
-    public void onProxyShutdownEvent(final @NotNull ProxyShutdownEvent event){
+    public void onProxyShutdownEvent(final @NotNull ProxyShutdownEvent event) {
         messenger.disable();
     }
 

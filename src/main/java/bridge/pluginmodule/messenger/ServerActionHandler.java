@@ -21,7 +21,7 @@ public class ServerActionHandler extends ActionHandler {
     private final Action action;
     private final ConcurrentLinkedQueue<String> data;
 
-    ServerActionHandler(Channel channel, Action action, ConcurrentLinkedQueue<String> data) {
+    public ServerActionHandler(Channel channel, Action action, ConcurrentLinkedQueue<String> data) {
         super(channel, action, data);
         this.channel = channel;
         this.action = action;
